@@ -1,0 +1,29 @@
+<header>
+	<h3>
+		<app-fa name="table"></app-fa>
+		{{ classification.name }}
+	</h3>
+</header>
+
+<p><i>{{ classification.meta.documentation }}</i></p>
+
+<table *ngIf="classification.attributes">
+	<thead>
+		<tr>
+			<th>Felt</th>
+			<th>Type</th>
+			<th>Beskrivelse</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr *ngFor="let attribute of classification.attributes">
+			<td>{{ attribute.name }}</td>
+			<td>{{ attribute.meta.type }}</td>
+			<td><i>{{ attribute.meta.description }}</i></td>
+		</tr>
+	</tbody>
+</table>
+
+<div *ngIf="!classification.attributes">
+	Har ingen felter
+</div>

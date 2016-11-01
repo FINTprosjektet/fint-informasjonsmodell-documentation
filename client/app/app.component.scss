@@ -1,0 +1,55 @@
+app-sidebar {
+  position: fixed;
+  top: 51px;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  width: 25%;
+  + section {
+    margin-left: 25%;
+  }
+}
+
+nav {
+  display: block;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1030;
+  height: 50px;
+  margin-bottom: 20px;
+  background-color: #222;
+  header {
+    color: white;
+    float: left;
+    height: 50px;
+    padding: 15px 15px;
+    font-size: 18px;
+    line-height: 20px;
+  }
+  form {
+    float: right;
+    width: auto;
+    padding: 0 15px;
+    margin: 8px 0;
+    border: 0;
+    input {
+      display: inline-block;
+      width: auto;
+      vertical-align: middle;
+      height: 34px;
+      padding: 6px 12px;
+      font-size: 14px;
+      line-height: 1.42857143;
+      color: #555;
+      background-color: #fff;
+      background-image: none;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+  }
+  + * {
+    margin-top: 50px;
+  }
+}

@@ -1,0 +1,21 @@
+<nav>
+	<header *ngIf="isLoading != true">
+		<a>Dokumentasjon av informasjonsmodell til {{ model.package.name }}</a>
+	</header>
+	<div>
+		<form>
+			<input type="text" placeholder="Search...">
+		</form>
+	</div>
+</nav>
+
+<h2 *ngIf="isLoading == true">Loading...</h2>
+
+<div *ngIf="isLoading != true">
+	<app-sidebar [stereotypes]="model.package.stereotypes"></app-sidebar>
+	<section>
+		<h2>Elementer i informasjonsmodellen</h2>
+
+		<app-package [package]="model.package" header="false"></app-package>
+	</section>
+</div>

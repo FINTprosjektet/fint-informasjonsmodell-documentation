@@ -1,0 +1,10 @@
+<article>
+	<header>
+		<h2>
+			{{ stereotype.name }}
+		</h2>
+	</header>
+	<app-class *ngFor="let class of stereotype.class" [classification]="class"></app-class>
+
+	<app-package *ngFor="let package of stereotype.packages" [package]="package"></app-package>
+</article>
