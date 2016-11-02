@@ -1,0 +1,15 @@
+FROM node:latest
+
+# Install and build the application
+ENV CONTAINER_PATH /var/www/app
+ENV NODE_ENV=production
+
+COPY . $CONTAINER_PATH
+WORKDIR $CONTAINER_PATH
+RUN set -ex;                    \
+    npm install nodemon -g;     \
+    npm install && npm start;
+
+EXPOSE 3000
+
+ENTRYPOINT ["nodemon", "server.js"]

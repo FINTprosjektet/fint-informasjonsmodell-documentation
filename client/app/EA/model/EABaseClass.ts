@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import { chain, map, keyBy, mapValues } from 'lodash';
 
 export class EABaseClass {
   private json: {};
@@ -10,7 +10,7 @@ export class EABaseClass {
   set meta(meta: {}) { this._meta = _.merge(this._meta, meta); }
 
   static toMeta(json) {
-    return _.chain(json)
+    return chain(json)
       .map(function (tagValue) { return { tag: tagValue['_tag'], value: tagValue['_value'] }; })
       .keyBy('tag')
       .mapValues(function (tag) { return tag['value']; })

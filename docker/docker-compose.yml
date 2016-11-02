@@ -1,0 +1,5 @@
+informasjonsmodell-documentation:
+ image: "fint/informasjonsmodell-documentation"
+ restart: unless-stopped
+ ports:
+  - "80:80"

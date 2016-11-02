@@ -1,4 +1,4 @@
-import {Component, OnInit, NgZone} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { Model } from './EA/model/Model';
 import { ReadModelService } from './EA/read-model.service';
