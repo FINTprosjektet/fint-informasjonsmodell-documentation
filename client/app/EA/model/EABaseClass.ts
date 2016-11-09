@@ -1,19 +1,20 @@
 import { ReadModelService } from '../read-model.service';
-import { chain, map, keyBy, merge, mapValues } from 'lodash';
+import * as _ from 'lodash';
 
 export class EABaseClass {
   static service: ReadModelService;
 
   private json: {};
-  id: string;
+  xmlId: string;
+  id: number;
   name: string;
 
   private _meta: {};
   get meta() { return this._meta; };
-  set meta(meta: {}) { this._meta = merge(this._meta, meta); }
+  set meta(meta: {}) { this._meta = _.merge(this._meta, meta); }
 
   static toMeta(json) {
-    return chain(json)
+    return _.chain(json)
       .map(function (tagValue) { return { tag: tagValue['_tag'], value: tagValue['_value'] }; })
       .keyBy('tag')
       .mapValues(function (tag) { return tag['value']; })
@@ -26,11 +27,38 @@ export class EABaseClass {
       this.name = json['_name'];
     }
     if (json['_xmi.id']) {
-      this.id = json['_xmi.id'];
+      this.xmlId = json['_xmi.id'];
     }
     if (json['ModelElement.taggedValue']) {
       this.meta = EABaseClass.toMeta(json['ModelElement.taggedValue'].TaggedValue);
+      this.id = this.meta['ea_localid'];
     }
+  }
+
+  find(comparator: Function) {
+    let me = this;
+    if (comparator(me)) { return me; }
+
+    let obj;
+    function match(o) {
+      if (!obj && o instanceof EABaseClass) {
+        if (comparator(o)) { obj = o; }
+        else {
+          let match = o.find(comparator);
+          if (match) { obj = match; }
+        }
+      }
+    }
+    _.each(Object.keys(me), function (key) {
+      if (!obj) {
+        if (Array.isArray(me[key])) {
+          _.each(me[key], match);
+        } else {
+          match(me[key]);
+        }
+      }
+    });
+    return obj;
   }
 
   /**
@@ -41,20 +69,15 @@ export class EABaseClass {
    *
    * @memberOf EABaseClass
    */
-  findById(xmlId: string): EABaseClass {
-    if (this.id === xmlId) { return this; }
-    return null;
+  findByXmlId(xmlId: string): EABaseClass {
+    return this.find(function (obj: EABaseClass) {
+      return (obj.xmlId === xmlId);
+    });
   }
 
-  protected filterChildren(children: EABaseClass[], xmlId: string) {
-    if (children) {
-      let match = children.filter(c => c.findById(xmlId));
-      if (match.length === 1) {
-        return match[0];
-      } else if (match.length > 1) {
-        throw 'xml id matches more than one element';
-      }
-    }
-    return null;
+  findById(id: number): EABaseClass {
+    return this.find(function (obj: EABaseClass) {
+      return (obj.id === id);
+    });
   }
 }

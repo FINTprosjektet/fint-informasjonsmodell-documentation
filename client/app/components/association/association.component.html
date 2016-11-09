@@ -1,4 +1,4 @@
-<table *ngIf="associations">
+<table *ngIf="associations && associations.length">
   <thead>
     <tr>
       <th>Assosiasjon</th>
@@ -9,9 +9,9 @@
   </thead>
   <tbody>
     <tr *ngFor="let association of associations">
-      <td>{{ association.target.name }}</td>
-      <td>{{ association.target.target.name }}</td>
-      <td>{{ association.target.multiplicity }}</td>
+      <td>{{ association.meta.rt }}</td>
+      <td>{{ association.targetType.name }}</td>
+      <td>{{ association.meta.rb }}</td>
       <td><i></i></td>
     </tr>
   </tbody>

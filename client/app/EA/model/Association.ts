@@ -1,10 +1,25 @@
-import { ResourceLoader } from '@angular/compiler';
 import { EABaseClass } from './EABaseClass';
 import { Connection } from './Connection';
 
 export class Association extends EABaseClass {
   source: Connection;
   target: Connection;
+  _targetType: EABaseClass;
+  _sourceType: EABaseClass;
+
+  get sourceType(): EABaseClass {
+    if (!this._sourceType && this.meta['ea_sourceID']) {
+      this._sourceType = EABaseClass.service.findById(this.meta['ea_sourceID']);
+    }
+    return this._sourceType;
+  }
+
+  get targetType(): EABaseClass {
+    if (!this._targetType && this.meta['ea_targetID']) {
+      this._targetType = EABaseClass.service.findById(this.meta['ea_targetID']);
+    }
+    return this._targetType;
+  }
 
   constructor(json: any) {
     super(json);
@@ -24,10 +39,5 @@ export class Association extends EABaseClass {
         this.target = conn;
       }
     });
-  }
-
-  findById(xmlId: string): EABaseClass {
-    if (this.id === xmlId) { return this; }
-    return this.source.findById(xmlId) || this.target.findById(xmlId);
   }
 }

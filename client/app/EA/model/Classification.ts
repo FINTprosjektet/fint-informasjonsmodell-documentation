@@ -1,3 +1,4 @@
+import { Association } from './Association';
 import { EABaseClass } from './EABaseClass';
 import { Attribute } from './Attribute';
 
@@ -16,14 +17,5 @@ export class Classification extends EABaseClass {
         this.attributes = [new Attribute(json['Classifier.feature'].Attribute)];
       }
     }
-  }
-
-  findById(xmlId: string): EABaseClass {
-    if (this.id === xmlId) { return this; }
-
-    let match = this.filterChildren(this.attributes, xmlId);
-    if (match) { return match; }
-
-    return null;
   }
 }

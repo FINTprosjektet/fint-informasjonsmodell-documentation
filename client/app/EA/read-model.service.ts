@@ -33,7 +33,11 @@ export class ReadModelService {
       });
   }
 
-  findById(xmlId: string): EABaseClass {
-    return this.cachedModel.findById(xmlId);
+  findByXmlId(xmlId: string): EABaseClass {
+    return this.cachedModel.findByXmlId(xmlId);
+  }
+
+  findById(id: number): EABaseClass {
+    return this.cachedModel.findById(id);
   }
 }

@@ -13,7 +13,7 @@ export class StereotypeComponent implements OnInit {
   ngOnInit() {
     if (this.stereotype.packages) {
       this.renderer.setElementClass(this.elm.nativeElement, 'package-container', true);
-      this.renderer.setElementAttribute(this.elm.nativeElement, 'id', this.stereotype.id);
+      this.renderer.setElementAttribute(this.elm.nativeElement, 'id', this.stereotype.xmlId);
     }
   }
 }

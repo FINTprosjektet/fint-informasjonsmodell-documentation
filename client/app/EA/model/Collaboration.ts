@@ -19,13 +19,4 @@ export class Collaboration extends EABaseClass {
       this.interaction = json['Collaboration.interaction'];
     }
   }
-
-  findById(xmlId: string): EABaseClass {
-    if (this.id === xmlId) { return this; }
-
-    let match = this.filterChildren(this.classifiers, xmlId);
-    if (match) { return match; }
-
-    return null;
-  }
 }

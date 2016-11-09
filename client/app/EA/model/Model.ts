@@ -27,15 +27,4 @@ export class Model extends EABaseClass {
       this.package = new Package(mainPackage['Namespace.ownedElement'].Package);
     }
   }
-
-  findById(xmlId: string): EABaseClass {
-    if (this.id === xmlId) { return this; }
-    let cls = this.classification.findById(xmlId);
-    if (cls) { return cls; }
-
-    let col = this.collaboration.findById(xmlId);
-    if (col) { return col; }
-
-    return this.package.findById(xmlId);
-  }
 }

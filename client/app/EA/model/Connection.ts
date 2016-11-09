@@ -8,9 +8,9 @@ export class Connection extends EABaseClass {
   type: string;
   multiplicity: string;
 
-  get target() {
+  get parent() {
     if (this.type) {
-      return EABaseClass.service.findById(this.type);
+      return EABaseClass.service.findByXmlId(this.type);
     }
     return null;
   }

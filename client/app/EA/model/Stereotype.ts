@@ -38,20 +38,4 @@ export class Stereotype extends EABaseClass {
       }
     }
   }
-
-  findById(xmlId: string): EABaseClass {
-    let match;
-    if (this.id === xmlId) { return this; }
-
-    match = this.filterChildren(this.associations, xmlId);
-    if (match) { return match; }
-
-    match = this.filterChildren(this.class, xmlId);
-    if (match) { return match; }
-
-    match = this.filterChildren(this.packages, xmlId);
-    if (match) { return match; }
-
-    return null;
-  }
 }

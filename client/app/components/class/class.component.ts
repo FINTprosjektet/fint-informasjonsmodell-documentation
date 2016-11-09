@@ -10,11 +10,14 @@ import { Component, ElementRef, Input, OnInit, Renderer } from '@angular/core';
 export class ClassComponent implements OnInit {
   @Input() classification: Classification;
   @Input() associations: Association[];
+  assoc: Association[];
 
   constructor(private elm: ElementRef, private renderer: Renderer) { }
 
   ngOnInit() {
-    this.renderer.setElementAttribute(this.elm.nativeElement, 'id', this.classification.id);
+    this.renderer.setElementAttribute(this.elm.nativeElement, 'id', this.classification.xmlId);
+    if (this.associations) {
+      this.assoc = this.associations.filter(assoc => assoc.meta['ea_sourceID'] === this.classification.id);
+    }
   }
-
 }
