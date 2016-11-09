@@ -1,10 +1,12 @@
+@import "../../../variables";
+
 :host {
   display: block;
   padding: 20px;
   overflow-x: hidden;
   overflow-y: auto;
   background-color: #f5f5f5;
-  border-right: 1px solid #eee;
+  border-right: 1px solid $border-color;
 }
 ul {
   list-style: none;

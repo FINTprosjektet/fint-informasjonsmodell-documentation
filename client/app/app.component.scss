@@ -1,12 +1,15 @@
+@import "../variables";
+
 app-sidebar {
   position: fixed;
   top: 51px;
   bottom: 0;
   left: 0;
   z-index: 1000;
-  width: 25%;
+  width: 16rem;
   + section {
-    margin-left: 25%;
+    margin-left: 17rem;
+    margin-right: 1rem;
   }
 }
 
@@ -17,16 +20,52 @@ nav {
   right: 0;
   left: 0;
   z-index: 1030;
-  height: 50px;
-  margin-bottom: 20px;
-  background-color: #222;
+  background: $navbar-color;
+  height: $navbar-height;
+  padding: 0 1rem;
+  border-color: $navbar-border-color;
+  border-style: solid;
+  border-width: 0;
+  border-bottom-width: 1px;
+  text-align: left;
+  .container {
+    height: $navbar-height;
+  }
   header {
-    color: white;
     float: left;
-    height: 50px;
-    padding: 15px 15px;
-    font-size: 18px;
-    line-height: 20px;
+    a { float: left;}
+  }
+  svg {
+    fill: $accent;
+    fill-opacity:1;
+    fill-rule:nonzero;
+    stroke:none;
+    width: 7rem;
+    //transition: width 0.2s ease-out;
+  }
+  a {
+    color: $text-color;
+    text-transform: uppercase;
+  }
+  ul {
+    list-style: none;
+    padding-left: 0;
+    float: right;
+    margin: 0;
+  }
+  li, div {
+    float: left;
+    position: relative;
+    display: block;
+    a {
+      padding: 15px;
+      line-height: 20px;
+      display: block;
+      text-decoration: none;
+    }
+    &.active a {
+      background-color: $navbar-border-color;
+    }
   }
   form {
     float: right;

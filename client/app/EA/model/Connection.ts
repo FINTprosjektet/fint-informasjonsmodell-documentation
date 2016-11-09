@@ -6,6 +6,14 @@ export class Connection extends EABaseClass {
   targetScope: string;
   changeable: string;
   type: string;
+  multiplicity: string;
+
+  get target() {
+    if (this.type) {
+      return EABaseClass.service.findById(this.type);
+    }
+    return null;
+  }
 
   constructor(json: any) {
     super(json);
@@ -13,6 +21,7 @@ export class Connection extends EABaseClass {
     this.isOrdered = json['_isOrdered'];
     this.targetScope = json['_targetScope'];
     this.changeable = json['_changeable'];
+    this.multiplicity = json['_multiplicity'];
     this.type = json['_type'];
   }
 }

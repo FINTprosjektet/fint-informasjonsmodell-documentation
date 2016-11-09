@@ -1,8 +1,5 @@
 #!/bin/bash
 
-cd docker
-
-docker-compose stop
-docker-compose rm -f
-docker build -t fint/informasjonsmodell-documentation ../
+docker-compose down
+docker-compose build
 docker-compose up -d

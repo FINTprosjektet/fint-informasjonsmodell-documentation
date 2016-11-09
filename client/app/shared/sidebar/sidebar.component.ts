@@ -1,5 +1,5 @@
-import { Stereotype } from '../../EA/model/Stereotype';
 import { Component, Input, OnInit } from '@angular/core';
+import { Stereotype } from '../../EA/model/Stereotype';
 
 @Component({
   selector: 'app-sidebar',

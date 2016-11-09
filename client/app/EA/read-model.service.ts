@@ -1,6 +1,7 @@
+import { EABaseClass } from './model/EABaseClass';
 import { Injectable } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Http, Response, Headers } from '@angular/http';
+import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 
@@ -10,20 +11,29 @@ declare const X2JS: any; // Global module
 
 @Injectable()
 export class ReadModelService {
+  cachedModel: Model;
+
   constructor(private http: Http, private sanitizer: DomSanitizer) {
   }
 
   getModel(): Observable<Model> {
-    let headers = new Headers();
-    let url = '/assets/FINT-informasjonsmodell.xml'; // 'https://raw.githack.com/FINTprosjektet/fint-informasjonsmodell/master/FINT-informasjonsmodell.xml';
-    headers.append('Accept', 'application/xml');
-    return this.http.get(url, { headers: headers })
+    let me = this;
+    EABaseClass.service = this;
+
+    //let url = 'https://rawgit.com/FINTprosjektet/fint-informasjonsmodell/master/FINT-informasjonsmodell.xml';
+    let url = '/assets/FINT-informasjonsmodell.xml';
+    return this.http.request(url)
       .map(function (res: Response) {
         // Map to our model structure
         let json = new X2JS().xml2js(res.text()).XMI['XMI.content']['Model'];
         let model = new Model(json);
         console.log(model);
+        me.cachedModel = model;
         return model;
       });
+  }
+
+  findById(xmlId: string): EABaseClass {
+    return this.cachedModel.findById(xmlId);
   }
 }

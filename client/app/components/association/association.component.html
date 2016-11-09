@@ -1,0 +1,18 @@
+<table *ngIf="associations">
+  <thead>
+    <tr>
+      <th>Assosiasjon</th>
+      <th>Target</th>
+      <th>Relasjon</th>
+      <th>Beskrivelse</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let association of associations">
+      <td>{{ association.target.name }}</td>
+      <td>{{ association.target.target.name }}</td>
+      <td>{{ association.target.multiplicity }}</td>
+      <td><i></i></td>
+    </tr>
+  </tbody>
+</table>

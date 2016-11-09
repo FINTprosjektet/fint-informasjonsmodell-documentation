@@ -1,3 +1,4 @@
+import { Collaboration } from './Collaboration';
 import { Package } from './Package';
 import { Classification } from './Classification';
 import { EABaseClass } from './EABaseClass';
@@ -7,7 +8,7 @@ import { EABaseClass } from './EABaseClass';
  */
 export class Model extends EABaseClass {
   classification: Classification;
-  collaboration: {};
+  collaboration: Collaboration;
   package: Package;
 
   constructor(json: {}) {
@@ -21,9 +22,20 @@ export class Model extends EABaseClass {
         this.meta = EABaseClass.toMeta(mainPackage['ModelElement.taggedValue'].TaggedValue);
       }
       if (mainPackage['Namespace.ownedElement'] && mainPackage['Namespace.ownedElement'].Collaboration) {
-        this.collaboration = json['Namespace.ownedElement'].Collaboration;
+        this.collaboration = new Collaboration(mainPackage['Namespace.ownedElement'].Collaboration);
       }
       this.package = new Package(mainPackage['Namespace.ownedElement'].Package);
     }
+  }
+
+  findById(xmlId: string): EABaseClass {
+    if (this.id === xmlId) { return this; }
+    let cls = this.classification.findById(xmlId);
+    if (cls) { return cls; }
+
+    let col = this.collaboration.findById(xmlId);
+    if (col) { return col; }
+
+    return this.package.findById(xmlId);
   }
 }

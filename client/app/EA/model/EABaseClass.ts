@@ -1,6 +1,9 @@
+import { ReadModelService } from '../read-model.service';
 import { chain, map, keyBy, merge, mapValues } from 'lodash';
 
 export class EABaseClass {
+  static service: ReadModelService;
+
   private json: {};
   id: string;
   name: string;
@@ -28,5 +31,30 @@ export class EABaseClass {
     if (json['ModelElement.taggedValue']) {
       this.meta = EABaseClass.toMeta(json['ModelElement.taggedValue'].TaggedValue);
     }
+  }
+
+  /**
+   * Default implementation. Should be overridden.
+   *
+   * @param {string} xmlId
+   * @returns
+   *
+   * @memberOf EABaseClass
+   */
+  findById(xmlId: string): EABaseClass {
+    if (this.id === xmlId) { return this; }
+    return null;
+  }
+
+  protected filterChildren(children: EABaseClass[], xmlId: string) {
+    if (children) {
+      let match = children.filter(c => c.findById(xmlId));
+      if (match.length === 1) {
+        return match[0];
+      } else if (match.length > 1) {
+        throw 'xml id matches more than one element';
+      }
+    }
+    return null;
   }
 }

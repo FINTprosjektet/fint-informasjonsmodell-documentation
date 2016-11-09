@@ -1,0 +1,8 @@
+version: '2'
+services:
+  informasjonsmodell-documentation:
+    build: .
+    container_name: fint-informasjonsmodell-documentation
+    restart: unless-stopped
+    ports:
+      - "8092:80"

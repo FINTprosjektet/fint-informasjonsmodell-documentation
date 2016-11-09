@@ -17,4 +17,13 @@ export class Classification extends EABaseClass {
       }
     }
   }
+
+  findById(xmlId: string): EABaseClass {
+    if (this.id === xmlId) { return this; }
+
+    let match = this.filterChildren(this.attributes, xmlId);
+    if (match) { return match; }
+
+    return null;
+  }
 }

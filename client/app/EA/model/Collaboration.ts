@@ -1,5 +1,5 @@
-import {EABaseClass} from './EABaseClass';
-import {Classifier} from './Classifier';
+import { EABaseClass } from './EABaseClass';
+import { Classifier } from './Classifier';
 
 export class Collaboration extends EABaseClass {
   interaction: {};
@@ -18,6 +18,14 @@ export class Collaboration extends EABaseClass {
     if (json['Collaboration.interaction']) {
       this.interaction = json['Collaboration.interaction'];
     }
+  }
 
+  findById(xmlId: string): EABaseClass {
+    if (this.id === xmlId) { return this; }
+
+    let match = this.filterChildren(this.classifiers, xmlId);
+    if (match) { return match; }
+
+    return null;
   }
 }

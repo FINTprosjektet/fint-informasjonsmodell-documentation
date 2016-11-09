@@ -1,22 +1,52 @@
 /* You can add global styles to this file, and also import other style files */
+@import "variables";
+@import "styles/table";
+
 body {
+  margin: 0; padding:0;
   font-family: Arial, Helvetica, sans-serif;
-  color: #333;
+  color: $text-color;
+}
+h1, h2, h3, h4, h5, h6 {
+  color: darken($text-color, 5%);
 }
 * {
   box-sizing: border-box;
 }
 
-h2 {
-  font-size: 30px;
+.container {
+  max-width: 1270px;
+  margin: 0 auto;
 }
-h1, h2, h3 {
-  margin-top: 20px;
-  margin-bottom: 10px;
+
+.success {
+  color: $success;
 }
-h1, h2, h3, h4, h5, h6 {
-  font-family: inherit;
-  font-weight: 500;
-  line-height: 1.1;
-  color: inherit;
+
+.warning {
+  color: $warning;
+}
+
+.status app-fa {
+  border: 1px solid;
+  border-radius: 50%;
+
+  &.success {
+    border-color: darken($success, 20%);
+  }
+  &.warning {
+    border-color: darken($warning, 20%);
+  }
+}
+
+.center{
+  margin: 0 auto;
+}
+
+.pull-right {
+  float: right;
+}
+
+.pull-left {
+  float: left;
 }
