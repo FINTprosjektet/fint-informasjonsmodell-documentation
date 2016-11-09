@@ -28,6 +28,10 @@ nav {
   border-width: 0;
   border-bottom-width: 1px;
   text-align: left;
+  &:after {
+    content:' ';
+    display: table;
+  }
   .container {
     height: $navbar-height;
   }

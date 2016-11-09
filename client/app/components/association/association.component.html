@@ -10,7 +10,8 @@
   <tbody>
     <tr *ngFor="let association of associations">
       <td>{{ association.meta.rt }}</td>
-      <td>{{ association.targetType.name }}</td>
+      <td>
+        <a href="#{{ association.targetType.xmlId }}">{{ association.targetType.name }}</a></td>
       <td>{{ association.meta.rb }}</td>
       <td><i></i></td>
     </tr>

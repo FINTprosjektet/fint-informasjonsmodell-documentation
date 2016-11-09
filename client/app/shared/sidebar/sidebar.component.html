@@ -1,7 +1,7 @@
 <aside>
-	<ul>
-		<li *ngFor="let stereotype of stereotypes">
-			<a>{{ stereotype.name }}</a>
-		</li>
-	</ul>
+  <ul>
+    <li *ngFor="let stereotype of stereotypes">
+      <a href="#{{ stereotype.xmlId }}">{{ stereotype.name }}</a>
+    </li>
+  </ul>
 </aside>
