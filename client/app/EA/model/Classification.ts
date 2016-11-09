@@ -4,6 +4,7 @@ import { Attribute } from './Attribute';
 export class Classification extends EABaseClass {
   visibility: string;
   attributes: Attribute[];
+  type: string = 'table';
 
   constructor(json) {
     super(json);
@@ -15,6 +16,10 @@ export class Classification extends EABaseClass {
       } else {
         this.attributes = [new Attribute(json['Classifier.feature'].Attribute)];
       }
+    }
+
+    if (json['ModelElement.stereotype']) {
+      this.type = json['ModelElement.stereotype'].Stereotype['_name'];
     }
   }
 

@@ -1,7 +1,8 @@
 <header>
   <h3 class="anchor" id="{{ classification.xmlId }}">
-    <app-fa name="table"></app-fa>
+    <app-fa [name]="classType"></app-fa>
     {{ classification.name }}
+    <small>{{ classification.type }}</small>
   </h3>
 </header>
 
@@ -18,7 +19,10 @@
   <tbody>
     <tr *ngFor="let attribute of classification.attributes">
       <td>{{ attribute.name }}</td>
-      <td>{{ attribute.meta.type }}</td>
+      <td>
+        <a *ngIf="attribute.sourceType" href="#{{ attribute.classRef }}">{{ attribute.meta.type }}</a>
+        <span *ngIf="!attribute.sourceType">{{ attribute.meta.type }}</span>
+      </td>
       <td><i>{{ attribute.meta.description }}</i></td>
     </tr>
   </tbody>

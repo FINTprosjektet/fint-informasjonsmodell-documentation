@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 export class EABaseClass {
   static service: ReadModelService;
 
-  private json: {};
+  protected json: {};
   xmlId: string;
   id: number;
   name: string;

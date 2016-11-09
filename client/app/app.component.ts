@@ -12,12 +12,13 @@ import { ReadModelService } from './EA/read-model.service';
 })
 export class AppComponent implements OnInit {
   model = null;
+
   isLoading = true;
   _search: string = '';
   get searchValue(): string { return this._search; }
   set searchValue(value: string) {
     this._search = value;
-    this.loadModel(this._search);
+    this.filterModel(this._search);
   }
 
   constructor(private readModel: ReadModelService) { }
@@ -26,13 +27,17 @@ export class AppComponent implements OnInit {
     this.loadModel();
   }
 
-  loadModel(filter?: string) {
+  filterModel(filter?: string) {
+    this.model = this.readModel.parseModel();
+    if (filter) {
+      this.model = this.model.filter(filter);
+    }
+  }
+
+  loadModel() {
     let me = this;
-    this.readModel.getModel().subscribe(function (model: Model) {
+    this.readModel.loadAndParseModel().subscribe(function (model: Model) {
       me.isLoading = false;
-      if (filter) {
-        model = model.filter(filter);
-      }
       me.model = model;
     });
   }
