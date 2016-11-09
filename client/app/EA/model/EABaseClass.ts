@@ -61,14 +61,6 @@ export class EABaseClass {
     return obj;
   }
 
-  /**
-   * Default implementation. Should be overridden.
-   *
-   * @param {string} xmlId
-   * @returns
-   *
-   * @memberOf EABaseClass
-   */
   findByXmlId(xmlId: string): EABaseClass {
     return this.find(function (obj: EABaseClass) {
       return (obj.xmlId === xmlId);

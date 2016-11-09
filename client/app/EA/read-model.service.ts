@@ -12,6 +12,7 @@ declare const X2JS: any; // Global module
 @Injectable()
 export class ReadModelService {
   cachedModel: Model;
+  modelObserver: Observable<Model>;
 
   constructor(private http: Http, private sanitizer: DomSanitizer) {
   }
@@ -20,9 +21,11 @@ export class ReadModelService {
     let me = this;
     EABaseClass.service = this;
 
+    if (this.modelObserver) { return this.modelObserver; }
+
     //let url = 'https://rawgit.com/FINTprosjektet/fint-informasjonsmodell/master/FINT-informasjonsmodell.xml';
     let url = '/assets/FINT-informasjonsmodell.xml';
-    return this.http.request(url)
+    this.modelObserver = this.http.request(url)
       .map(function (res: Response) {
         // Map to our model structure
         let json = new X2JS().xml2js(res.text()).XMI['XMI.content']['Model'];
@@ -31,6 +34,7 @@ export class ReadModelService {
         me.cachedModel = model;
         return model;
       });
+    return this.modelObserver;
   }
 
   findByXmlId(xmlId: string): EABaseClass {

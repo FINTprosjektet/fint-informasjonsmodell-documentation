@@ -23,4 +23,14 @@ export class Package extends EABaseClass {
       }
     }
   }
+
+  filter(search: string) {
+    if (this.package) {
+      this.package = this.package.filter(search);
+    }
+    if (this.stereotypes) {
+      this.stereotypes = this.stereotypes.filter(stereotype => stereotype.filter(search));
+    }
+    return this;
+  }
 }

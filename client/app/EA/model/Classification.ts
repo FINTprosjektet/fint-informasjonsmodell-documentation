@@ -1,4 +1,3 @@
-import { Association } from './Association';
 import { EABaseClass } from './EABaseClass';
 import { Attribute } from './Attribute';
 
@@ -17,5 +16,12 @@ export class Classification extends EABaseClass {
         this.attributes = [new Attribute(json['Classifier.feature'].Attribute)];
       }
     }
+  }
+
+  filter(search: string) {
+    if (this.name.toLowerCase().indexOf(search.toLowerCase()) > -1) {
+      return this;
+    }
+    return null;
   }
 }

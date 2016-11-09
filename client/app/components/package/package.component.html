@@ -1,6 +1,6 @@
-<header *ngIf="header === true">
-	<app-fa name="archive"></app-fa>
-	{{ package.name }}
+<header *ngIf="header === true && package.stereotypes.length">
+  <app-fa name="archive"></app-fa>
+  {{ package.name }}
 </header>
 
 <app-stereotype *ngFor="let stereotype of package.stereotypes" [stereotype]="stereotype"></app-stereotype>

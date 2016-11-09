@@ -38,4 +38,14 @@ export class Stereotype extends EABaseClass {
       }
     }
   }
+
+  filter(search: string) {
+    if (this.class) {
+      this.class = this.class.filter(cls => cls.filter(search));
+    }
+    if (this.packages) {
+      this.packages = this.packages.filter(pkg => pkg.filter(search));
+    }
+    return this;
+  }
 }

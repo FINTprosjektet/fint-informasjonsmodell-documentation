@@ -1,4 +1,4 @@
-<article>
+<article *ngIf="(stereotype.class && stereotype.class.length) || (stereotype.packages && stereotype.packages.length)">
   <header>
     <h2 class="anchor" id="{{ stereotype.xmlId }}">
       {{ stereotype.name }}

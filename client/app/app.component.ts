@@ -13,13 +13,26 @@ import { ReadModelService } from './EA/read-model.service';
 export class AppComponent implements OnInit {
   model = null;
   isLoading = true;
+  _search: string = '';
+  get searchValue(): string { return this._search; }
+  set searchValue(value: string) {
+    this._search = value;
+    this.loadModel(this._search);
+  }
 
   constructor(private readModel: ReadModelService) { }
 
   ngOnInit() {
+    this.loadModel();
+  }
+
+  loadModel(filter?: string) {
     let me = this;
     this.readModel.getModel().subscribe(function (model: Model) {
       me.isLoading = false;
+      if (filter) {
+        model = model.filter(filter);
+      }
       me.model = model;
     });
   }

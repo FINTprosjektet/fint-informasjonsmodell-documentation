@@ -11,7 +11,9 @@
     <tr *ngFor="let association of associations">
       <td>{{ association.meta.rt }}</td>
       <td>
-        <a href="#{{ association.targetType.xmlId }}">{{ association.targetType.name }}</a></td>
+        <a *ngIf="association.targetType" href="#{{ association.targetType.xmlId }}">{{ association.targetType.name }}</a>
+        <span *ngIf="!association.targetType">{{ association.meta.ea_targetName }}</span>
+      </td>
       <td>{{ association.meta.rb }}</td>
       <td><i></i></td>
     </tr>

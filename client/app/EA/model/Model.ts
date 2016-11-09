@@ -27,4 +27,9 @@ export class Model extends EABaseClass {
       this.package = new Package(mainPackage['Namespace.ownedElement'].Package);
     }
   }
+
+  filter(search: string) {
+    this.package = this.package.filter(search);
+    return this;
+  }
 }
