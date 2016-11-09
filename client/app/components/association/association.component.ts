@@ -1,5 +1,4 @@
-import { Connection } from '../../EA/model/Connection';
-import { ReadModelService } from '../../EA/read-model.service';
+import { ModelService } from '../../EA/model.service';
 import { Association } from '../../EA/model/Association';
 import { Component, Input, OnInit } from '@angular/core';
 
@@ -11,7 +10,7 @@ import { Component, Input, OnInit } from '@angular/core';
 export class AssociationComponent implements OnInit {
   @Input() associations: Association[];
 
-  constructor(private readModel: ReadModelService) { }
+  constructor(private readModel: ModelService) { }
 
   ngOnInit() {
   }

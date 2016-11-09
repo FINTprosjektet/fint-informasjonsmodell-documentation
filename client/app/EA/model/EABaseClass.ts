@@ -1,8 +1,8 @@
-import { ReadModelService } from '../read-model.service';
+import { ModelService } from '../model.service';
 import * as _ from 'lodash';
 
 export class EABaseClass {
-  static service: ReadModelService;
+  static service: ModelService;
 
   protected json: {};
   xmlId: string;

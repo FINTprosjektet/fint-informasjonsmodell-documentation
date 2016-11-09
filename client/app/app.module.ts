@@ -1,4 +1,5 @@
-import { __platform_browser_private__, BrowserModule } from '@angular/platform-browser';
+import { ModelService } from './EA/model.service';
+import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule, JsonpModule, Request, XSRFStrategy } from '@angular/http';
@@ -12,6 +13,8 @@ import { ClassComponent } from './components/class/class.component';
 import { PackageComponent } from './components/package/package.component';
 import { AssociationComponent } from './components/association/association.component';
 
+import { HighlightPipe } from './pipes/highlight.pipe';
+
 export class MyXSRFStrategy {
   configureRequest(req: Request) {
     // Remove `x-xsrf-token` from request headers
@@ -24,7 +27,8 @@ export class MyXSRFStrategy {
     StereotypeComponent,
     ClassComponent,
     PackageComponent,
-    AssociationComponent
+    AssociationComponent,
+    HighlightPipe
   ],
   imports: [
     BrowserModule,
@@ -35,7 +39,7 @@ export class MyXSRFStrategy {
     SharedModule
     //AppRoutingModule
   ],
-  providers: [{ provide: XSRFStrategy, useFactory: () => new MyXSRFStrategy() }], // !!HACK!!
+  providers: [ModelService, { provide: XSRFStrategy, useFactory: () => new MyXSRFStrategy() }], // !!HACK!!
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,34 +1,32 @@
 import { Component, OnInit } from '@angular/core';
 
 import { Model } from './EA/model/Model';
-import { ReadModelService } from './EA/read-model.service';
+import { ModelService } from './EA/model.service';
 
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  providers: [ReadModelService]
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
   model = null;
-
   isLoading = true;
-  _search: string = '';
-  get searchValue(): string { return this._search; }
+
+  get searchValue(): string { return this.modelService.searchString; }
   set searchValue(value: string) {
-    this._search = value;
-    this.filterModel(this._search);
+    this.modelService.searchString = value;
+    this.filterModel(this.modelService.searchString);
   }
 
-  constructor(private readModel: ReadModelService) { }
+  constructor(private modelService: ModelService) { }
 
   ngOnInit() {
     this.loadModel();
   }
 
   filterModel(filter?: string) {
-    this.model = this.readModel.parseModel();
+    this.model = this.modelService.parseModel();
     if (filter) {
       this.model = this.model.filter(filter);
     }
@@ -36,7 +34,7 @@ export class AppComponent implements OnInit {
 
   loadModel() {
     let me = this;
-    this.readModel.loadAndParseModel().subscribe(function (model: Model) {
+    this.modelService.loadAndParseModel().subscribe(function (model: Model) {
       me.isLoading = false;
       me.model = model;
     });

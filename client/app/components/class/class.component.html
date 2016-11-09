@@ -1,8 +1,8 @@
 <header>
   <h3 class="anchor" id="{{ classification.xmlId }}">
     <app-fa [name]="classType"></app-fa>
-    {{ classification.name }}
-    <small>{{ classification.type }}</small>
+    <span [innerHTML]="classification.name | highlight"></span>
+    <small [innerHTML]="classification.type | highlight"></small>
   </h3>
 </header>
 
@@ -18,7 +18,7 @@
   </thead>
   <tbody>
     <tr *ngFor="let attribute of classification.attributes">
-      <td>{{ attribute.name }}</td>
+      <td [innerHTML]="attribute.name | highlight"></td>
       <td>
         <a *ngIf="attribute.sourceType" href="#{{ attribute.classRef }}">{{ attribute.meta.type }}</a>
         <span *ngIf="!attribute.sourceType">{{ attribute.meta.type }}</span>
@@ -32,4 +32,4 @@
   <b>Felt</b>: <i>Ingen</i>
 </div>
 
-<app-association [associations]="assoc"></app-association>
+<app-association [associations]="classification.associations"></app-association>

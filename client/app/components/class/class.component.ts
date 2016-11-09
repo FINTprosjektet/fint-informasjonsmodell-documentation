@@ -9,8 +9,6 @@ import { Component, ElementRef, Input, OnInit, Renderer } from '@angular/core';
 })
 export class ClassComponent implements OnInit {
   @Input() classification: Classification;
-  @Input() associations: Association[];
-  assoc: Association[];
 
   get classType() {
     switch (this.classification.type) {
@@ -26,8 +24,5 @@ export class ClassComponent implements OnInit {
 
   ngOnInit() {
     this.renderer.setElementClass(this.elm.nativeElement, this.classification.type, true);
-    if (this.associations) {
-      this.assoc = this.associations.filter(assoc => assoc.meta['ea_sourceID'] === this.classification.id);
-    }
   }
 }

@@ -10,9 +10,12 @@ import { Model } from './model/Model';
 declare const X2JS: any; // Global module
 
 @Injectable()
-export class ReadModelService {
+export class ModelService {
   json: {};
   cachedModel: Model;
+  _searchString: string = '';
+  get searchString(): string { return this._searchString; }
+  set searchString(value: string) { this._searchString = value; }
 
   constructor(private http: Http, private sanitizer: DomSanitizer) {
   }

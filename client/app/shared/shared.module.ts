@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FaComponent } from './fontawesome/fa.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 
+
 @NgModule({
   imports: [
     CommonModule
