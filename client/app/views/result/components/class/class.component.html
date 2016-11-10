@@ -20,8 +20,8 @@
     <tr *ngFor="let attribute of classification.attributes">
       <td [innerHTML]="attribute.name | highlight"></td>
       <td>
-        <a *ngIf="attribute.sourceType" href="#{{ attribute.classRef }}">{{ attribute.meta.type }}</a>
-        <span *ngIf="!attribute.sourceType">{{ attribute.meta.type }}</span>
+        <a *ngIf="attribute.classRef" [routerLink]="['/api']" [fragment]="attribute.classRef">{{ attribute.meta.type }}</a>
+        <span *ngIf="!attribute.classRef">{{ attribute.meta.type }}</span>
       </td>
       <td><i>{{ attribute.meta.description }}</i></td>
     </tr>

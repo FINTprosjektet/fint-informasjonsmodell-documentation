@@ -1,5 +1,5 @@
-import { ModelService } from '../../EA/model.service';
-import { Association } from '../../EA/model/Association';
+import { ModelService } from '../../../../EA/model.service';
+import { Association } from '../../../../EA/model/Association';
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({

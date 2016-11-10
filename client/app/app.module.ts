@@ -1,19 +1,17 @@
-import { ModelService } from './EA/model.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpModule, JsonpModule, Request, XSRFStrategy } from '@angular/http';
-//import { AppRoutingModule } from './app-routing.module';
+import { HttpModule, Request, XSRFStrategy } from '@angular/http';
 
+import { AppRoutingModule } from './app-routing.module';
 import { SharedModule } from './shared/shared.module';
+import { ResultModule } from './views/result/result.module';
+
+import { ModelService } from './EA/model.service';
+
 import { AppComponent } from './app.component';
 
-import { StereotypeComponent } from './components/stereotype/stereotype.component';
-import { ClassComponent } from './components/class/class.component';
-import { PackageComponent } from './components/package/package.component';
-import { AssociationComponent } from './components/association/association.component';
-
-import { HighlightPipe } from './pipes/highlight.pipe';
+import { ModelComponent } from './views/model/model.component';
 
 export class MyXSRFStrategy {
   configureRequest(req: Request) {
@@ -24,20 +22,16 @@ export class MyXSRFStrategy {
 @NgModule({
   declarations: [
     AppComponent,
-    StereotypeComponent,
-    ClassComponent,
-    PackageComponent,
-    AssociationComponent,
-    HighlightPipe
+    ModelComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
-    JsonpModule,
 
-    SharedModule
-    //AppRoutingModule
+    AppRoutingModule,
+    SharedModule,
+    ResultModule
   ],
   providers: [ModelService, { provide: XSRFStrategy, useFactory: () => new MyXSRFStrategy() }], // !!HACK!!
   bootstrap: [AppComponent]

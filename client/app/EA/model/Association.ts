@@ -6,21 +6,21 @@ export class Association extends EABaseClass {
   target: Connection;
   _targetType: EABaseClass;
   _sourceType: EABaseClass;
-
-  get sourceType(): EABaseClass {
-    if (!this._sourceType && this.meta['ea_sourceID']) {
-      this._sourceType = EABaseClass.service.findById(this.meta['ea_sourceID']);
+  /*
+    get sourceType(): EABaseClass {
+      if (!this._sourceType && this.meta['ea_sourceID']) {
+        this._sourceType = EABaseClass.service.findById(this.meta['ea_sourceID']);
+      }
+      return this._sourceType;
     }
-    return this._sourceType;
-  }
 
-  get targetType(): EABaseClass {
-    if (!this._targetType && this.meta['ea_targetID']) {
-      this._targetType = EABaseClass.service.findById(this.meta['ea_targetID']);
+    get targetType(): EABaseClass {
+      if (!this._targetType && this.meta['ea_targetID']) {
+        this._targetType = EABaseClass.service.findById(this.meta['ea_targetID']);
+      }
+      return this._targetType;
     }
-    return this._targetType;
-  }
-
+  */
   constructor(json: any) {
     super(json);
     let connections: Connection[];

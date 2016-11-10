@@ -67,3 +67,15 @@ a {
     margin-top: -75px;
   }
 }
+
+svg {
+  g.stereotype {
+    cursor: pointer;
+    rect {
+      fill-opacity: 1;
+      fill: #fffbd9;
+      stroke: $border-color;
+      stroke-width: 2;
+    }
+  }
+}

@@ -1,5 +1,4 @@
-import { Association } from '../../EA/model/Association';
-import { Classification } from '../../EA/model/Classification';
+import { Classification } from '../../../../EA/model/Classification';
 import { Component, ElementRef, Input, OnInit, Renderer } from '@angular/core';
 
 @Component({

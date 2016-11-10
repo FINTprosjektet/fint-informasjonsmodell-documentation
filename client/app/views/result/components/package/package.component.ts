@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, Renderer } from '@angular/core';
-import { Package } from '../../EA/model/Package';
+import { Package } from '../../../../EA/model/Package';
 
 @Component({
   selector: 'app-package',

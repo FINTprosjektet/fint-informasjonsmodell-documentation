@@ -1,4 +1,4 @@
-import { Stereotype } from '../../EA/model/Stereotype';
+import { Stereotype } from '../../../../EA/model/Stereotype';
 import { Component, Input, OnInit, ElementRef, Renderer } from '@angular/core';
 
 @Component({

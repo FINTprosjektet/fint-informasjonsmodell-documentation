@@ -1,0 +1,14 @@
+@import "../../../variables";
+
+app-sidebar {
+  position: fixed;
+  top: 51px;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  width: 16rem;
+  + section {
+    margin-left: 17rem;
+    margin-right: 1rem;
+  }
+}

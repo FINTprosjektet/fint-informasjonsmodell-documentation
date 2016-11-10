@@ -1,0 +1,8 @@
+<div *ngIf="isLoading != true && model && model.package">
+  <app-sidebar [stereotypes]="menu"></app-sidebar>
+  <section>
+    <h2>Elementer i informasjonsmodellen</h2>
+
+    <app-package [package]="model.package" header="false"></app-package>
+  </section>
+</div>

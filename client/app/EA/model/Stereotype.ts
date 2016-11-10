@@ -24,7 +24,7 @@ export class Stereotype extends EABaseClass {
 
     if (json['Namespace.ownedElement'].Class) {
       if (Array.isArray(json['Namespace.ownedElement'].Class)) {
-        this.class = json['Namespace.ownedElement'].Class.map(cls => new Classification(cls));
+        this.class = json['Namespace.ownedElement'].Class.map(cls => new Classification(cls, this));
       } else {
         this.class = [new Classification(json['Namespace.ownedElement'].Class, this)];
       }

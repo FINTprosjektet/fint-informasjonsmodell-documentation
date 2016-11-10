@@ -20,6 +20,15 @@ export class EABaseClass {
       .mapValues(function (tag) { return tag['value']; })
       .value();
   }
+  private static match(o, comparator, search) {
+    if (!search.obj && o instanceof EABaseClass) {
+      if (comparator(o)) { search.obj = o; }
+      else {
+        let m = o.find(comparator);
+        if (m) { search.obj = m; }
+      }
+    }
+  }
 
   constructor(json: {}) {
     this.json = json;
@@ -39,26 +48,19 @@ export class EABaseClass {
     let me = this;
     if (comparator(me)) { return me; }
 
-    let obj;
-    function match(o) {
-      if (!obj && o instanceof EABaseClass) {
-        if (comparator(o)) { obj = o; }
-        else {
-          let match = o.find(comparator);
-          if (match) { obj = match; }
-        }
-      }
-    }
+    let search = {
+      obj: null
+    };
     _.each(Object.keys(me), function (key) {
-      if (!obj) {
+      if (!search.obj) {
         if (Array.isArray(me[key])) {
-          _.each(me[key], match);
+          _.each(me[key], o => EABaseClass.match(o, comparator, search));
         } else {
-          match(me[key]);
+          EABaseClass.match(me[key], comparator, search);
         }
       }
     });
-    return obj;
+    return search.obj;
   }
 
   findByXmlId(xmlId: string): EABaseClass {

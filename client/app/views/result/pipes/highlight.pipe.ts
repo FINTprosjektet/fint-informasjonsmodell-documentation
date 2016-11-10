@@ -1,4 +1,4 @@
-import { ModelService } from '../EA/model.service';
+import { ModelService } from '../../../EA/model.service';
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({

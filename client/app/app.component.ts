@@ -1,3 +1,5 @@
+import { Title } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 
 import { Model } from './EA/model/Model';
@@ -10,35 +12,27 @@ import { ModelService } from './EA/model.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  model = null;
-  isLoading = true;
-  menu = null;
+  get model(): Model { return this.modelService.cachedModel; }
+  get isLoading() { return this.modelService.isLoading; }
 
   get searchValue(): string { return this.modelService.searchString; }
   set searchValue(value: string) {
+    let currentPath = this.router.parseUrl(this.router.url).toString();
+    if (currentPath.indexOf('api') < 1) {
+      this.router.navigate(['/api']);
+    }
     this.modelService.searchString = value;
-    this.filterModel(this.modelService.searchString);
   }
 
-  constructor(private modelService: ModelService) { }
+  constructor(
+    private modelService: ModelService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private titleService: Title
+  ) { }
 
   ngOnInit() {
-    this.loadModel();
-  }
-
-  filterModel(filter?: string) {
-    this.model = this.modelService.parseModel();
-    if (filter) {
-      this.model = this.model.filter(filter);
-    }
-  }
-
-  loadModel() {
-    let me = this;
-    this.modelService.loadAndParseModel().subscribe(function (model: Model) {
-      me.isLoading = false;
-      me.model = model;
-      me.menu = model.package.stereotypes;
-    });
+    this.titleService.setTitle('FINT');
+    this.modelService.fetchModel();
   }
 }

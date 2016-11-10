@@ -1,7 +1,7 @@
 <aside>
   <ul>
     <li *ngFor="let stereotype of stereotypes">
-      <a href="#{{ stereotype.xmlId }}">{{ stereotype.name }}</a>
+      <a [routerLink]="['/api']" [fragment]="stereotype.xmlId">{{ stereotype.name }}</a>
     </li>
   </ul>
 </aside>
