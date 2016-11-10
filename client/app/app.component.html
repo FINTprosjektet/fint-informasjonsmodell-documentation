@@ -25,7 +25,7 @@
         </g>
       </svg>
     </a>
-    <div *ngIf="isLoading != true"><a>Dokumentasjon av informasjonsmodell til {{ model.package.name }}</a></div>
+    <div *ngIf="isLoading != true && model.package"><a>Dokumentasjon av informasjonsmodell til {{ model.package.name }}</a></div>
   </header>
 
   <section class="pull-right">
@@ -37,8 +37,8 @@
 
 <h2 *ngIf="isLoading == true">Loading...</h2>
 
-<div *ngIf="isLoading != true">
-  <app-sidebar [stereotypes]="model.package.stereotypes"></app-sidebar>
+<div *ngIf="isLoading != true && model.package">
+  <app-sidebar [stereotypes]="menu"></app-sidebar>
   <section>
     <h2>Elementer i informasjonsmodellen</h2>
 

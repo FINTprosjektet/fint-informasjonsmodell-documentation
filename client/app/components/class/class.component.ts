@@ -11,7 +11,7 @@ export class ClassComponent implements OnInit {
   @Input() classification: Classification;
 
   get classType() {
-    switch (this.classification.type) {
+    switch (this.classification.type.toLowerCase()) {
       case 'table': return 'table';
       case 'codelist': return 'list-alt';
       case 'datatype': return 'id-card-o';

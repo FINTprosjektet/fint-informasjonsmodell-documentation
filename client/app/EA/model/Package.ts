@@ -24,13 +24,16 @@ export class Package extends EABaseClass {
     }
   }
 
-  filter(search: string) {
+  filter(search: string, forceReturn?: boolean) {
     if (this.package) {
       this.package = this.package.filter(search);
     }
     if (this.stereotypes) {
       this.stereotypes = this.stereotypes.filter(stereotype => stereotype.filter(search));
     }
-    return this;
+    if (forceReturn || this.package || (this.stereotypes && this.stereotypes.length)) {
+      return this;
+    }
+    return null;
   }
 }

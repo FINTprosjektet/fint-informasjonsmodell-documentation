@@ -12,6 +12,7 @@ import { ModelService } from './EA/model.service';
 export class AppComponent implements OnInit {
   model = null;
   isLoading = true;
+  menu = null;
 
   get searchValue(): string { return this.modelService.searchString; }
   set searchValue(value: string) {
@@ -37,6 +38,7 @@ export class AppComponent implements OnInit {
     this.modelService.loadAndParseModel().subscribe(function (model: Model) {
       me.isLoading = false;
       me.model = model;
+      me.menu = model.package.stereotypes;
     });
   }
 }

@@ -46,6 +46,9 @@ export class Stereotype extends EABaseClass {
     if (this.packages) {
       this.packages = this.packages.filter(pkg => pkg.filter(search));
     }
-    return this;
+    if ((this.class && this.class.length) || (this.packages && this.packages.length)) {
+      return this;
+    }
+    return null;
   }
 }

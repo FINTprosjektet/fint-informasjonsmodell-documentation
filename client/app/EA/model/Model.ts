@@ -29,7 +29,7 @@ export class Model extends EABaseClass {
   }
 
   filter(search: string) {
-    this.package = this.package.filter(search);
+    this.package = this.package.filter(search, true);
     return this;
   }
 }
