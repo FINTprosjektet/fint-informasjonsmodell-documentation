@@ -11,15 +11,15 @@
 <table *ngIf="classification.attributes">
   <thead>
     <tr>
-      <th>Felt</th>
-      <th>Type</th>
+      <th class="name">Felt</th>
+      <th class="type">Type</th>
       <th>Beskrivelse</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let attribute of classification.attributes">
-      <td [innerHTML]="attribute.name | highlight"></td>
-      <td>
+      <td class="name" [innerHTML]="attribute.name | highlight"></td>
+      <td class="type">
         <a *ngIf="attribute.classRef" [routerLink]="['/api']" [fragment]="attribute.classRef">{{ attribute.meta.type }}</a>
         <span *ngIf="!attribute.classRef">{{ attribute.meta.type }}</span>
       </td>

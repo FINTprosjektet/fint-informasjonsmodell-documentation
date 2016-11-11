@@ -1,6 +1,6 @@
+import { Router } from '@angular/router';
 import { EABaseClass } from './model/EABaseClass';
 import { Injectable } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
@@ -27,7 +27,7 @@ export class ModelService {
     this.filterModel(value);
   }
 
-  constructor(private http: Http, private sanitizer: DomSanitizer) {
+  constructor(private http: Http, private router: Router) {
     EABaseClass.service = this;
   }
 

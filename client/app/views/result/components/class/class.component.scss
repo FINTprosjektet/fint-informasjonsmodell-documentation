@@ -38,3 +38,10 @@ header {
   }
 }
 
+table {
+  .type, .name {
+    $width: 180px;
+    width: $width;
+    max-width: $width;
+  }
+}

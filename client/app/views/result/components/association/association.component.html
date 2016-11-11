@@ -1,16 +1,16 @@
 <table *ngIf="associations && associations.length">
   <thead>
     <tr>
-      <th>Assosiasjon</th>
-      <th>Target</th>
+      <th class="name">Assosiasjon</th>
+      <th class="type">Type</th>
       <th>Relasjon</th>
       <th>Beskrivelse</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let association of associations">
-      <td [innerHTML]="association.meta.rt | highlight"></td>
-      <td>
+      <td class="name" [innerHTML]="association.meta.rt | highlight"></td>
+      <td class="type">
         <a *ngIf="association.target.type" [routerLink]="['/api']" [fragment]="association.target.type" [innerHTML]="association.meta.ea_targetName | highlight"></a>
         <span *ngIf="!association.target.type" [innerHTML]="association.meta.ea_targetName | highlight"></span>
       </td>
