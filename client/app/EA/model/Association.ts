@@ -4,8 +4,8 @@ import { Connection } from './Connection';
 export class Association extends EABaseClass {
   source: Connection;
   target: Connection;
-  _targetType: EABaseClass;
-  _sourceType: EABaseClass;
+  //_targetType: EABaseClass;
+  //_sourceType: EABaseClass;
   /*
     get sourceType(): EABaseClass {
       if (!this._sourceType && this.meta['ea_sourceID']) {
@@ -21,13 +21,13 @@ export class Association extends EABaseClass {
       return this._targetType;
     }
   */
-  constructor(json: any) {
-    super(json);
+  constructor(json: any, parent: EABaseClass) {
+    super(json, parent);
     let connections: Connection[];
     if (Array.isArray(json['Association.connection'].AssociationEnd)) {
-      connections = json['Association.connection'].AssociationEnd.map(conn => new Connection(conn));
+      connections = json['Association.connection'].AssociationEnd.map(conn => new Connection(conn, this));
     } else {
-      connections = [new Connection(json['Association.connection'].AssociationEnd)];
+      connections = [new Connection(json['Association.connection'].AssociationEnd, this)];
     }
     if (connections.length > 2) {
       throw 'Unmatched connection length: ' + connections.length;

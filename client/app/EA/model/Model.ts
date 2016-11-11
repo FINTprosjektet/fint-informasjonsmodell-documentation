@@ -11,10 +11,10 @@ export class Model extends EABaseClass {
   collaboration: Collaboration;
   package: Package;
 
-  constructor(json: {}) {
-    super(json);
+  constructor(json: {}, parent: EABaseClass) {
+    super(json, parent);
     if (json['Namespace.ownedElement'] && json['Namespace.ownedElement'].Class) {
-      this.classification = new Classification(json['Namespace.ownedElement'].Class);
+      this.classification = new Classification(json['Namespace.ownedElement'].Class, this);
     }
     if (json['Namespace.ownedElement'] && json['Namespace.ownedElement'].Package) {
       let mainPackage = json['Namespace.ownedElement'].Package;
@@ -22,9 +22,9 @@ export class Model extends EABaseClass {
         this.meta = EABaseClass.toMeta(mainPackage['ModelElement.taggedValue'].TaggedValue);
       }
       if (mainPackage['Namespace.ownedElement'] && mainPackage['Namespace.ownedElement'].Collaboration) {
-        this.collaboration = new Collaboration(mainPackage['Namespace.ownedElement'].Collaboration);
+        this.collaboration = new Collaboration(mainPackage['Namespace.ownedElement'].Collaboration, this);
       }
-      this.package = new Package(mainPackage['Namespace.ownedElement'].Package);
+      this.package = new Package(mainPackage['Namespace.ownedElement'].Package, this);
     }
   }
 

@@ -6,13 +6,13 @@ export class Collaboration extends EABaseClass {
   classifiers: Classifier[];
 
 
-  constructor(json: any) {
-    super(json);
+  constructor(json: any, parent: EABaseClass) {
+    super(json, parent);
     if (json['Namespace.ownedElement'] && json['Namespace.ownedElement'].ClassifierRole) {
       if (Array.isArray(json['Namespace.ownedElement'].ClassifierRole)) {
-        this.classifiers = json['Namespace.ownedElement'].ClassifierRole.map(cls => new Classifier(cls));
+        this.classifiers = json['Namespace.ownedElement'].ClassifierRole.map(cls => new Classifier(cls, this));
       } else {
-        this.classifiers = [new Classifier(json['Namespace.ownedElement'].ClassifierRole)];
+        this.classifiers = [new Classifier(json['Namespace.ownedElement'].ClassifierRole, this)];
       }
     }
     if (json['Collaboration.interaction']) {

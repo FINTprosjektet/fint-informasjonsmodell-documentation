@@ -1,10 +1,12 @@
+import { Package } from '../../EA/model/Package';
+import { Classification } from '../../EA/model/Classification';
 import { Stereotype } from '../../EA/model/Stereotype';
 import { Model } from '../../EA/model/Model';
 import { Title } from '@angular/platform-browser';
 import { ModelService } from '../../EA/model.service';
 import { Router } from '@angular/router';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import * as D3 from 'd3';
+import * as D3 from '../../d3.bundle';
 
 @Component({
   selector: 'app-model',
@@ -66,34 +68,32 @@ export class ModelComponent implements OnInit, AfterViewInit {
       .attr('class', 'stereotype');
     stereotype // Build a rectangle to hold the stereotype
       .append('rect')
-      .attr('x', (d, index, arr) => 1) //(index * 200) + me.margin.right)
-      .attr('y', (d, index, arr) => (index * 103) + me.margin.bottom)
-      .attr('rx', 10)
-      .attr('ry', 10)
-      .attr('width', 200)
-      .attr('height', 100)
+      .each(function (d: Stereotype, index: number) { D3.select(this).attrs(d.renderBox(index, this.margin)); })
       .on('click', (d: Stereotype) => me.router.navigate(['/api'], { fragment: d.xmlId }));
     stereotype // Add a header
       .append('text')
       .text((d: Stereotype) => d.name)
-      .attr('x', (d, index, arr) => 10) //(index * 200) + me.margin.right)
-      .attr('y', (d, index, arr) => (index * 103) + 20 + me.margin.top);
+      .each(function (d: Stereotype, index: number) { D3.select(this).attrs(d.renderText(index, this.margin)); });
 
     // Render classes
     let allClasses = stereotype.selectAll('g.class')
-      .data((d: Stereotype) => d.class)
+      .data(d => d.allClasses)
       .enter();
     let classStruct = allClasses.append('g')
       .attr('class', 'class');
-    classStruct
+    classStruct // Calculate width of box based on text width
+      .append('text')
+      .text((d: Classification) => d.name)
+      .each(function (d: Classification, index: number) { d.width = this.getBBox().width + 20; this.remove(); });
+    classStruct // Build a rectangle to hold the class
       .append('rect')
-      .attr('x', (d, index, arr) => (index * 20)) //(index * 200) + me.margin.right)
-      .attr('y', (d, index, arr) => 40)
-      .attr('rx', 5)
-      .attr('ry', 5)
-      .attr('width', 10)
-      .attr('height', 10);
-
+      .each(function (d: Classification, index: number) { D3.select(this).attrs(d.renderBox(index, this.margin)); })
+      .on('click', (d: Classification) => me.router.navigate(['/api'], { fragment: d.xmlId }));
+    classStruct // Apply the text
+      .append('text')
+      .text((d: Classification) => d.name)
+      .each(function (d: Classification, index: number) { D3.select(this).attrs(d.renderText(index, this.margin)); })
+      .on('click', (d: Classification) => me.router.navigate(['/api'], { fragment: d.xmlId }));
   }
 
   private getClasses(stereotypes: Stereotype[]) {

@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 @import "variables";
 @import "styles/table";
+@import "styles/svg";
 
 body {
   margin: 0; padding:0;
@@ -65,17 +66,5 @@ a {
     display: block;
     height: 75px;
     margin-top: -75px;
-  }
-}
-
-svg {
-  g.stereotype {
-    cursor: pointer;
-    rect {
-      fill-opacity: 1;
-      fill: #fffbd9;
-      stroke: $border-color;
-      stroke-width: 2;
-    }
   }
 }

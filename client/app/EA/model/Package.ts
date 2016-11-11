@@ -10,16 +10,16 @@ export class Package extends EABaseClass {
   package: Package;
   stereotypes: Stereotype[];
 
-  constructor(json: {}) {
-    super(json);
+  constructor(json: {}, parent: EABaseClass) {
+    super(json, parent);
     if (json['Namespace.ownedElement'] && json['Namespace.ownedElement'].Collaboration) {
-      this.collaboration = new Collaboration(json['Namespace.ownedElement'].Collaboration);
+      this.collaboration = new Collaboration(json['Namespace.ownedElement'].Collaboration, this);
     }
     if (json['Namespace.ownedElement'] && json['Namespace.ownedElement'].Package) {
       if (Array.isArray(json['Namespace.ownedElement'].Package)) {
-        this.stereotypes = json['Namespace.ownedElement'].Package.map(cls => new Stereotype(cls));
+        this.stereotypes = json['Namespace.ownedElement'].Package.map(cls => new Stereotype(cls, this));
       } else {
-        this.package = new Package(json['Namespace.ownedElement'].Package);
+        this.package = new Package(json['Namespace.ownedElement'].Package, this);
       }
     }
   }

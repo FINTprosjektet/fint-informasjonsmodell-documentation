@@ -1,0 +1,20 @@
+svg {
+  g.stereotype {
+    cursor: pointer;
+    > rect {
+      fill-opacity: 0;
+      stroke: $border-color;
+      stroke-width: 2;
+      stroke-dasharray: 5, 5;
+    }
+  }
+
+  g.class {
+    > rect {
+      fill-opacity: 1;
+      fill: #fffbd9;
+      stroke: $border-color;
+      stroke-width: 2;
+    }
+  }
+}

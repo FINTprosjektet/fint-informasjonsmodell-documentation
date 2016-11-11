@@ -13,8 +13,8 @@ export class Attribute extends EABaseClass {
       return this._sourceType;
     }
   */
-  constructor(json) {
-    super(json);
+  constructor(json, parent: EABaseClass) {
+    super(json, parent);
     this.visibility = json['_visibility'];
 
     if (json['StructuralFeature.type'] && json['StructuralFeature.type'].Classifier['_xmi.idref'].indexOf('eaxmi') === -1) {

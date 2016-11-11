@@ -66,7 +66,7 @@ export class ModelService {
   }
 
   parseModel() {
-    this.cachedModel = new Model(this.json);
+    this.cachedModel = new Model(this.json, null);
     return this.cachedModel;
   }
 
