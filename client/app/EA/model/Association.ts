@@ -1,7 +1,6 @@
 import { EABaseClass } from './EABaseClass';
 import { Connection } from './Connection';
 import { Classification } from './Classification';
-import * as D3 from '../../d3.bundle';
 
 export class Association extends EABaseClass {
   source: Connection;
@@ -64,8 +63,8 @@ export class Association extends EABaseClass {
   renderText(idx: number) {
     if (!this.textConfig) {
       this.textConfig = {
-        'x': D3.max(this.lineConfig['x1'], this.lineConfig['x2']) - D3.min(this.lineConfig['x1'], this.lineConfig['x2']),
-        'y': D3.max(this.lineConfig['y1'], this.lineConfig['y2']) - D3.min(this.lineConfig['y1'], this.lineConfig['y2']),
+        'x': (this.lineConfig['x1'] + this.lineConfig['x2']) / 2,
+        'y': (this.lineConfig['y1'] + this.lineConfig['y2']) / 2,
       };
     }
     return this.textConfig;
