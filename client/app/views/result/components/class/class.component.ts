@@ -1,3 +1,4 @@
+import { ActivatedRoute } from '@angular/router';
 import { Classification } from '../../../../EA/model/Classification';
 import { Component, ElementRef, Input, OnInit, Renderer } from '@angular/core';
 
@@ -19,9 +20,15 @@ export class ClassComponent implements OnInit {
     }
   }
 
-  constructor(private elm: ElementRef, private renderer: Renderer) { }
+  constructor(private elm: ElementRef, private renderer: Renderer, private route: ActivatedRoute) { }
 
   ngOnInit() {
     this.renderer.setElementClass(this.elm.nativeElement, this.classification.type.toLowerCase(), true);
+    this.route.fragment.subscribe(fragment => {
+      this.renderer.setElementClass(this.elm.nativeElement, 'selected', fragment === this.classification.xmlId);
+      setTimeout(() => {
+        this.renderer.setElementClass(this.elm.nativeElement, 'selected', false);
+      }, 2000);
+    });
   }
 }

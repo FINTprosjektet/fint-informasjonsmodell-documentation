@@ -6,6 +6,10 @@
   border: 1px solid $border-color;
   margin-bottom: 15px;
   background-color: #f5f5f5;
+  box-shadow: 0;
+  transition-duration: 0.5s;
+  transition-timing-function: ease-in-out;
+  transition-property: border-color, box-shadow;
   &.table {
     background-color: $table-color;
   }
@@ -17,6 +21,10 @@
   }
   &.codelist {
     background-color: $codelist-color;
+  }
+  &.selected {
+    border-color: darken($border-color, 20%);
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
   }
 }
 

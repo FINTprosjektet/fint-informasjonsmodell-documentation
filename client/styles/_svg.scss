@@ -1,12 +1,19 @@
 @import 'variables';
 svg {
+  g > rect {
+    stroke-width: 1;
+  }
+
   g.stereotype {
     cursor: pointer;
     > rect {
       fill-opacity: 0;
       stroke: $border-color;
-      stroke-width: 2;
       stroke-dasharray: 5, 5;
+    }
+    &:hover > rect {
+      stroke-width: 2;
+      stroke: darken($border-color, 10%);
     }
   }
 
@@ -15,7 +22,10 @@ svg {
       fill: white;
       fill-opacity: 1;
       stroke: $border-color;
+    }
+    &:hover > rect {
       stroke-width: 2;
+      stroke: darken($border-color, 10%);
     }
     &.table > rect {
       fill: $table-color;
