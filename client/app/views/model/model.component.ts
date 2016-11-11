@@ -80,7 +80,7 @@ export class ModelComponent implements OnInit, AfterViewInit {
       .data(d => d.allClasses)
       .enter();
     let classStruct = allClasses.append('g')
-      .attr('class', 'class');
+      .attr('class', (d: Classification) => 'class ' + d.type.toLowerCase());
     classStruct // Calculate width of box based on text width
       .append('text')
       .text((d: Classification) => d.name)

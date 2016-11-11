@@ -6,6 +6,18 @@
   border: 1px solid $border-color;
   margin-bottom: 15px;
   background-color: #f5f5f5;
+  &.table {
+    background-color: $table-color;
+  }
+  &.datatype {
+    background-color: $datatype-color;
+  }
+  &.enumeration {
+    background-color: $enumeration-color;
+  }
+  &.codelist {
+    background-color: $codelist-color;
+  }
 }
 
 header {

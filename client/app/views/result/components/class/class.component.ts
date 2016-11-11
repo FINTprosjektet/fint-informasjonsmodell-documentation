@@ -22,6 +22,6 @@ export class ClassComponent implements OnInit {
   constructor(private elm: ElementRef, private renderer: Renderer) { }
 
   ngOnInit() {
-    this.renderer.setElementClass(this.elm.nativeElement, this.classification.type, true);
+    this.renderer.setElementClass(this.elm.nativeElement, this.classification.type.toLowerCase(), true);
   }
 }

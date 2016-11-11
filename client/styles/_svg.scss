@@ -1,3 +1,4 @@
+@import 'variables';
 svg {
   g.stereotype {
     cursor: pointer;
@@ -11,10 +12,22 @@ svg {
 
   g.class {
     > rect {
+      fill: white;
       fill-opacity: 1;
-      fill: #fffbd9;
       stroke: $border-color;
       stroke-width: 2;
+    }
+    &.table > rect {
+      fill: $table-color;
+    }
+    &.datatype > rect {
+      fill: $datatype-color;
+    }
+    &.enumeration > rect {
+      fill: $enumeration-color;
+    }
+    &.codelist > rect {
+      fill: $codelist-color;
     }
   }
 }
