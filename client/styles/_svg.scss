@@ -40,4 +40,11 @@ svg {
       fill: $codelist-color;
     }
   }
+
+  g.association {
+    > line {
+      stroke: black;
+      stroke-width: 1;
+    }
+  }
 }

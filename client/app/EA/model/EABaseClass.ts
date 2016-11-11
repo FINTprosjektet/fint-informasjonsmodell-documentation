@@ -87,7 +87,7 @@ export class EABaseClass {
       obj: null
     };
     _.each(Object.keys(me), function (key) {
-      if (!search.obj && me[key] !== parent) {
+      if (!search.obj && me[key] !== parent && key !== 'parent' && key !== 'container' && key !== 'allClasses') {
         if (Array.isArray(me[key])) {
           _.each(me[key], o => EABaseClass.match(o, comparator, search, me));
         } else {

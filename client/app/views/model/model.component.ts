@@ -1,3 +1,4 @@
+import { Association } from '../../EA/model/Association';
 import { Package } from '../../EA/model/Package';
 import { Classification } from '../../EA/model/Classification';
 import { Stereotype } from '../../EA/model/Stereotype';
@@ -50,7 +51,7 @@ export class ModelComponent implements OnInit, AfterViewInit {
 
     this.host.html('');
     this.svg = this.host.append('svg')
-      .attr('width', this.width + this.margin.left + this.margin.right)
+      .attr('width', '100%')
       .attr('height', this.height + this.margin.top + this.margin.bottom)
       .append('g')
       .attr('class', 'model')
@@ -62,41 +63,52 @@ export class ModelComponent implements OnInit, AfterViewInit {
 
     // Render stereotypes
     let allStereotypes = this.svg.selectAll('g.stereotype')
-      .data(this.getClasses(this.model.package.stereotypes))
+      .data(this.model.package.stereotypes)
       .enter();
-    let stereotype = allStereotypes.append('g')
+    let stereotypeGroup = allStereotypes.append('g')
       .attr('class', 'stereotype');
-    stereotype // Build a rectangle to hold the stereotype
+    stereotypeGroup // Build a rectangle to hold the stereotype
       .append('rect')
       .each(function (d: Stereotype, index: number) { D3.select(this).attrs(d.renderBox(index, this.margin)); })
       .on('click', (d: Stereotype) => me.router.navigate(['/api'], { fragment: d.xmlId }));
-    stereotype // Add a header
+    stereotypeGroup // Add a header
       .append('text')
       .text((d: Stereotype) => d.name)
       .each(function (d: Stereotype, index: number) { D3.select(this).attrs(d.renderText(index, this.margin)); });
 
     // Render classes
-    let allClasses = stereotype.selectAll('g.class')
-      .data(d => d.allClasses)
+    let allClasses = stereotypeGroup.selectAll('g.class')
+      .data((d: Stereotype) => d.allClasses)
       .enter();
-    let classStruct = allClasses.append('g')
-      .attr('class', (d: Classification) => 'class ' + d.type.toLowerCase());
-    classStruct // Calculate width of box based on text width
+    let classGroup = allClasses.append('g')
+      .attr('class', (d: Classification) => 'class ' + d.type.toLowerCase())
+      .attr('id', (d: Classification) => d.xmlId);
+    classGroup // Calculate width of box based on text width
       .append('text')
       .text((d: Classification) => d.name)
       .each(function (d: Classification, index: number) { d.width = this.getBBox().width + 20; this.remove(); });
-    classStruct // Build a rectangle to hold the class
+    classGroup // Build a rectangle to hold the class
       .append('rect')
       .each(function (d: Classification, index: number) { D3.select(this).attrs(d.renderBox(index, this.margin)); })
       .on('click', (d: Classification) => me.router.navigate(['/api'], { fragment: d.xmlId }));
-    classStruct // Apply the text
+    classGroup // Apply the text
       .append('text')
       .text((d: Classification) => d.name)
       .each(function (d: Classification, index: number) { D3.select(this).attrs(d.renderText(index, this.margin)); })
       .on('click', (d: Classification) => me.router.navigate(['/api'], { fragment: d.xmlId }));
-  }
 
-  private getClasses(stereotypes: Stereotype[]) {
-    return stereotypes;
+    // Render associations
+    let allAssociations = classGroup.selectAll('g.association')
+      .data((d: Classification) => { if (d && d.associations) { return d.associations; } else { return []; } })
+      .enter();
+    let lineGroup = allAssociations.append('g')
+      .attr('class', 'association');
+    lineGroup
+      .append('line')
+      .attrs((d: Association, index) => d.renderLine(index));
+    lineGroup
+      .append('text')
+      .text((d: Association) => d.target.multiplicity)
+      .attrs((d: Association, index) => d.renderText(index));
   }
 }

@@ -1,4 +1,3 @@
-import { Router } from '@angular/router';
 import { EABaseClass } from './model/EABaseClass';
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
@@ -9,6 +8,12 @@ import { Model } from './model/Model';
 
 declare const X2JS: any; // Global module
 
+/**
+ *
+ *
+ * @export
+ * @class ModelService
+ */
 @Injectable()
 export class ModelService {
   json: {};
@@ -27,10 +32,24 @@ export class ModelService {
     this.filterModel(value);
   }
 
-  constructor(private http: Http, private router: Router) {
+  /**
+   * Creates an instance of ModelService.
+   *
+   * @param {Http} http
+   *
+   * @memberOf ModelService
+   */
+  constructor(private http: Http) {
     EABaseClass.service = this;
   }
 
+  /**
+   *
+   *
+   * @returns {Promise<Model>}
+   *
+   * @memberOf ModelService
+   */
   fetchModel(): Promise<Model> {
     let me = this;
 
@@ -65,15 +84,38 @@ export class ModelService {
     }
   }
 
+  /**
+   *
+   *
+   * @returns
+   *
+   * @memberOf ModelService
+   */
   parseModel() {
     this.cachedModel = new Model(this.json, null);
     return this.cachedModel;
   }
 
+  /**
+   *
+   *
+   * @param {string} xmlId
+   * @returns {EABaseClass}
+   *
+   * @memberOf ModelService
+   */
   findByXmlId(xmlId: string): EABaseClass {
     return this.cachedModel.findByXmlId(xmlId);
   }
 
+  /**
+   *
+   *
+   * @param {number} id
+   * @returns {EABaseClass}
+   *
+   * @memberOf ModelService
+   */
   findById(id: number): EABaseClass {
     return this.cachedModel.findById(id);
   }

@@ -107,7 +107,7 @@ export class Stereotype extends EABaseClass {
         y: (idx * 103) + 10,
         rx: 10,
         ry: 10,
-        width: 600,
+        width: 700,
         height: 100
       };
     }
