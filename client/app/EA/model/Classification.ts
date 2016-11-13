@@ -1,9 +1,9 @@
-import { Package } from './Package';
-import { Classifier } from './Classifier';
+import { document } from '@angular/platform-browser/src/facade/browser';
 import { Association } from './Association';
 import { Stereotype } from './Stereotype';
 import { EABaseClass } from './EABaseClass';
 import { Attribute } from './Attribute';
+import * as D3 from '../../d3.bundle';
 
 export class Classification extends EABaseClass {
   visibility: string;
@@ -12,10 +12,16 @@ export class Classification extends EABaseClass {
   associations: Association[];
 
   // Properties for rendering
-  container: Stereotype;
+  private _boxElement: SVGGElement;
+  get boxElement() { return this._boxElement; }
+  set boxElement(elm: SVGGElement) {
+    this._boxElement = elm;
+    this.render();
+  }
+  x: number;
+  y: number;
   width: number;
-  boxConfig: {};
-  textConfig: {};
+  height: number = 30;
 
   constructor(json, parent: EABaseClass) {
     super(json, parent);
@@ -56,55 +62,68 @@ export class Classification extends EABaseClass {
     return null;
   }
 
-  /**
-   *
-   *
-   * @param {number} idx
-   * @param {any} margins
-   * @returns
-   *
-   * @memberOf Classification
-   */
-  renderBox(idx: number, margins) {
-    if (!this.boxConfig) {
-      let parent: Stereotype = this.container;
-      let previous: Classification;
-      if (idx > 0) { previous = parent.allClasses[idx - 1]; }
-      let x = parent.boxConfig['x'] + (previous ? previous.boxConfig['x'] + previous.boxConfig['width'] : 0) + 10;
-      let y = (previous ? previous.boxConfig['y'] : parent.boxConfig['y'] + 20);
-      if ((x + this.width) > parent.boxConfig['width']) {
-        // Fall down one line
-        y = previous.boxConfig['y'] + 35;
-        x = 10;
-      }
-      this.boxConfig = {
-        x: x,
-        y: y,
-        rx: 5,
-        ry: 5,
-        width: this.width,
-        height: 30
-      };
-    }
-    return this.boxConfig;
+  getAbsolutePosition(): { x: number, y: number } {
+    let bbox = this.boxElement.getBBox();
+    let middleX = bbox.x + (bbox.width / 2);
+    let middleY = bbox.y + (bbox.height / 2);
+
+    let convert = this.makeAbsoluteContext(this.boxElement);
+    return convert(middleX, middleY);
   }
 
-  /**
-   *
-   *
-   * @param {number} idx
-   * @param {any} margins
-   * @returns
-   *
-   * @memberOf Classification
-   */
-  renderText(idx: number, margins) {
-    if (!this.textConfig) {
-      this.textConfig = {
-        x: this.boxConfig['x'] + 10,
-        y: this.boxConfig['y'] + 20
-      };
+  render() {
+    let me = this;
+    // Add class and id attributes to box element
+    D3.select(this.boxElement)
+      .attr('class', 'class ' + this.type.toLowerCase())
+      .attr('id', this.xmlId);
+
+    // Calculate width of box based on text width
+    D3.select(this.boxElement)
+      .append('text')
+      .text(this.name)
+      .each(function (d: Classification) { me.width = this.getBBox().width + 20; this.remove(); });
+
+    // Add a rect
+    D3.select(this.boxElement)
+      .append('rect')
+      .attrs({ x: 0, y: 0, rx: 5, ry: 5, width: this.width, height: this.height });
+
+    // Add a header
+    D3.select(this.boxElement)
+      .append('text')
+      .text(this.name)
+      .attrs({ x: 10, y: 20 });
+  }
+
+  getStereotype(): Stereotype {
+    return this.boxElement.parentNode.parentNode['__data__'];
+  }
+
+  getPrevious(): Classification {
+    let previous = this.boxElement.previousSibling;
+    if (previous) {
+      if (previous['__data__'] && previous['__data__'] instanceof Classification) {
+        return previous['__data__'];
+      }
     }
-    return this.textConfig;
+    return null;
+  }
+
+  update() {
+    let idx = Array.prototype.indexOf.call(this.boxElement.parentNode.childNodes, this.boxElement);
+    let parent: Stereotype = this.getStereotype();
+    let previous: Classification = this.getPrevious();
+
+    this.x = (previous ? (previous.x + previous.width) : 0) + 10;
+    this.y = (previous ? previous.y : 20);
+    if (previous && (this.x + this.width) > parent.width) {
+      // Fall down one line
+      this.y = previous.y + 35;
+      this.x = 10;
+    }
+
+    D3.select(this.boxElement)
+      .attr('transform', `translate(${this.x}, ${this.y})`);
   }
 }

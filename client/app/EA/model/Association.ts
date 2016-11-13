@@ -1,6 +1,7 @@
 import { EABaseClass } from './EABaseClass';
 import { Connection } from './Connection';
 import { Classification } from './Classification';
+import * as D3 from '../../d3.bundle';
 
 export class Association extends EABaseClass {
   source: Connection;
@@ -9,8 +10,12 @@ export class Association extends EABaseClass {
   _sourceType: EABaseClass;
 
   // Properties for rendering
-  lineConfig: {};
-  textConfig: {};
+  private _boxElement: SVGElement;
+  get boxElement() { return this._boxElement; }
+  set boxElement(elm: SVGElement) {
+    this._boxElement = elm;
+    this.render();
+  }
 
   get sourceType(): EABaseClass {
     if (!this._sourceType && this.meta['ea_sourceID']) {
@@ -46,27 +51,37 @@ export class Association extends EABaseClass {
     });
   }
 
-  renderLine(idx: number) {
-    if (!this.lineConfig) {
-      let source: Classification = <Classification>this.sourceType;
-      let target: Classification = <Classification>this.targetType;
-      this.lineConfig = {
-        'x1': source.boxConfig['x'] + (source.boxConfig['width'] / 2),
-        'y1': source.boxConfig['y'] + (source.boxConfig['height'] / 2),
-        'x2': target.boxConfig['x'] + (target.boxConfig['width'] / 2),
-        'y2': target.boxConfig['y'] + (target.boxConfig['height'] / 2),
-      };
-    }
-    return this.lineConfig;
+  render() {
+    D3.select(this.boxElement)
+      .append('path');
+
+    D3.select(this.boxElement)
+      .append('text')
+      .text((d: Association) => d.target.multiplicity);
   }
 
-  renderText(idx: number) {
-    if (!this.textConfig) {
-      this.textConfig = {
-        'x': (this.lineConfig['x1'] + this.lineConfig['x2']) / 2,
-        'y': (this.lineConfig['y1'] + this.lineConfig['y2']) / 2,
-      };
-    }
-    return this.textConfig;
+  update() {
+    let source: Classification = <Classification>this.sourceType;
+    let target: Classification = <Classification>this.targetType;
+    let sourceAbs = source.getAbsolutePosition();
+    let targetAbs = target.getAbsolutePosition();
+
+    let lineData: [number, number][] = [
+      [sourceAbs.x, sourceAbs.y],
+      [sourceAbs.x + 100, sourceAbs.y + 100],
+      [targetAbs.x + 100, targetAbs.y + 100],
+      [targetAbs.x, targetAbs.y]
+    ];
+    let line = D3.line()
+      .curve(D3.curveNatural);
+
+    D3.select(this.boxElement.querySelector('path'))
+      .attr('d', line(lineData));
+
+    D3.select(this.boxElement.querySelector('text'))
+      .attrs({
+        'x': (sourceAbs.x + targetAbs.x) / 2,
+        'y': (sourceAbs.y + targetAbs.y) / 2,
+      });
   }
 }

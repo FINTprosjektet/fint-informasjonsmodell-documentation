@@ -1,5 +1,4 @@
 import { Association } from '../../EA/model/Association';
-import { Package } from '../../EA/model/Package';
 import { Classification } from '../../EA/model/Classification';
 import { Stereotype } from '../../EA/model/Stereotype';
 import { Model } from '../../EA/model/Model';
@@ -22,7 +21,6 @@ export class ModelComponent implements OnInit, AfterViewInit {
   private svg;
   private width;
   private height;
-  private margin;
   private htmlElement: HTMLElement;
 
   constructor(private modelService: ModelService, private router: Router, private titleService: Title) { }
@@ -40,75 +38,96 @@ export class ModelComponent implements OnInit, AfterViewInit {
     this.modelService.fetchModel().then(function (model: Model) {
       me.model = model;
       me.setup();
-      me.buildModel();
+      me.render();
     });
   }
 
+  onResize($event) {
+    this.update();
+  }
+
   private setup(): void {
-    this.margin = { top: 10, right: 10, bottom: 10, left: 10 };
-    this.width = this.htmlElement.clientWidth - this.margin.left - this.margin.right;
-    this.height = (this.model.package.stereotypes.length * 100) + this.margin.top + this.margin.bottom;
+    this.width = this.htmlElement.clientWidth;
+    this.height = (this.model.package.stereotypes.length * 100);
 
     this.host.html('');
     this.svg = this.host.append('svg')
-      .attr('width', '100%')
-      .attr('height', this.height + this.margin.top + this.margin.bottom)
+      .attr('class', 'diagram')
       .append('g')
       .attr('class', 'model')
-      .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
+      .attr('transform', 'translate(0,0)');
   }
 
-  private buildModel() {
+  getAllAssociations() {
+    let associations: Association[] = [];
+    this.model.package.stereotypes.forEach(type => {
+      type.allClasses.forEach(cls => {
+        if (cls.associations && cls.associations.length) {
+          associations = associations.concat(cls.associations);
+        }
+      });
+    });
+    return associations;
+  }
+
+  private render() {
     let me = this;
+    let associations: Association[] = [];
+
+    // Render associations (in a top layer, so as not to disturb the stereotype groups bounding box,
+    // since associations can go accross stereotypes)
+    this.svg
+      .append('g')
+      .attr('class', 'associations')
+      .selectAll('g.association')
+      .data(this.getAllAssociations())
+      .enter()
+      .append('g')
+      .attr('class', 'association')
+      .each(function (d: Association) { d.boxElement = this; })
 
     // Render stereotypes
-    let allStereotypes = this.svg.selectAll('g.stereotype')
+    let allStereotypes = this.svg
+      .append('g')
+      .attr('class', 'stereotypes')
+      .selectAll('g.stereotype')
       .data(this.model.package.stereotypes)
       .enter();
     let stereotypeGroup = allStereotypes.append('g')
-      .attr('class', 'stereotype');
-    stereotypeGroup // Build a rectangle to hold the stereotype
-      .append('rect')
-      .each(function (d: Stereotype, index: number) { D3.select(this).attrs(d.renderBox(index, this.margin)); })
-      .on('click', (d: Stereotype) => me.router.navigate(['/api'], { fragment: d.xmlId }));
-    stereotypeGroup // Add a header
-      .append('text')
-      .text((d: Stereotype) => d.name)
-      .each(function (d: Stereotype, index: number) { D3.select(this).attrs(d.renderText(index, this.margin)); });
+      .each(function (d: Stereotype) {
+        d.boxElement = this;  // Let the stereotype render the element
+        D3.select(d.boxElement.querySelector('rect')).on('click', () => me.router.navigate(['/api'], { fragment: d.xmlId }));
+      })
+      .append('g');
 
-    // Render classes
-    let allClasses = stereotypeGroup.selectAll('g.class')
+    // Render classes (inside the stereotype group)
+    stereotypeGroup.selectAll('g.class')
       .data((d: Stereotype) => d.allClasses)
-      .enter();
-    let classGroup = allClasses.append('g')
-      .attr('class', (d: Classification) => 'class ' + d.type.toLowerCase())
-      .attr('id', (d: Classification) => d.xmlId);
-    classGroup // Calculate width of box based on text width
-      .append('text')
-      .text((d: Classification) => d.name)
-      .each(function (d: Classification, index: number) { d.width = this.getBBox().width + 20; this.remove(); });
-    classGroup // Build a rectangle to hold the class
-      .append('rect')
-      .each(function (d: Classification, index: number) { D3.select(this).attrs(d.renderBox(index, this.margin)); })
-      .on('click', (d: Classification) => me.router.navigate(['/api'], { fragment: d.xmlId }));
-    classGroup // Apply the text
-      .append('text')
-      .text((d: Classification) => d.name)
-      .each(function (d: Classification, index: number) { D3.select(this).attrs(d.renderText(index, this.margin)); })
+      .enter()
+      .append('g')
+      .each(function (d: Classification) {
+        d.boxElement = this;  // Let the Class render the element
+        if (d.associations && d.associations.length) {
+          associations = associations.concat(d.associations);
+        }
+      })
       .on('click', (d: Classification) => me.router.navigate(['/api'], { fragment: d.xmlId }));
 
-    // Render associations
-    let allAssociations = classGroup.selectAll('g.association')
-      .data((d: Classification) => { if (d && d.associations) { return d.associations; } else { return []; } })
-      .enter();
-    let lineGroup = allAssociations.append('g')
-      .attr('class', 'association');
-    lineGroup
-      .append('line')
-      .attrs((d: Association, index) => d.renderLine(index));
-    lineGroup
-      .append('text')
-      .text((d: Association) => d.target.multiplicity)
-      .attrs((d: Association, index) => d.renderText(index));
+    setTimeout(() => this.update());
+  }
+
+  update() {
+    // Update every part of the model
+    this.model.package.stereotypes.forEach(type => {
+      let associations: Association[] = [];
+      type.allClasses.forEach(cls => {
+        cls.update();
+        if (cls.associations && cls.associations.length) {
+          associations = associations.concat(cls.associations);
+        }
+      });
+      type.update();
+      setTimeout(() => associations.forEach(ass => ass.update()));
+    });
   }
 }

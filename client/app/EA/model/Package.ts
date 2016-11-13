@@ -1,6 +1,7 @@
 import { Stereotype } from './Stereotype';
 import { Collaboration } from './Collaboration';
 import { EABaseClass } from './EABaseClass';
+import * as D3 from '../../d3.bundle';
 
 /**
  *
@@ -8,7 +9,7 @@ import { EABaseClass } from './EABaseClass';
 export class Package extends EABaseClass {
   collaboration: Collaboration;
   package: Package;
-  stereotypes: Stereotype[];
+  stereotypes: Stereotype[] = [];
 
   constructor(json: {}, parent: EABaseClass) {
     super(json, parent);

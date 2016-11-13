@@ -1,7 +1,9 @@
+import { document } from '@angular/platform-browser/src/facade/browser';
 import { EABaseClass } from './EABaseClass';
 import { Package } from './Package';
 import { Classification } from './Classification';
 import { Association } from './Association';
+import * as D3 from '../../d3.bundle';
 
 /**
  *
@@ -22,17 +24,23 @@ export class Stereotype extends EABaseClass {
     let me = this;
     if (me.packages) {
       me.packages.forEach(pkg => pkg.stereotypes.forEach(type => {
-        type.class.forEach(cls => { cls.container = me; });
         subClasses = subClasses.concat(type.class);
       }));
     }
-    me.class.forEach(cls => { cls.container = me; });
     return me.class.concat(subClasses);
   }
 
   // Properties for rendering
-  boxConfig: {};
-  textConfig: {};
+  private _boxElement: SVGGElement;
+  get boxElement() { return this._boxElement; }
+  set boxElement(elm: SVGGElement) {
+    this._boxElement = elm;
+    this.render();
+  }
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 
   /**
    * Creates an instance of Stereotype.
@@ -92,44 +100,53 @@ export class Stereotype extends EABaseClass {
     return null;
   }
 
-  /**
-   *
-   *
-   * @param {number} idx
-   * @returns {}
-   *
-   * @memberOf Stereotype
-   */
-  renderBox(idx: number, margins) {
-    if (!this.boxConfig) {
-      this.boxConfig = {
-        x: 1,
-        y: (idx * 103) + 10,
-        rx: 10,
-        ry: 10,
-        width: 700,
-        height: 100
-      };
-    }
-    return this.boxConfig;
+  render() {
+    // Add a rect
+    let d3Select = D3.select(this.boxElement);
+    d3Select
+      .attr('class', 'stereotype')
+      .attr('id', this.xmlId)
+      .append('rect')
+      .attrs({ x: 0, y: 0, rx: 10, ry: 10, width: '100%', height: 100 });
+    let bbox = this.boxElement.getBBox();
+    this.width = bbox.width;
+    this.height = bbox.height;
+
+    // Add a header
+    d3Select
+      .append('text')
+      .text(this.name)
+      .attrs({ x: 10, y: 15 });
   }
 
-  /**
-   *
-   *
-   * @param {number} idx
-   * @param {any} margins
-   * @returns
-   *
-   * @memberOf Stereotype
-   */
-  renderText(idx: number, margins) {
-    if (!this.textConfig) {
-      this.textConfig = {
-        x: this.boxConfig['x'] + 10,
-        y: this.boxConfig['y'] + 15
-      };
+  getHeight() {
+    let classContainer = this.boxElement.querySelector('g');
+    let bbox = (classContainer ? classContainer.getBBox() : this.boxElement.getBBox());
+    return bbox.height + 70;
+  }
+
+  getPrevious() {
+    if (this.boxElement.previousSibling) {
+      return this.boxElement.previousSibling['__data__'];
     }
-    return this.textConfig;
+    return null;
+  }
+
+  update() {
+    let idx = Array.prototype.indexOf.call(this.boxElement.parentNode.childNodes, this.boxElement);
+
+    // Calculate width / height
+    this.width = this.boxElement.ownerSVGElement.clientWidth - 5;
+    this.height = this.getHeight();
+    D3.select(this.boxElement.querySelector('rect'))
+      .attrs({ width: this.width, height: this.height });
+
+
+    // Calculate + render x/y translation
+    let previous: Stereotype = this.getPrevious();
+    this.x = 1;
+    this.y = (previous ? (previous.y + previous.height) : 0) + 10;
+    D3.select(this.boxElement)
+      .attr('transform', `translate(${this.x}, ${this.y})`);
   }
 }

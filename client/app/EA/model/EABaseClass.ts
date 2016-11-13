@@ -125,4 +125,15 @@ export class EABaseClass {
       return (obj.id === id);
     }, this);
   }
+
+  makeAbsoluteContext(element) {
+    return function (x, y) {
+      let offset = element.ownerSVGElement.getBoundingClientRect();
+      let matrix = element.getScreenCTM();
+      return {
+        x: (matrix.a * x) + (matrix.c * y) + matrix.e - offset.left,
+        y: (matrix.b * x) + (matrix.d * y) + matrix.f - offset.top
+      };
+    };
+  }
 }

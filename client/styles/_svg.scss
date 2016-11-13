@@ -1,5 +1,7 @@
 @import 'variables';
-svg {
+svg.diagram {
+  width: 100%;
+  height: 100%;
   g > rect {
     stroke-width: 1;
   }
@@ -15,6 +17,12 @@ svg {
       stroke-width: 2;
       stroke: darken($border-color, 10%);
     }
+  }
+  text {
+    fill-opacity: 1;
+    fill: $text-color;
+    stroke-dasharray: none;
+    stroke-opacity: 0;
   }
 
   g.class {
@@ -42,9 +50,13 @@ svg {
   }
 
   g.association {
-    > line {
+    > path {
+      fill-opacity: 0;
       stroke: black;
       stroke-width: 1;
+    }
+    > text {
+      background: white;
     }
   }
 }
