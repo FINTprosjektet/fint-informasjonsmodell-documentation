@@ -32,8 +32,9 @@ export class SidebarComponent implements OnInit {
   }
   checkElementInView() {
     this.stereotypes.forEach((type) => {
-      let elm = document.getElementById(type.xmlId).parentElement.parentElement;
+      let elm = document.getElementById(type.xmlId);
       if (elm) {
+        elm = elm.parentElement.parentElement;
         let box = elm.getBoundingClientRect();
         if (box.top < (this.getWindowSize().h - 60) && box.bottom > 60) {
           type.isActive = true;
