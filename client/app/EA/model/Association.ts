@@ -87,7 +87,7 @@ export class Association extends EABaseClass {
     let yMiddle = ((source.y + target.y) / 2);
     let xExtra; let yExtra;
     if (xMiddle === source.x && yMiddle === source.y) {
-      xExtra = xMiddle - 100;
+      xExtra = xMiddle - 50;
       yExtra = yMiddle + 50;
     }
     if (xMiddle === source.x) { xMiddle += 50; }
