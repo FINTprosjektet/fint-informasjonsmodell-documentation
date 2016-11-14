@@ -52,8 +52,17 @@ svg.diagram {
   g.association {
     > path {
       fill-opacity: 0;
-      stroke: black;
+      stroke: $border-color;
       stroke-width: 1;
+    }
+    &.over > path {
+      stroke-width: 1.5;
+    }
+    &.source > path {
+      stroke: #00ff00;
+    }
+    &.target > path {
+      stroke: #ff0000;
     }
     > text {
       background: white;

@@ -53,6 +53,7 @@ export class Association extends EABaseClass {
 
   render() {
     D3.select(this.boxElement)
+      .attr('class', 'association source_' + this.sourceType.xmlId + ' target_' + this.targetType.xmlId)
       .append('path');
 
     D3.select(this.boxElement)
@@ -66,22 +67,43 @@ export class Association extends EABaseClass {
     let sourceAbs = source.getAbsolutePosition();
     let targetAbs = target.getAbsolutePosition();
 
-    let lineData: [number, number][] = [
-      [sourceAbs.x, sourceAbs.y],
-      [sourceAbs.x + 100, sourceAbs.y + 100],
-      [targetAbs.x + 100, targetAbs.y + 100],
-      [targetAbs.x, targetAbs.y]
-    ];
+    let lineData: [number, number][] = this.calculatePathTo(sourceAbs, targetAbs);
     let line = D3.line()
       .curve(D3.curveNatural);
 
     D3.select(this.boxElement.querySelector('path'))
       .attr('d', line(lineData));
+    /*
+        D3.select(this.boxElement.querySelector('text'))
+          .attrs({
+            'x': (sourceAbs.x + targetAbs.x) / 2,
+            'y': (sourceAbs.y + targetAbs.y) / 2,
+          });
+    */
+  }
 
-    D3.select(this.boxElement.querySelector('text'))
-      .attrs({
-        'x': (sourceAbs.x + targetAbs.x) / 2,
-        'y': (sourceAbs.y + targetAbs.y) / 2,
-      });
+  calculatePathTo(source, target): [number, number][] {
+    let xMiddle = ((source.x + target.x) / 2);
+    let yMiddle = ((source.y + target.y) / 2);
+    let xExtra; let yExtra;
+    if (xMiddle === source.x && yMiddle === source.y) {
+      xExtra = xMiddle - 100;
+      yExtra = yMiddle + 50;
+    }
+    if (xMiddle === source.x) { xMiddle += 50; }
+    if (yMiddle === source.y) { yMiddle += 50; }
+    if (xExtra && yExtra) {
+      return [
+        [source.x, source.y],
+        [xMiddle, yMiddle],
+        [xExtra, yExtra],
+        [target.x, target.y]
+      ];
+    }
+    return [
+      [source.x, source.y],
+      [xMiddle, yMiddle],
+      [target.x, target.y]
+    ];
   }
 }

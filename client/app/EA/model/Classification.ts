@@ -76,7 +76,18 @@ export class Classification extends EABaseClass {
     // Add class and id attributes to box element
     D3.select(this.boxElement)
       .attr('class', 'class ' + this.type.toLowerCase())
-      .attr('id', this.xmlId);
+      .attr('id', this.xmlId)
+      .on('mouseover', function () {
+        document.querySelectorAll('.source_' + me.xmlId).forEach(elm => { elm.classList.add('over'); elm.classList.add('source'); });
+        document.querySelectorAll('.target_' + me.xmlId).forEach(elm => { elm.classList.add('over'); elm.classList.add('target'); });
+      })
+      .on('mouseout', function () {
+        document.querySelectorAll('.source_' + me.xmlId + ', .target_' + me.xmlId).forEach(elm => {
+          elm.classList.remove('over');
+          elm.classList.remove('source');
+          elm.classList.remove('target');
+        });
+      });
 
     // Calculate width of box based on text width
     D3.select(this.boxElement)
