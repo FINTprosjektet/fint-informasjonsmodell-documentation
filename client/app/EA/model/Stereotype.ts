@@ -18,6 +18,7 @@ export class Stereotype extends EABaseClass {
   associations: Association[];
   class: Classification[];
   packages: Package[];
+  isActive: boolean = false;
 
   get allClasses(): Classification[] {
     let subClasses: Classification[] = [];

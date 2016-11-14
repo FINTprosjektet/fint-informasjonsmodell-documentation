@@ -1,6 +1,6 @@
-<aside>
+<aside (window:scroll)="checkElementInView()">
   <ul>
-    <li *ngFor="let stereotype of stereotypes">
+    <li *ngFor="let stereotype of stereotypes" [className]="stereotype.isActive ? 'active' : ''">
       <a [routerLink]="['/api']" [fragment]="stereotype.xmlId">{{ stereotype.name }}</a>
     </li>
   </ul>

@@ -18,4 +18,7 @@ ul {
       background-color: $border-color;
     }
   }
+  li.active {
+    font-weight: bold;
+  }
 }
