@@ -4,6 +4,7 @@ import { Package } from './Package';
 import { Classification } from './Classification';
 import { Association } from './Association';
 import * as D3 from '../../d3.bundle';
+import { each } from 'lodash';
 
 /**
  *
@@ -24,7 +25,7 @@ export class Stereotype extends EABaseClass {
     let subClasses: Classification[] = [];
     let me = this;
     if (me.packages) {
-      me.packages.forEach(pkg => pkg.stereotypes.forEach(type => {
+      each(me.packages, pkg => each(pkg.stereotypes, type => {
         subClasses = subClasses.concat(type.class);
       }));
     }

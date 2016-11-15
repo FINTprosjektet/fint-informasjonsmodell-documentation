@@ -4,6 +4,7 @@ import { Stereotype } from './Stereotype';
 import { EABaseClass } from './EABaseClass';
 import { Attribute } from './Attribute';
 import * as D3 from '../../d3.bundle';
+import { each } from 'lodash';
 
 export class Classification extends EABaseClass {
   visibility: string;
@@ -71,6 +72,27 @@ export class Classification extends EABaseClass {
     return convert(middleX, middleY);
   }
 
+  addClass(elm: SVGGElement, className: string) {
+    if (elm) {
+      if (elm.classList) { elm.classList.add(className); }
+      else if (!(new RegExp('(\\s|^)' + className + '(\\s|$)').test(elm.getAttribute('class')))) {
+        elm.setAttribute('class', elm.getAttribute('class') + ' ' + className);
+      }
+    }
+  }
+
+  removeClass(elm: SVGGElement, className: string) {
+    if (elm) {
+      if (elm.classList) { elm.classList.remove(className); }
+      else {
+        var removedClass = elm.getAttribute('class').replace(new RegExp('(\\s|^)' + className + '(\\s|$)', 'g'), '$2');
+        if (new RegExp('(\\s|^)' + className + '(\\s|$)').test(elm.getAttribute('class'))) {
+          elm.setAttribute('class', removedClass);
+        }
+      }
+    }
+  }
+
   render() {
     let me = this;
     // Add class and id attributes to box element
@@ -78,14 +100,16 @@ export class Classification extends EABaseClass {
       .attr('class', 'class ' + this.type.toLowerCase())
       .attr('id', this.xmlId)
       .on('mouseover', function () {
-        document.querySelectorAll('.source_' + me.xmlId).forEach(elm => { elm.classList.add('over'); elm.classList.add('source'); });
-        document.querySelectorAll('.target_' + me.xmlId).forEach(elm => { elm.classList.add('over'); elm.classList.add('target'); });
+        each(document.querySelectorAll('.source_' + me.xmlId), elm => {
+          me.addClass(elm, 'over'); me.addClass(elm, 'source');
+        });
+        each(document.querySelectorAll('.target_' + me.xmlId), elm => {
+          me.addClass(elm, 'over'); me.addClass(elm, 'target');
+        });
       })
       .on('mouseout', function () {
-        document.querySelectorAll('.source_' + me.xmlId + ', .target_' + me.xmlId).forEach(elm => {
-          elm.classList.remove('over');
-          elm.classList.remove('source');
-          elm.classList.remove('target');
+        each(document.querySelectorAll('.source_' + me.xmlId + ', .target_' + me.xmlId), elm => {
+          me.removeClass(elm, 'over'); me.removeClass(elm, 'source'); me.removeClass(elm, 'target');
         });
       });
 
@@ -93,7 +117,14 @@ export class Classification extends EABaseClass {
     D3.select(this.boxElement)
       .append('text')
       .text(this.name)
-      .each(function (d: Classification) { me.width = this.getBBox().width + 20; this.remove(); });
+      .each(function (d: Classification) {
+        me.width = this.getBBox().width + 20;
+        if (this.remove) {
+          this.remove();
+        } else {
+          this.parentNode.removeChild(this); // Supporting IE
+        }
+      });
 
     // Add a rect
     D3.select(this.boxElement)

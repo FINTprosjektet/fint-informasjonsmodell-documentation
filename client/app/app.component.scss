@@ -24,7 +24,10 @@ nav {
   }
   header {
     float: left;
-    a { float: left;}
+    height: $navbar-height;
+    a {
+      height: $navbar-height;
+    }
   }
   svg {
     fill: $accent;

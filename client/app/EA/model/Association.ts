@@ -2,6 +2,7 @@ import { EABaseClass } from './EABaseClass';
 import { Connection } from './Connection';
 import { Classification } from './Classification';
 import * as D3 from '../../d3.bundle';
+import { each } from 'lodash';
 
 export class Association extends EABaseClass {
   source: Connection;
@@ -42,7 +43,7 @@ export class Association extends EABaseClass {
     if (connections.length > 2) {
       throw 'Unmatched connection length: ' + connections.length;
     }
-    connections.forEach(conn => {
+    each(connections, conn => {
       if (conn.meta['ea_end'] === 'source') {
         this.source = conn;
       } else {
@@ -55,10 +56,6 @@ export class Association extends EABaseClass {
     D3.select(this.boxElement)
       .attr('class', 'association source_' + this.sourceType.xmlId + ' target_' + this.targetType.xmlId)
       .append('path');
-
-    D3.select(this.boxElement)
-      .append('text')
-      .text((d: Association) => d.target.multiplicity);
   }
 
   update() {
@@ -73,13 +70,6 @@ export class Association extends EABaseClass {
 
     D3.select(this.boxElement.querySelector('path'))
       .attr('d', line(lineData));
-    /*
-        D3.select(this.boxElement.querySelector('text'))
-          .attrs({
-            'x': (sourceAbs.x + targetAbs.x) / 2,
-            'y': (sourceAbs.y + targetAbs.y) / 2,
-          });
-    */
   }
 
   calculatePathTo(source, target): [number, number][] {

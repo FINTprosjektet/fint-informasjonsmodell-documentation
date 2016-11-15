@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Stereotype } from '../../../EA/model/Stereotype';
+import { each } from 'lodash';
 
 @Component({
   selector: 'app-sidebar',
@@ -31,7 +32,7 @@ export class SidebarComponent implements OnInit {
     return { w: winW, h: winH };
   }
   checkElementInView() {
-    this.stereotypes.forEach((type) => {
+    each(this.stereotypes, type => {
       let elm = document.getElementById(type.xmlId);
       if (elm) {
         elm = elm.parentElement.parentElement;

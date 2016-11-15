@@ -7,6 +7,7 @@ import { ModelService } from '../../EA/model.service';
 import { Router } from '@angular/router';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as D3 from '../../d3.bundle';
+import { each } from 'lodash';
 
 @Component({
   selector: 'app-model',
@@ -60,8 +61,8 @@ export class ModelComponent implements OnInit, AfterViewInit {
 
   getAllAssociations() {
     let associations: Association[] = [];
-    this.model.package.stereotypes.forEach(type => {
-      type.allClasses.forEach(cls => {
+    each(this.model.package.stereotypes, type => {
+      each(type.allClasses, cls => {
         if (cls.associations && cls.associations.length) {
           associations = associations.concat(cls.associations);
         }
@@ -118,16 +119,16 @@ export class ModelComponent implements OnInit, AfterViewInit {
 
   update() {
     // Update every part of the model
-    this.model.package.stereotypes.forEach(type => {
+    each(this.model.package.stereotypes, type => {
       let associations: Association[] = [];
-      type.allClasses.forEach(cls => {
+      each(type.allClasses, cls => {
         cls.update();
         if (cls.associations && cls.associations.length) {
           associations = associations.concat(cls.associations);
         }
       });
       type.update();
-      setTimeout(() => associations.forEach(ass => ass.update()));
+      setTimeout(() => each(associations, ass => ass.update()));
     });
   }
 }

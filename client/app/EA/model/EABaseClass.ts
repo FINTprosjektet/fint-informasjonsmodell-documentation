@@ -1,5 +1,5 @@
 import { ModelService } from '../model.service';
-import * as _ from 'lodash';
+import { each, merge, map, keyBy, mapValues } from 'lodash';
 
 /**
  *
@@ -18,7 +18,7 @@ export class EABaseClass {
 
   private _meta: {};
   get meta() { return this._meta; };
-  set meta(meta: {}) { this._meta = _.merge(this._meta, meta); }
+  set meta(meta: {}) { this._meta = merge(this._meta, meta); }
 
   /**
    *
@@ -30,11 +30,14 @@ export class EABaseClass {
    * @memberOf EABaseClass
    */
   static toMeta(json) {
-    return _.chain(json)
-      .map(function (tagValue) { return { tag: tagValue['_tag'], value: tagValue['_value'] }; })
-      .keyBy('tag')
-      .mapValues(function (tag) { return tag['value']; })
-      .value();
+    return mapValues(
+      keyBy(
+        map(json, function (tagValue) {
+          return { tag: tagValue['_tag'], value: tagValue['_value'] };
+        }), 'tag'), function (tag) {
+          return tag['value'];
+        }
+    );
   }
 
   private static match(o: EABaseClass, comparator: Function, search: { obj: EABaseClass }, parent: EABaseClass) {
@@ -86,10 +89,10 @@ export class EABaseClass {
     let search = {
       obj: null
     };
-    _.each(Object.keys(me), function (key) {
+    each(Object.keys(me), function (key) {
       if (!search.obj && me[key] !== parent && key !== 'parent' && key !== 'container' && key !== 'allClasses') {
         if (Array.isArray(me[key])) {
-          _.each(me[key], o => EABaseClass.match(o, comparator, search, me));
+          each(me[key], o => EABaseClass.match(o, comparator, search, me));
         } else {
           EABaseClass.match(me[key], comparator, search, me);
         }
