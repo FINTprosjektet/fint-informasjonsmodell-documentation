@@ -37,8 +37,9 @@ export class ModelComponent implements OnInit, AfterViewInit {
     this.host = D3.select(this.htmlElement);
 
     // Load data and render
-    this.modelService.fetchModel().then(function (model: Model) {
-      me.model = model;
+    this.modelService.searchString = '';
+    this.modelService.fetchModel().then(function () {
+      me.model = me.modelService.cachedModel;
       me.setup();
       me.render();
     });
@@ -60,22 +61,6 @@ export class ModelComponent implements OnInit, AfterViewInit {
       .attr('transform', 'translate(0,0)');
   }
 
-  getAllAssociations() {
-    let associations: Association[] = [];
-    each(this.model.package.stereotypes, type => {
-      associations = associations.concat(type.allAssociations);
-    });
-    return associations;
-  }
-
-  getAllGeneralizations() {
-    let generalizations: Generailzation[] = [];
-    each(this.model.package.stereotypes, type => {
-      generalizations = generalizations.concat(type.allGeneralizations);
-    });
-    return generalizations;
-  }
-
   private render() {
     let me = this;
     let associations: Association[] = [];
@@ -87,14 +72,14 @@ export class ModelComponent implements OnInit, AfterViewInit {
       .attr('class', 'links');
     links
       .selectAll('g.association')
-      .data(this.getAllAssociations())
+      .data(this.modelService.getAllAssociations())
       .enter()
       .append('g')
       .attr('class', 'association')
       .each(function (d: Association) { d.boxElement = this; })
     links
       .selectAll('g.generalization')
-      .data(this.getAllGeneralizations())
+      .data(this.modelService.getAllGeneralizations())
       .enter()
       .append('g')
       .attr('class', 'generalization')

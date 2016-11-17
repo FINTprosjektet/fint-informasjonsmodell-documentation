@@ -28,8 +28,22 @@
   }
 }
 
+.subtypelist {
+  margin-top: -1em;
+}
+.subtype {
+  border-radius: 16px;
+  display: inline-block;
+  height: 32px;
+  line-height: 32px;
+  margin: 8px 8px 0 0;
+  padding: 0 12px;
+  box-sizing: border-box;
+  max-width: 100%;
+  background: rgb(224,224,224);
+}
 header {
-  small {
+  .type {
     font-weight: normal;
     font-style: italic;
     font-size: 0.7em;

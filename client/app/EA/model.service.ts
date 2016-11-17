@@ -1,9 +1,12 @@
+import { Association } from './model/Association';
+import { Generailzation } from './model/Generalization';
 import { EABaseClass } from './model/EABaseClass';
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
+import { each } from 'lodash';
 import { Model } from './model/Model';
 
 declare const X2JS: any; // Global module
@@ -20,10 +23,16 @@ export class ModelService {
   isLoading: boolean = false;
   cachedModel: Model;
 
+  // Repository
+  byXmlId = {};
+  byId = {};
+
+  // Promise resolve/reject methods
+  modelPromise: Promise<Model>;
   private modelResolve;
   private modelReject;
-  modelPromise: Promise<Model>;
 
+  // Filter
   private oldFilter: string = '';
   _searchString: string = '';
   get searchString(): string { return this._searchString; }
@@ -74,7 +83,28 @@ export class ModelService {
           me.modelResolve(model);
         });
     }
+
+    // Reset model (if it allready is parsed)
+    if (this.cachedModel) {
+      this.parseModel();
+    }
     return this.modelPromise;
+  }
+
+  getAllGeneralizations(): Generailzation[] {
+    let generalizations: Generailzation[] = [];
+    each(this.cachedModel.package.stereotypes, type => {
+      generalizations = generalizations.concat(type.allGeneralizations);
+    });
+    return generalizations;
+  }
+
+  getAllAssociations(): Association[] {
+    let associations: Association[] = [];
+    each(this.cachedModel.package.stereotypes, type => {
+      associations = associations.concat(type.allAssociations);
+    });
+    return associations;
   }
 
   private filterModel(filter?: string) {
@@ -92,8 +122,15 @@ export class ModelService {
    * @memberOf ModelService
    */
   parseModel() {
+    this.byId = {};
+    this.byXmlId = {};
     this.cachedModel = new Model(this.json, null);
     return this.cachedModel;
+  }
+
+  register(cls: EABaseClass) {
+    if (cls.xmlId) { this.byXmlId[cls.xmlId] = cls; }
+    if (cls.id) { this.byId[cls.id] = cls; }
   }
 
   /**
@@ -105,7 +142,7 @@ export class ModelService {
    * @memberOf ModelService
    */
   findByXmlId(xmlId: string): EABaseClass {
-    return this.cachedModel.findByXmlId(xmlId);
+    return this.byXmlId[xmlId];
   }
 
   /**
@@ -117,6 +154,6 @@ export class ModelService {
    * @memberOf ModelService
    */
   findById(id: number): EABaseClass {
-    return this.cachedModel.findById(id);
+    return this.byId[id];
   }
 }

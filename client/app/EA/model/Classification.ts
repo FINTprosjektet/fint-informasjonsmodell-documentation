@@ -11,8 +11,22 @@ export class Classification extends EABaseClass {
   attributes: Attribute[];
   type: string = 'table';
   associations: Association[];
-  inheritsFrom: Generailzation[];
-  isParentTo: Generailzation[];
+
+  _inheritsFrom: Generailzation[];
+  get inheritsFrom(): Generailzation[] {
+    if (!this._inheritsFrom) {
+      this._inheritsFrom = EABaseClass.service.getAllGeneralizations().filter(general => general._subType === this.xmlId);
+    }
+    return this._inheritsFrom;
+  }
+
+  _isParentTo: Generailzation[];
+  get isParentTo(): Generailzation[] {
+    if (!this._isParentTo) {
+      this._isParentTo = EABaseClass.service.getAllGeneralizations().filter(general => general._superType === this.xmlId);
+    }
+    return this._isParentTo;
+  }
 
   // Properties for rendering
   private _boxElement: SVGGElement;
@@ -31,11 +45,6 @@ export class Classification extends EABaseClass {
 
     if (parent instanceof Stereotype && (<Stereotype>parent).associations) {
       this.associations = (<Stereotype>parent).associations.filter(assoc => assoc.meta['ea_sourceID'] === this.id);
-    }
-
-    if (parent instanceof Stereotype && (<Stereotype>parent).generalizations) {
-      this.inheritsFrom = (<Stereotype>parent).generalizations.filter(general => general._superType === this.xmlId);
-      this.isParentTo = (<Stereotype>parent).generalizations.filter(general => general._subType === this.xmlId);
     }
 
     if (json['Classifier.feature'] && json['Classifier.feature'].Attribute) {

@@ -23,8 +23,8 @@ export class ResultComponent implements OnInit, AfterViewInit {
     let me = this;
     me.titleService.setTitle('FINT | api');
 
-    this.modelService.fetchModel().then(function (model: Model) {
-      me.menu = model.package.stereotypes;
+    this.modelService.fetchModel().then(function () {
+      me.menu = me.modelService.cachedModel.package.stereotypes;
     });
   }
 

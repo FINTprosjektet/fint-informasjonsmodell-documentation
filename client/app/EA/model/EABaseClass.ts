@@ -1,5 +1,5 @@
 import { ModelService } from '../model.service';
-import { each, merge, map, keyBy, mapValues } from 'lodash';
+import { merge, map, keyBy, mapValues } from 'lodash';
 
 /**
  *
@@ -41,16 +41,6 @@ export class EABaseClass {
     );
   }
 
-  private static match(o: EABaseClass, comparator: Function, search: { obj: EABaseClass }, parent: EABaseClass) {
-    if (!search.obj && o instanceof EABaseClass) {
-      if (comparator(o)) { search.obj = o; }
-      else {
-        let m = o.find(comparator, parent);
-        if (m) { search.obj = m; }
-      }
-    }
-  }
-
   /**
    * Creates an instance of EABaseClass.
    *
@@ -74,62 +64,7 @@ export class EABaseClass {
     }
 
     this.visibility = json['_visibility'];
-  }
-
-  /**
-   *
-   *
-   * @param {Function} comparator
-   * @param {EABaseClass} [parent]
-   * @returns
-   *
-   * @memberOf EABaseClass
-   */
-  find(comparator: Function, parent?: EABaseClass) {
-    let me = this;
-    if (comparator(me)) { return me; }
-
-    let search = {
-      obj: null
-    };
-    each(Object.keys(me), function (key) {
-      if (!search.obj && me[key] !== parent && key !== 'parent' && key !== 'container' && key !== 'allClasses') {
-        if (Array.isArray(me[key])) {
-          each(me[key], o => EABaseClass.match(o, comparator, search, me));
-        } else {
-          EABaseClass.match(me[key], comparator, search, me);
-        }
-      }
-    });
-    return search.obj;
-  }
-
-  /**
-   *
-   *
-   * @param {string} xmlId
-   * @returns {EABaseClass}
-   *
-   * @memberOf EABaseClass
-   */
-  findByXmlId(xmlId: string): EABaseClass {
-    return this.find(function (obj: EABaseClass) {
-      return (obj.xmlId === xmlId);
-    }, this);
-  }
-
-  /**
-   *
-   *
-   * @param {number} id
-   * @returns {EABaseClass}
-   *
-   * @memberOf EABaseClass
-   */
-  findById(id: number): EABaseClass {
-    return this.find(function (obj: EABaseClass) {
-      return (obj.id === id);
-    }, this);
+    EABaseClass.service.register(this);
   }
 
   makeAbsoluteContext(element) {
