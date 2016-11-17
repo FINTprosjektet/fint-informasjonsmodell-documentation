@@ -1,3 +1,4 @@
+import { Generailzation } from './Generalization';
 import { document } from '@angular/platform-browser/src/facade/browser';
 import { Association } from './Association';
 import { Stereotype } from './Stereotype';
@@ -7,10 +8,11 @@ import * as D3 from '../../d3.bundle';
 import { each } from 'lodash';
 
 export class Classification extends EABaseClass {
-  visibility: string;
   attributes: Attribute[];
   type: string = 'table';
   associations: Association[];
+  inheritsFrom: Generailzation[];
+  isParentTo: Generailzation[];
 
   // Properties for rendering
   private _boxElement: SVGGElement;
@@ -26,10 +28,14 @@ export class Classification extends EABaseClass {
 
   constructor(json, parent: EABaseClass) {
     super(json, parent);
-    this.visibility = json['_visibility'];
 
     if (parent instanceof Stereotype && (<Stereotype>parent).associations) {
       this.associations = (<Stereotype>parent).associations.filter(assoc => assoc.meta['ea_sourceID'] === this.id);
+    }
+
+    if (parent instanceof Stereotype && (<Stereotype>parent).generalizations) {
+      this.inheritsFrom = (<Stereotype>parent).generalizations.filter(general => general._superType === this.xmlId);
+      this.isParentTo = (<Stereotype>parent).generalizations.filter(general => general._subType === this.xmlId);
     }
 
     if (json['Classifier.feature'] && json['Classifier.feature'].Attribute) {

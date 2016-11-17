@@ -15,6 +15,7 @@ export class EABaseClass {
   xmlId: string;
   id: number;
   name: string;
+  visibility: string;
 
   private _meta: {};
   get meta() { return this._meta; };
@@ -71,6 +72,8 @@ export class EABaseClass {
       this.meta = EABaseClass.toMeta(json['ModelElement.taggedValue'].TaggedValue);
       this.id = this.meta['ea_localid'];
     }
+
+    this.visibility = json['_visibility'];
   }
 
   /**

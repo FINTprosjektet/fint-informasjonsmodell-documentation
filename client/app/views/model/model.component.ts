@@ -1,3 +1,4 @@
+import { Generailzation } from '../../EA/model/Generalization';
 import { Association } from '../../EA/model/Association';
 import { Classification } from '../../EA/model/Classification';
 import { Stereotype } from '../../EA/model/Stereotype';
@@ -62,13 +63,17 @@ export class ModelComponent implements OnInit, AfterViewInit {
   getAllAssociations() {
     let associations: Association[] = [];
     each(this.model.package.stereotypes, type => {
-      each(type.allClasses, cls => {
-        if (cls.associations && cls.associations.length) {
-          associations = associations.concat(cls.associations);
-        }
-      });
+      associations = associations.concat(type.allAssociations);
     });
     return associations;
+  }
+
+  getAllGeneralizations() {
+    let generalizations: Generailzation[] = [];
+    each(this.model.package.stereotypes, type => {
+      generalizations = generalizations.concat(type.allGeneralizations);
+    });
+    return generalizations;
   }
 
   private render() {
@@ -77,15 +82,23 @@ export class ModelComponent implements OnInit, AfterViewInit {
 
     // Render associations (in a top layer, so as not to disturb the stereotype groups bounding box,
     // since associations can go accross stereotypes)
-    this.svg
+    let links = this.svg
       .append('g')
-      .attr('class', 'associations')
+      .attr('class', 'links');
+    links
       .selectAll('g.association')
       .data(this.getAllAssociations())
       .enter()
       .append('g')
       .attr('class', 'association')
       .each(function (d: Association) { d.boxElement = this; })
+    links
+      .selectAll('g.generalization')
+      .data(this.getAllGeneralizations())
+      .enter()
+      .append('g')
+      .attr('class', 'generalization')
+      .each(function (d: Generailzation) { d.boxElement = this; })
 
     // Render stereotypes
     let allStereotypes = this.svg
@@ -120,15 +133,14 @@ export class ModelComponent implements OnInit, AfterViewInit {
   update() {
     // Update every part of the model
     each(this.model.package.stereotypes, type => {
-      let associations: Association[] = [];
+      let associations: Association[] = type.allAssociations;
+      let generalizations: Generailzation[] = type.allGeneralizations;
       each(type.allClasses, cls => {
         cls.update();
-        if (cls.associations && cls.associations.length) {
-          associations = associations.concat(cls.associations);
-        }
       });
       type.update();
       setTimeout(() => each(associations, ass => ass.update()));
+      setTimeout(() => each(generalizations, general => general.update()));
     });
   }
 }

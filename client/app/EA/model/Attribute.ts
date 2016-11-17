@@ -1,7 +1,6 @@
 import { EABaseClass } from './EABaseClass';
 
 export class Attribute extends EABaseClass {
-  visibility: string;
   classRef: string;
 
   /*
@@ -15,7 +14,6 @@ export class Attribute extends EABaseClass {
   */
   constructor(json, parent: EABaseClass) {
     super(json, parent);
-    this.visibility = json['_visibility'];
 
     if (json['StructuralFeature.type'] && json['StructuralFeature.type'].Classifier['_xmi.idref'].indexOf('eaxmi') === -1) {
       this.classRef = json['StructuralFeature.type'].Classifier['_xmi.idref'];

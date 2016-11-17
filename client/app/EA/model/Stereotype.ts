@@ -1,3 +1,4 @@
+import { Generailzation } from './Generalization';
 import { document } from '@angular/platform-browser/src/facade/browser';
 import { EABaseClass } from './EABaseClass';
 import { Package } from './Package';
@@ -14,11 +15,11 @@ import { each } from 'lodash';
  * @extends {EABaseClass}
  */
 export class Stereotype extends EABaseClass {
-  visibility: string;
   meta: {};
-  associations: Association[];
-  class: Classification[];
-  packages: Package[];
+  associations: Association[] = [];
+  class: Classification[] = [];
+  packages: Package[] = [];
+  generalizations: Generailzation[] = [];
   isActive: boolean = false;
 
   get allClasses(): Classification[] {
@@ -30,6 +31,28 @@ export class Stereotype extends EABaseClass {
       }));
     }
     return me.class.concat(subClasses);
+  }
+
+  get allAssociations(): Association[] {
+    let associations: Association[] = [];
+    let me = this;
+    if (me.packages) {
+      each(me.packages, pkg => each(pkg.stereotypes, type => {
+        associations = associations.concat(type.associations);
+      }));
+    }
+    return me.associations.concat(associations);
+  }
+
+  get allGeneralizations(): Generailzation[] {
+    let generalizations: Generailzation[] = [];
+    let me = this;
+    if (me.packages) {
+      each(me.packages, pkg => each(pkg.stereotypes, type => {
+        generalizations = generalizations.concat(type.generalizations);
+      }));
+    }
+    return me.generalizations.concat(generalizations);
   }
 
   // Properties for rendering
@@ -54,13 +77,20 @@ export class Stereotype extends EABaseClass {
    */
   constructor(json: {}, parent: EABaseClass) {
     super(json, parent);
-    this.visibility = json['_visibility'];
 
     if (json['Namespace.ownedElement'].Association) {
       if (Array.isArray(json['Namespace.ownedElement'].Association)) {
         this.associations = json['Namespace.ownedElement'].Association.map(assoc => new Association(assoc, this));
       } else {
         this.associations = [new Association(json['Namespace.ownedElement'].Association, this)];
+      }
+    }
+
+    if (json['Namespace.ownedElement'].Generalization) {
+      if (Array.isArray(json['Namespace.ownedElement'].Generalization)) {
+        this.generalizations = json['Namespace.ownedElement'].Generalization.map(general => new Generailzation(general, this));
+      } else {
+        this.generalizations = [new Generailzation(json['Namespace.ownedElement'].Generalization, this)];
       }
     }
 
