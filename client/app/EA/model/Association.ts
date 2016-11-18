@@ -1,14 +1,15 @@
 import { EABaseClass } from './EABaseClass';
+import { EALinkBase } from './EALinkBase';
 import { Connection } from './Connection';
 import { Classification } from './Classification';
 import * as D3 from '../../d3.bundle';
 import { each } from 'lodash';
 
-export class Association extends EABaseClass {
+export class Association extends EALinkBase {
   source: Connection;
   target: Connection;
-  _targetType: EABaseClass;
-  _sourceType: EABaseClass;
+  _targetType: Classification;
+  _sourceType: Classification;
 
   // Properties for rendering
   private _boxElement: SVGElement;
@@ -18,16 +19,16 @@ export class Association extends EABaseClass {
     this.render();
   }
 
-  get sourceType(): EABaseClass {
+  get sourceType(): Classification {
     if (!this._sourceType && this.meta['ea_sourceID']) {
-      this._sourceType = EABaseClass.service.findById(this.meta['ea_sourceID']);
+      this._sourceType = <Classification>EABaseClass.service.findById(this.meta['ea_sourceID']);
     }
     return this._sourceType;
   }
 
-  get targetType(): EABaseClass {
+  get targetType(): Classification {
     if (!this._targetType && this.meta['ea_targetID']) {
-      this._targetType = EABaseClass.service.findById(this.meta['ea_targetID']);
+      this._targetType = <Classification>EABaseClass.service.findById(this.meta['ea_targetID']);
     }
     return this._targetType;
   }
@@ -55,45 +56,16 @@ export class Association extends EABaseClass {
   render() {
     D3.select(this.boxElement)
       .attr('class', 'association source_' + this.sourceType.xmlId + ' target_' + this.targetType.xmlId)
-      .append('path');
+      .append('path')
+      .attr('marker-end', 'url(#arrow_neutral)');
   }
 
   update() {
-    let source: Classification = <Classification>this.sourceType;
-    let target: Classification = <Classification>this.targetType;
-    let sourceAbs = source.getAbsolutePosition();
-    let targetAbs = target.getAbsolutePosition();
-
-    let lineData: [number, number][] = this.calculatePathTo(sourceAbs, targetAbs);
+    let lineData: [number, number][] = this.calculatePathTo(this.sourceType, this.targetType);
     let line = D3.line()
       .curve(D3.curveNatural);
 
     D3.select(this.boxElement.querySelector('path'))
       .attr('d', line(lineData));
-  }
-
-  calculatePathTo(source, target): [number, number][] {
-    let xMiddle = ((source.x + target.x) / 2);
-    let yMiddle = ((source.y + target.y) / 2);
-    let xExtra; let yExtra;
-    if (xMiddle === source.x && yMiddle === source.y) {
-      xExtra = xMiddle - 50;
-      yExtra = yMiddle + 50;
-    }
-    if (xMiddle === source.x) { xMiddle += 50; }
-    if (yMiddle === source.y) { yMiddle += 50; }
-    if (xExtra && yExtra) {
-      return [
-        [source.x, source.y],
-        [xMiddle, yMiddle],
-        [xExtra, yExtra],
-        [target.x, target.y]
-      ];
-    }
-    return [
-      [source.x, source.y],
-      [xMiddle, yMiddle],
-      [target.x, target.y]
-    ];
   }
 }

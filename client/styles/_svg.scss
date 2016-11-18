@@ -49,6 +49,14 @@ svg.diagram {
     }
   }
 
+  $source-color: #00ff00;
+  $target-color: #ff0000;
+
+  defs {
+    .neutral > path { fill: $border-color; }
+    .source > path { fill: $source-color; }
+    .target > path { fill: $target-color; }
+  }
   g.association, g.generalization {
     > path {
       fill-opacity: 0;
@@ -59,10 +67,10 @@ svg.diagram {
       stroke-width: 1.5;
     }
     &.source > path {
-      stroke: #00ff00;
+      stroke: $source-color;
     }
     &.target > path {
-      stroke: #ff0000;
+      stroke: $target-color;
     }
     > text {
       background: white;

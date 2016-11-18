@@ -1,10 +1,9 @@
 import { EABaseClass } from './EABaseClass';
-import { Connection } from './Connection';
+import { EALinkBase } from './EALinkBase';
 import { Classification } from './Classification';
 import * as D3 from '../../d3.bundle';
-import { each } from 'lodash';
 
-export class Generailzation extends EABaseClass {
+export class Generailzation extends EALinkBase {
   _superType: string;
   _subType: string;
   _super: Classification;
@@ -38,46 +37,16 @@ export class Generailzation extends EABaseClass {
 
   render() {
     D3.select(this.boxElement)
-      .attr('class', 'generalization source_' + this._superType + ' target_' + this._subType)
+      .attr('class', 'generalization source_' + this._subType + ' target_' + this._superType)
       .append('path');
   }
 
   update() {
-    let source: Classification = <Classification>this.superType;
-    let target: Classification = <Classification>this.subType;
-    let sourceAbs = source.getAbsolutePosition();
-    let targetAbs = target.getAbsolutePosition();
-
-    let lineData: [number, number][] = this.calculatePathTo(sourceAbs, targetAbs);
+    let lineData: [number, number][] = this.calculatePathTo(this.subType, this.superType);
     let line = D3.line()
       .curve(D3.curveNatural);
 
     D3.select(this.boxElement.querySelector('path'))
       .attr('d', line(lineData));
-  }
-
-  calculatePathTo(source, target): [number, number][] {
-    let xMiddle = ((source.x + target.x) / 2);
-    let yMiddle = ((source.y + target.y) / 2);
-    let xExtra; let yExtra;
-    if (xMiddle === source.x && yMiddle === source.y) {
-      xExtra = xMiddle - 50;
-      yExtra = yMiddle + 50;
-    }
-    if (xMiddle === source.x) { xMiddle += 50; }
-    if (yMiddle === source.y) { yMiddle += 50; }
-    if (xExtra && yExtra) {
-      return [
-        [source.x, source.y],
-        [xMiddle, yMiddle],
-        [xExtra, yExtra],
-        [target.x, target.y]
-      ];
-    }
-    return [
-      [source.x, source.y],
-      [xMiddle, yMiddle],
-      [target.x, target.y]
-    ];
   }
 }

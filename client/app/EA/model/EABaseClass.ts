@@ -17,7 +17,7 @@ export class EABaseClass {
   name: string;
   visibility: string;
 
-  private _meta: {};
+  protected _meta: {};
   get meta() { return this._meta; };
   set meta(meta: {}) { this._meta = merge(this._meta, meta); }
 
@@ -39,6 +39,46 @@ export class EABaseClass {
           return tag['value'];
         }
     );
+  }
+
+  static createMatrix(elm) {
+    let converter = EABaseClass.makeAbsoluteContext(elm);
+    let margin = 5;
+    let bbox = elm.getBBox();
+    let xLeft = bbox.x - margin;
+    let xCenter = bbox.x + (bbox.width / 2);
+    let xRight = bbox.x + bbox.width + margin;
+    let yTop = bbox.y - margin;
+    let yMid = bbox.y + (bbox.height / 2);
+    let yBot = bbox.y + bbox.height + margin;
+    return {
+      top: {
+        left: converter(xLeft, yTop),
+        center: converter(xCenter, yTop),
+        right: converter(xRight, yTop)
+      },
+      mid: {
+        left: converter(xLeft, yMid),
+        center: converter(xCenter, yMid),
+        right: converter(xRight, yMid)
+      },
+      bot: {
+        left: converter(xLeft, yBot),
+        center: converter(xCenter, yBot),
+        right: converter(xRight, yBot)
+      }
+    };
+  }
+
+  static makeAbsoluteContext(element) {
+    return function (x, y) {
+      let offset = element.ownerSVGElement.getBoundingClientRect();
+      let matrix = element.getScreenCTM();
+      return {
+        x: (matrix.a * x) + (matrix.c * y) + matrix.e - offset.left,
+        y: (matrix.b * x) + (matrix.d * y) + matrix.f - offset.top
+      };
+    };
   }
 
   /**
@@ -65,16 +105,5 @@ export class EABaseClass {
 
     this.visibility = json['_visibility'];
     EABaseClass.service.register(this);
-  }
-
-  makeAbsoluteContext(element) {
-    return function (x, y) {
-      let offset = element.ownerSVGElement.getBoundingClientRect();
-      let matrix = element.getScreenCTM();
-      return {
-        x: (matrix.a * x) + (matrix.c * y) + matrix.e - offset.left,
-        y: (matrix.b * x) + (matrix.d * y) + matrix.f - offset.top
-      };
-    };
   }
 }

@@ -65,25 +65,43 @@ export class ModelComponent implements OnInit, AfterViewInit {
     let me = this;
     let associations: Association[] = [];
 
-    // Render associations (in a top layer, so as not to disturb the stereotype groups bounding box,
-    // since associations can go accross stereotypes)
+    let defs = this.svg.append('defs');
+    defs.selectAll('marker')
+      .data(['neutral', 'source', 'target'])
+      .enter()
+      .append('marker')
+      .attrs({
+        'id': d => 'arrow_' + d,
+        'class': d => d,
+        'refX': 6,
+        'refY': 6,
+        'markerWidth': 30,
+        'markerHeight': 30,
+        'orient': 'auto'
+      })
+      .append('path')
+      .attr('d', 'M 0 0 12 6 0 12 3 6')
+      .attr('class', 'arrowHead');
+
+    // Put all links in a top layer, so as not to disturb the stereotype groups bounding box,
+    // since associations and generalizations can go accross stereotypes
     let links = this.svg
       .append('g')
       .attr('class', 'links');
-    links
+    links // Render associations
       .selectAll('g.association')
       .data(this.modelService.getAllAssociations())
       .enter()
       .append('g')
       .attr('class', 'association')
-      .each(function (d: Association) { d.boxElement = this; })
-    links
+      .each(function (d: Association) { d.boxElement = this; }); // Each association is responsible for its own render
+    links // Render generalizations
       .selectAll('g.generalization')
       .data(this.modelService.getAllGeneralizations())
       .enter()
       .append('g')
       .attr('class', 'generalization')
-      .each(function (d: Generailzation) { d.boxElement = this; })
+      .each(function (d: Generailzation) { d.boxElement = this; }); // Each generalization is responsible for its own render
 
     // Render stereotypes
     let allStereotypes = this.svg

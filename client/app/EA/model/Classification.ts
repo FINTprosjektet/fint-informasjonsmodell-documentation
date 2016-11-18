@@ -78,15 +78,6 @@ export class Classification extends EABaseClass {
     return null;
   }
 
-  getAbsolutePosition(): { x: number, y: number } {
-    let bbox = this.boxElement.getBBox();
-    let middleX = bbox.x + (bbox.width / 2);
-    let middleY = bbox.y + (bbox.height / 2);
-
-    let convert = this.makeAbsoluteContext(this.boxElement);
-    return convert(middleX, middleY);
-  }
-
   addClass(elm: SVGGElement, className: string) {
     if (elm) {
       if (elm.classList) { elm.classList.add(className); }
@@ -117,14 +108,17 @@ export class Classification extends EABaseClass {
       .on('mouseover', function () {
         each(document.querySelectorAll('.source_' + me.xmlId), elm => {
           me.addClass(elm, 'over'); me.addClass(elm, 'source');
+          D3.select(elm.querySelector('path')).attr('marker-end', 'url(#arrow_source)');
         });
         each(document.querySelectorAll('.target_' + me.xmlId), elm => {
           me.addClass(elm, 'over'); me.addClass(elm, 'target');
+          D3.select(elm.querySelector('path')).attr('marker-end', 'url(#arrow_target)');
         });
       })
       .on('mouseout', function () {
         each(document.querySelectorAll('.source_' + me.xmlId + ', .target_' + me.xmlId), elm => {
           me.removeClass(elm, 'over'); me.removeClass(elm, 'source'); me.removeClass(elm, 'target');
+          D3.select(elm.querySelector('path')).attr('marker-end', 'url(#arrow_neutral)');
         });
       });
 
