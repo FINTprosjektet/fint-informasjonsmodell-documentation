@@ -17,6 +17,9 @@ module.exports = function (config) {
     preprocessors: {
       './client/test.ts': ['angular-cli']
     },
+    mime: {
+      'text/x-typescript': ['ts','tsx']
+    },
     remapIstanbulReporter: {
       reports: {
         html: 'coverage',

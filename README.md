@@ -1,30 +1,31 @@
-# informasjonsmodell
+# FintArbeidstakerInformasjonsmodell
 
-Innhold i informasjonsmodellen: 
+This project was generated with [angular-cli](https://github.com/angular/angular-cli) version 1.0.0-beta.20-4.
 
-* Tilpasset versjon av Skate sitt forslag til fellesmodell for person og enhet
-* Arbeidstaker med stilling
+## Development server
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-I tillegg inneholder den utkast til informasjonsmodell for: 
+## Code scaffolding
 
-* Kodeverk
-* "Skole" - elev, lærer, foresatt
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive/pipe/service/class`.
 
-## Dokumentasjon
+## Build
 
-[Dokumentasjon av informasjonsmodell](https://rawcdn.githack.com/FINTprosjektet/fint-informasjonsmodell/master/Documentation/fint-documentation.xml)
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
 
+## Running unit tests
 
-## Arbeidsflyt
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-### Første gang lastet ned
+## Running end-to-end tests
 
-1. Åpne Enterprise Architect og opprett et nytt prosjekt (med navn _FINT-informasjonsmodeller.eap_) i samme mappe som _FINT-informasjonsmodell.xml_
+Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+Before running the tests make sure you are serving the app via `ng serve`.
 
-### Hvordan åpne og gjøre endringer
+## Deploying to Github Pages
 
-1. Åpne FINT-informasjonsmodeller.eap i Sparx Enterprise Architect
-2. Importer FINT-informasjonsmodell.xml ved å gå til følgende meny: _PACKAGE_ -> _Import/Export_ -> _Import Package for XMI_ (Ctrl + Alt + I)
-3. Gjør ønskede endringer
-4. Eksporter prosjekt til FINT-informasjonsmodell.xml ved å gå til følgende meny: _PACKAGE_ -> _Import/Export_ -> _Export Package for XMI_ (Ctrl + Alt + E)
+Run `ng github-pages:deploy` to deploy to Github Pages.
 
+## Further help
+
+To get more help on the `angular-cli` use `ng --help` or go check out the [Angular-CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
