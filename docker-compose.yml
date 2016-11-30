@@ -1,8 +1,12 @@
 version: '2'
+
 services:
-  informasjonsmodell-documentation:
+  documentation:
     build: .
+    image: fint/informasjonsmodell-documentation
     container_name: fint-informasjonsmodell-documentation
     restart: unless-stopped
     ports:
-      - "8092:80"
+      - "8092:4200"
+    volumes:
+      - /usr/src/app/node_modules

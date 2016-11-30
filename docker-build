@@ -1,5 +1,20 @@
 #!/bin/bash
 
-docker-compose down
+# Build without docker-compose
+# docker build -t fint/adminportal-mockups .
+# docker run -p 8094:4200 -d fint/adminportal-mockups
+
+# Stop service
+docker-compose stop
+
+# Remove container
+docker-compose rm -f
+
+# Remove previously built image
+docker-compose down --rmi all
+
+# Build new image from compose
 docker-compose build
+
+# Start a new container with the built image
 docker-compose up -d

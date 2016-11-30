@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { SharedModule } from '../../shared/shared.module';
+import { LibSharedModule } from 'fint-shared-components';
 
 import { ResultComponent } from './result.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
@@ -16,7 +16,7 @@ import { HighlightPipe } from './pipes/highlight.pipe';
 @NgModule({
   imports: [
     CommonModule,
-    SharedModule,
+    LibSharedModule,
     RouterModule
   ],
   declarations: [

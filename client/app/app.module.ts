@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule, Request, XSRFStrategy } from '@angular/http';
 
 import { AppRoutingModule } from './app-routing.module';
-import { SharedModule } from './shared/shared.module';
+import { LibSharedModule } from 'fint-shared-components';
 import { ResultModule } from './views/result/result.module';
 
 import { ModelService } from './EA/model.service';
@@ -28,9 +28,8 @@ export class MyXSRFStrategy {
     BrowserModule,
     FormsModule,
     HttpModule,
-
+    LibSharedModule,
     AppRoutingModule,
-    SharedModule,
     ResultModule
   ],
   providers: [ModelService, { provide: XSRFStrategy, useFactory: () => new MyXSRFStrategy() }], // !!HACK!!

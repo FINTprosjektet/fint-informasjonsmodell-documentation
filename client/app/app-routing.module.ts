@@ -6,7 +6,8 @@ import { ModelComponent } from './views/model/model.component';
 
 const routes: Routes = [
   { path: '', component: ModelComponent, pathMatch: 'full' },
-  ...ResultRoutes
+  ...ResultRoutes,
+  { path: '**', redirectTo: '' } // Anything else, go home
 ];
 
 @NgModule({

@@ -9,7 +9,7 @@ node {
     }
 
     stage('build') {
-      sh 'npm install && npm run build:prod'
+      sh 'npm install && npm run build'
     }
 
     stage('deploy') {

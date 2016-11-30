@@ -1,8 +1,8 @@
 <header>
   <h3 class="anchor" id="{{ classification.xmlId }}">
-    <app-fa [name]="classType"></app-fa>
+    <fint-fa [name]="classType"></fint-fa>
     <span [innerHTML]="classification.name | highlight"></span>
-    <span *ngIf="classification.inheritsFrom.length"><app-fa name="arrow-left"></app-fa>
+    <span *ngIf="classification.inheritsFrom.length"><fint-fa name="arrow-left"></fint-fa>
       <small *ngFor="let generalization of classification.inheritsFrom">
         <a [routerLink]="['/api']" [fragment]="generalization.superType.xmlId">
           {{ generalization.superType.name }}
