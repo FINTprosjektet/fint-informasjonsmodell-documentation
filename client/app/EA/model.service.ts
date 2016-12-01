@@ -67,8 +67,7 @@ export class ModelService {
         this.modelResolve = resolve;
         this.modelReject = reject;
       });
-      //let url = 'https://rawgit.com/FINTprosjektet/fint-informasjonsmodell/master/FINT-informasjonsmodell.xml';
-      let url = '/github/FINTprosjektet/fint-informasjonsmodell/r1/FINT-informasjonsmodell.xml';
+      let url = '/github/FINTprosjektet/fint-informasjonsmodell/master/FINT-informasjonsmodell.xml';
       me.isLoading = true;
       this.http.request(url)
         .map(function (res: Response) {
