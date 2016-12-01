@@ -10,12 +10,16 @@ ENV HOME=/usr/src/app
 RUN mkdir -p $HOME
 WORKDIR $HOME
 
-# Bundle app source & Install app dependencies
-ADD . $HOME
-RUN chown -R app:app $HOME/*
+# Install app dependencies
+COPY package.json $HOME
 RUN npm install --production
 
+# Bundle pre-built app
+COPY ./dist $HOME/dist
+RUN chown -R app:app $HOME/*
+
+# Set
 USER app
 
 EXPOSE 4200
-CMD npm start
+ENTRYPOINT npm start
