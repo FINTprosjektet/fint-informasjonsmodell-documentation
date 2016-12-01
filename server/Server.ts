@@ -112,7 +112,11 @@ export class Server {
     // Pipe traffic to fetch raw github content
     me.app.get('/github/*', function (req: express.Request, res: express.Response, next: express.NextFunction) {
       let fileToFetch = req.url.substr('/github/'.length);
-      req.pipe(request('https://rawgit.com/' + fileToFetch)).pipe(res);
+      let newReq = request('https://rawgit.com/' + fileToFetch);
+
+      req.pipe(newReq)
+        .on('response', newRes => newRes.headers['content-type'] = 'text/xml;charset=win-1252')
+        .pipe(res);
     });
 
     // Setup base route to everything else
