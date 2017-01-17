@@ -1,4 +1,4 @@
 rm -rf node_modules dist tmp
-npm i angular-cli@latest -S
-npm install
-ng init --source-dir=client --style=scss --routing=true
+cmd /C npm i angular-cli@latest -D
+cmd /C npm install
+ng init --source-dir=client --style=scss --prefix=fint --routing=true

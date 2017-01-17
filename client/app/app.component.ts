@@ -7,7 +7,7 @@ import { ModelService } from './EA/model.service';
 
 
 @Component({
-  selector: 'app-root',
+  selector: 'fint-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
