@@ -21,5 +21,5 @@ RUN chown -R app:app $HOME/*
 # Set
 USER app
 
-EXPOSE 4200
+EXPOSE 3000
 ENTRYPOINT npm start

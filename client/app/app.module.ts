@@ -13,12 +13,6 @@ import { AppComponent } from './app.component';
 
 import { ModelComponent } from './views/model/model.component';
 
-export class MyXSRFStrategy {
-  configureRequest(req: Request) {
-    // Remove `x-xsrf-token` from request headers
-  }
-}
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -32,7 +26,7 @@ export class MyXSRFStrategy {
     AppRoutingModule,
     ResultModule
   ],
-  providers: [ModelService, { provide: XSRFStrategy, useFactory: () => new MyXSRFStrategy() }], // !!HACK!!
+  providers: [ModelService], // !!HACK!!
   bootstrap: [AppComponent]
 })
 export class AppModule { }

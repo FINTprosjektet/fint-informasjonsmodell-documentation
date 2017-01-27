@@ -7,6 +7,6 @@ services:
     container_name: fint-informasjonsmodell-documentation
     restart: unless-stopped
     ports:
-      - "8092:4200"
+      - "8092:3000"
     volumes:
       - /usr/src/app/node_modules
