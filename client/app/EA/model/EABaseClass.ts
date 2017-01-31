@@ -1,5 +1,8 @@
 import { ModelService } from '../model.service';
-import { merge, map, keyBy, mapValues } from 'lodash';
+import * as merge from 'lodash/merge';
+import * as map from 'lodash/map';
+import * as keyBy from 'lodash/keyBy';
+import * as mapValues from 'lodash/mapValues';
 
 /**
  *
@@ -10,47 +13,25 @@ import { merge, map, keyBy, mapValues } from 'lodash';
 export class EABaseClass {
   static service: ModelService;
 
-  protected json: {};
-  parent: EABaseClass;
-  xmlId: string;
-  id: number;
+  xmiId: string;
+  xmiType: string;
   name: string;
   visibility: string;
 
-  protected _meta: {};
-  get meta() { return this._meta; };
-  set meta(meta: {}) { this._meta = merge(this._meta, meta); }
+  parent: EABaseClass;
 
-  /**
-   *
-   *
-   * @static
-   * @param {any} json
-   * @returns
-   *
-   * @memberOf EABaseClass
-   */
-  static toMeta(json) {
-    return mapValues(
-      keyBy(
-        map(json, function (tagValue) {
-          return { tag: tagValue['_tag'], value: tagValue['_value'] };
-        }), 'tag'), function (tag) {
-          return tag['value'];
-        }
-    );
-  }
+  comments: EABaseClass[];
 
   static createMatrix(elm) {
-    let converter = EABaseClass.makeAbsoluteContext(elm);
-    let margin = 5;
-    let bbox = elm.getBBox();
-    let xLeft = bbox.x - margin;
-    let xCenter = bbox.x + (bbox.width / 2);
-    let xRight = bbox.x + bbox.width + margin;
-    let yTop = bbox.y - margin;
-    let yMid = bbox.y + (bbox.height / 2);
-    let yBot = bbox.y + bbox.height + margin;
+    const converter = EABaseClass.makeAbsoluteContext(elm);
+    const margin = 5;
+    const bbox = elm.getBBox();
+    const xLeft = bbox.x - margin;
+    const xCenter = bbox.x + (bbox.width / 2);
+    const xRight = bbox.x + bbox.width + margin;
+    const yTop = bbox.y - margin;
+    const yMid = bbox.y + (bbox.height / 2);
+    const yBot = bbox.y + bbox.height + margin;
     return {
       top: {
         left: converter(xLeft, yTop),
@@ -72,8 +53,8 @@ export class EABaseClass {
 
   static makeAbsoluteContext(element) {
     return function (x, y) {
-      let offset = element.ownerSVGElement.getBoundingClientRect();
-      let matrix = element.getScreenCTM();
+      const offset = element.ownerSVGElement.getBoundingClientRect();
+      const matrix = element.getScreenCTM();
       return {
         x: (matrix.a * x) + (matrix.c * y) + matrix.e - offset.left,
         y: (matrix.b * x) + (matrix.d * y) + matrix.f - offset.top
@@ -81,29 +62,5 @@ export class EABaseClass {
     };
   }
 
-  /**
-   * Creates an instance of EABaseClass.
-   *
-   * @param {{}} json
-   * @param {EABaseClass} parent
-   *
-   * @memberOf EABaseClass
-   */
-  constructor(json: {}, parent: EABaseClass) {
-    this.json = json;
-    this.parent = parent;
-    if (json['_name']) {
-      this.name = json['_name'];
-    }
-    if (json['_xmi.id']) {
-      this.xmlId = json['_xmi.id'];
-    }
-    if (json['ModelElement.taggedValue']) {
-      this.meta = EABaseClass.toMeta(json['ModelElement.taggedValue'].TaggedValue);
-      this.id = this.meta['ea_localid'];
-    }
-
-    this.visibility = json['_visibility'];
-    EABaseClass.service.register(this);
-  }
+  constructor() { }
 }

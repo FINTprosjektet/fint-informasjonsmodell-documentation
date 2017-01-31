@@ -11,38 +11,38 @@ import { Model } from '../../EA/model/Model';
   styleUrls: ['./result.component.scss']
 })
 export class ResultComponent implements OnInit, AfterViewInit {
-  private menu = null;
+  model = null;
   private gotoRetries: number = 0;
 
-  get model(): Model { return this.modelService.cachedModel; }
-  get isLoading() { return this.modelService.isLoading; }
+  isLoading: boolean = false;
 
   constructor(private modelService: ModelService, private route: ActivatedRoute, private titleService: Title) { }
 
   ngOnInit() {
-    let me = this;
-    me.titleService.setTitle('FINT | api');
-
-    this.modelService.fetchModel().then(function () {
-      me.menu = me.modelService.cachedModel.package.stereotypes;
+    const me = this;
+    me.titleService.setTitle('FINT | docs');
+    this.isLoading = true;
+    this.modelService.fetchModel().subscribe(model => {
+      me.model = me.modelService.getTopPackages();
+      this.isLoading = false;
     });
   }
 
   ngAfterViewInit() {
     // Detect fragments and navigate
-    this.route.fragment.subscribe(xmlId => this.goto(xmlId));
+    this.route.fragment.subscribe(xmiId => this.goto(xmiId));
   }
 
-  private goto(xmlId) {
-    if (xmlId) {
+  private goto(xmiId) {
+    if (xmiId) {
       this.modelService.searchString = '';
-      let elm = document.querySelector('#' + xmlId);
+      let elm = document.querySelector('#' + xmiId);
       if (elm) {                            // Element exists; scroll to it
         elm.scrollIntoView();
         this.gotoRetries = 0;
       } else if (this.gotoRetries < 5) {    // Element not found; retry max 5 times
         this.gotoRetries++;
-        setTimeout(() => this.goto(xmlId));
+        setTimeout(() => this.goto(xmiId));
       } else {                              // Giving up. Reset counter and die
         this.gotoRetries = 0;
       }

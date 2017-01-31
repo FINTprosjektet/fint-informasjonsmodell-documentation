@@ -1,31 +1,68 @@
-import { Generailzation } from './Generalization';
+import { Package } from './Package';
+import { Generalization } from './Generalization';
 import { document } from '@angular/platform-browser/src/facade/browser';
 import { Association } from './Association';
 import { Stereotype } from './Stereotype';
 import { EABaseClass } from './EABaseClass';
 import { Attribute } from './Attribute';
 import * as D3 from '../../d3.bundle';
-import { each } from 'lodash';
+import * as each from 'lodash/each';
 
 export class Classification extends EABaseClass {
-  attributes: Attribute[];
-  type: string = 'table';
-  associations: Association[];
+  static umlId = 'uml:Class';
 
-  _inheritsFrom: Generailzation[];
-  get inheritsFrom(): Generailzation[] {
-    if (!this._inheritsFrom) {
-      this._inheritsFrom = EABaseClass.service.getAllGeneralizations().filter(general => general._subType === this.xmlId);
+  xmiId: string;
+  extension: any;
+  parent: any;
+  referredBy: any[];
+  generalization: any;
+  isAbstract;
+
+  get type(): string {
+    if (this.isAbstract === 'true') { return 'abstract'; }
+    if (this.extension && this.extension.properties && this.extension.properties.length) {
+      const meta = this.extension.properties[0];
+      return meta.stereotype || meta.sType || meta.xmiType.substr('uml:'.length);
     }
-    return this._inheritsFrom;
+    return 'table';
   }
 
-  _isParentTo: Generailzation[];
-  get isParentTo(): Generailzation[] {
-    if (!this._isParentTo) {
-      this._isParentTo = EABaseClass.service.getAllGeneralizations().filter(general => general._superType === this.xmlId);
+  get documentation(): string {
+    if (this.extension && this.extension.properties) {
+      return this.extension.properties.map(e => e.documentation).join('');
     }
-    return this._isParentTo;
+    return '';
+  }
+
+  get documentationHeader(): string {
+    const doc = this.documentation;
+    const idx = doc.indexOf('\n');
+    return Attribute.pipe.stripHtml(idx > 0 ? doc.substr(0, doc.indexOf('\n')) : doc);
+  }
+
+  get documentationBody(): string {
+    const doc = this.documentation;
+    const idx = doc.indexOf('\n');
+    return idx > 0 ? doc.substr(doc.indexOf('\n') + 1) : '';
+  }
+
+  get subTypes(): any[] {
+    const me = this;
+    if (this.referredBy) {
+      return this.referredBy
+        .filter((c, idx, self) => {
+          const index = self.findIndex(x => x.start === c.start);
+          const isRelated = (c instanceof Generalization && (c.end === me.xmiId));
+          return index !== idx && isRelated;
+        })
+        .map(c => c.startRef);
+    }
+    return null;
+  }
+
+  get superType(): any {
+    const me = this;
+    return this.generalization;
   }
 
   // Properties for rendering
@@ -40,42 +77,8 @@ export class Classification extends EABaseClass {
   width: number;
   height: number = 30;
 
-  constructor(json, parent: EABaseClass) {
-    super(json, parent);
-
-    if (parent instanceof Stereotype && (<Stereotype>parent).associations) {
-      this.associations = (<Stereotype>parent).associations.filter(assoc => assoc.meta['ea_sourceID'] === this.id);
-    }
-
-    if (json['Classifier.feature'] && json['Classifier.feature'].Attribute) {
-      if (Array.isArray(json['Classifier.feature'].Attribute)) {
-        this.attributes = json['Classifier.feature'].Attribute.map(attr => new Attribute(attr, this));
-      } else {
-        this.attributes = [new Attribute(json['Classifier.feature'].Attribute, this)];
-      }
-    }
-
-    if (json['ModelElement.stereotype']) {
-      this.type = json['ModelElement.stereotype'].Stereotype['_name'];
-    }
-  }
-
-  filter(search: string) {
-    let matchAttributes = [];
-    let matchAssociations = [];
-    let matchType = this.type.toLowerCase().indexOf(search.toLowerCase()) > -1;
-    let matchName = this.name.toLowerCase().indexOf(search.toLowerCase()) > -1;
-
-    if (this.associations) {
-      matchAssociations = this.associations.filter(assoc => assoc.meta['rt'].toLowerCase().indexOf(search.toLowerCase()) > -1);
-    }
-    if (this.attributes) {
-      matchAttributes = this.attributes.filter(attr => attr.name.toLowerCase().indexOf(search.toLowerCase()) > -1);
-    }
-    if (matchType || matchAttributes.length || matchAssociations.length || matchName) {
-      return this;
-    }
-    return null;
+  constructor() {
+    super();
   }
 
   addClass(elm: SVGGElement, className: string) {
@@ -91,7 +94,7 @@ export class Classification extends EABaseClass {
     if (elm) {
       if (elm.classList) { elm.classList.remove(className); }
       else {
-        var removedClass = elm.getAttribute('class').replace(new RegExp('(\\s|^)' + className + '(\\s|$)', 'g'), '$2');
+        const removedClass = elm.getAttribute('class').replace(new RegExp('(\\s|^)' + className + '(\\s|$)', 'g'), '$2');
         if (new RegExp('(\\s|^)' + className + '(\\s|$)').test(elm.getAttribute('class'))) {
           elm.setAttribute('class', removedClass);
         }
@@ -100,23 +103,23 @@ export class Classification extends EABaseClass {
   }
 
   render() {
-    let me = this;
+    const me = this;
     // Add class and id attributes to box element
     D3.select(this.boxElement)
-      .attr('class', 'class ' + this.type.toLowerCase())
-      .attr('id', this.xmlId)
+      .attr('class', 'element ' + this.type.toLowerCase())
+      .attr('id', this.xmiId)
       .on('mouseover', function () {
-        each(document.querySelectorAll('.source_' + me.xmlId), elm => {
+        each(document.querySelectorAll('.source_' + me.xmiId), elm => {
           me.addClass(elm, 'over'); me.addClass(elm, 'source');
           D3.select(elm.querySelector('path')).attr('marker-end', 'url(#arrow_source)');
         });
-        each(document.querySelectorAll('.target_' + me.xmlId), elm => {
+        each(document.querySelectorAll('.target_' + me.xmiId), elm => {
           me.addClass(elm, 'over'); me.addClass(elm, 'target');
           D3.select(elm.querySelector('path')).attr('marker-end', 'url(#arrow_target)');
         });
       })
       .on('mouseout', function () {
-        each(document.querySelectorAll('.source_' + me.xmlId + ', .target_' + me.xmlId), elm => {
+        each(document.querySelectorAll('.source_' + me.xmiId + ', .target_' + me.xmiId), elm => {
           me.removeClass(elm, 'over'); me.removeClass(elm, 'source'); me.removeClass(elm, 'target');
           D3.select(elm.querySelector('path')).attr('marker-end', 'url(#arrow_neutral)');
         });
@@ -147,12 +150,14 @@ export class Classification extends EABaseClass {
       .attrs({ x: 10, y: 20 });
   }
 
-  getStereotype(): Stereotype {
-    return this.boxElement.parentNode.parentNode['__data__'];
+  getPackage(): Package {
+    let parent = this.parent;
+    while (!parent.boxElement) { parent = parent.parent; } // Find closest _rendered_ parent
+    return parent;
   }
 
   getPrevious(): Classification {
-    let previous = this.boxElement.previousSibling;
+    const previous = this.boxElement.previousSibling;
     if (previous) {
       if (previous['__data__'] && previous['__data__'] instanceof Classification) {
         return previous['__data__'];
@@ -162,16 +167,16 @@ export class Classification extends EABaseClass {
   }
 
   update() {
-    let idx = Array.prototype.indexOf.call(this.boxElement.parentNode.childNodes, this.boxElement);
-    let parent: Stereotype = this.getStereotype();
-    let previous: Classification = this.getPrevious();
+    const idx = Array.prototype.indexOf.call(this.boxElement.parentNode.childNodes, this.boxElement);
+    const parent = this.getPackage();
+    const previous = this.getPrevious();
 
-    this.x = (previous ? (previous.x + previous.width) : 0) + 10;
-    this.y = (previous ? previous.y : 20);
+    this.x = (previous ? (previous.x + previous.width) : 0) + 15;
+    this.y = (previous ? previous.y : 30);
     if (previous && (this.x + this.width) > parent.width) {
       // Fall down one line
-      this.y = previous.y + 35;
-      this.x = 10;
+      this.y = previous.y + 45;
+      this.x = 15;
     }
 
     D3.select(this.boxElement)

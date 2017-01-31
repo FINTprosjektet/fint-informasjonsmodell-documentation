@@ -11,7 +11,7 @@
     <tr *ngFor="let association of associations">
       <td class="name" [innerHTML]="association.meta.rt | highlight"></td>
       <td class="type">
-        <a *ngIf="association.target.type" [routerLink]="['/api']" [fragment]="association.target.type" [innerHTML]="association.meta.ea_targetName | highlight"></a>
+        <a *ngIf="association.target.type" [routerLink]="['/docs']" [fragment]="association.target.type" [innerHTML]="association.meta.ea_targetName | highlight"></a>
         <span *ngIf="!association.target.type" [innerHTML]="association.meta.ea_targetName | highlight"></span>
       </td>
       <td>{{ association.meta.rb }}</td>

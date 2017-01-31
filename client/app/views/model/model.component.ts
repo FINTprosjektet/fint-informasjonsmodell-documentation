@@ -1,4 +1,4 @@
-import { Generailzation } from '../../EA/model/Generalization';
+import { Generalization } from '../../EA/model/Generalization';
 import { Association } from '../../EA/model/Association';
 import { Classification } from '../../EA/model/Classification';
 import { Stereotype } from '../../EA/model/Stereotype';
@@ -8,7 +8,7 @@ import { ModelService } from '../../EA/model.service';
 import { Router } from '@angular/router';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as D3 from '../../d3.bundle';
-import { each } from 'lodash';
+import * as each from 'lodash/each';
 
 @Component({
   selector: 'app-model',
@@ -24,24 +24,27 @@ export class ModelComponent implements OnInit, AfterViewInit {
   private width;
   private height;
   private htmlElement: HTMLElement;
+  isLoading: boolean = false;
 
   constructor(private modelService: ModelService, private router: Router, private titleService: Title) { }
 
   ngOnInit() {
-    this.titleService.setTitle('FINT | information model');
+    this.titleService.setTitle('FINT | model');
   }
 
   ngAfterViewInit() {
-    let me = this;
+    const me = this;
     this.htmlElement = this.element.nativeElement;
     this.host = D3.select(this.htmlElement);
 
     // Load data and render
     this.modelService.searchString = '';
-    this.modelService.fetchModel().then(function () {
-      me.model = me.modelService.cachedModel;
+    this.isLoading = true;
+    this.modelService.fetchModel().subscribe(model => {
+      me.model = model;
       me.setup();
       me.render();
+      me.isLoading = false;
     });
   }
 
@@ -51,7 +54,7 @@ export class ModelComponent implements OnInit, AfterViewInit {
 
   private setup(): void {
     this.width = this.htmlElement.clientWidth;
-    this.height = (this.model.package.stereotypes.length * 100);
+    //    this.height = (this.model.package.stereotypes.length * 100);
 
     this.host.html('');
     this.svg = this.host.append('svg')
@@ -62,10 +65,8 @@ export class ModelComponent implements OnInit, AfterViewInit {
   }
 
   private render() {
-    let me = this;
-    let associations: Association[] = [];
-
-    let defs = this.svg.append('defs');
+    const me = this;
+    const defs = this.svg.append('defs');
     defs.selectAll('marker')
       .data(['neutral', 'source', 'target'])
       .enter()
@@ -85,65 +86,63 @@ export class ModelComponent implements OnInit, AfterViewInit {
 
     // Put all links in a top layer, so as not to disturb the stereotype groups bounding box,
     // since associations and generalizations can go accross stereotypes
-    let links = this.svg
+    const links = this.svg
       .append('g')
       .attr('class', 'links');
     links // Render associations
       .selectAll('g.association')
-      .data(this.modelService.getAllAssociations())
+      .data(this.modelService.getAssociations())
       .enter()
       .append('g')
       .attr('class', 'association')
-      .each(function (d: Association) { d.boxElement = this; }); // Each association is responsible for its own render
+      .each(function (d) { d.boxElement = this; }); // Each association is responsible for its own render
     links // Render generalizations
       .selectAll('g.generalization')
-      .data(this.modelService.getAllGeneralizations())
+      .data(this.modelService.getGeneralizations())
       .enter()
       .append('g')
       .attr('class', 'generalization')
-      .each(function (d: Generailzation) { d.boxElement = this; }); // Each generalization is responsible for its own render
+      .each(function (d) { d.boxElement = this; }); // Each generalization is responsible for its own render
 
     // Render stereotypes
-    let allStereotypes = this.svg
+    const allStereotypes = this.svg
       .append('g')
       .attr('class', 'stereotypes')
       .selectAll('g.stereotype')
-      .data(this.model.package.stereotypes)
+      .data(this.modelService.getTopPackages())
       .enter();
-    let stereotypeGroup = allStereotypes.append('g')
-      .each(function (d: Stereotype) {
+    const stereotypeGroup = allStereotypes.append('g')
+      .each(function (d) {
         d.boxElement = this;  // Let the stereotype render the element
-        D3.select(d.boxElement.querySelector('rect')).on('click', () => me.router.navigate(['/api'], { fragment: d.xmlId }));
+        D3.select(d.boxElement.querySelector('rect')).on('click', () => me.router.navigate(['/docs'], { fragment: d.xmiId }));
       })
       .append('g');
 
     // Render classes (inside the stereotype group)
-    stereotypeGroup.selectAll('g.class')
-      .data((d: Stereotype) => d.allClasses)
+    stereotypeGroup.selectAll('g.element')
+      .data(d => this.modelService.getClasses(d))
       .enter()
       .append('g')
-      .each(function (d: Classification) {
-        d.boxElement = this;  // Let the Class render the element
-        if (d.associations && d.associations.length) {
-          associations = associations.concat(d.associations);
-        }
-      })
-      .on('click', (d: Classification) => me.router.navigate(['/api'], { fragment: d.xmlId }));
+      .each(function (d) { d.boxElement = this; }) // Let the Class render the element
+      .on('click', d => me.router.navigate(['/docs'], { fragment: d.xmiId }));
 
     setTimeout(() => this.update());
   }
 
   update() {
     // Update every part of the model
-    each(this.model.package.stereotypes, type => {
-      let associations: Association[] = type.allAssociations;
-      let generalizations: Generailzation[] = type.allGeneralizations;
-      each(type.allClasses, cls => {
-        cls.update();
-      });
+    each(this.modelService.getTopPackages(), type => {
+      each(this.modelService.getClasses(type), cls => cls.update());
       type.update();
-      setTimeout(() => each(associations, ass => ass.update()));
-      setTimeout(() => each(generalizations, general => general.update()));
+      setTimeout(() => each(this.modelService.getAssociations(type), ass => ass.update()));
+      setTimeout(() => each(this.modelService.getGeneralizations(type), general => {
+        general.update();
+      }));
+    });
+    setTimeout(() => {
+      const height = (<SVGGElement>document.querySelector('svg.diagram > g.model')).getBBox().height;
+      const svg = <SVGElement>document.querySelector('svg.diagram');
+      svg.setAttribute('style', 'height: ' + (height + 10) + 'px');
     });
   }
 }

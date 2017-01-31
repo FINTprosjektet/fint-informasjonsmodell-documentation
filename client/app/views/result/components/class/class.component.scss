@@ -1,16 +1,10 @@
 @import "../../../../../variables";
 
-:host {
-  display: block;
-  padding: 0 15px 15px 15px;
-  border: 1px solid $border-color;
-  margin-bottom: 15px;
-  background-color: #f5f5f5;
-  box-shadow: 0;
+md-card {
   transition-duration: 0.5s;
   transition-timing-function: ease-in-out;
   transition-property: border-color, box-shadow;
-  &.table {
+  &.class {
     background-color: $table-color;
   }
   &.datatype {
@@ -26,36 +20,93 @@
     border-color: darken($border-color, 20%);
     box-shadow: 0 0 5px rgba(0,0,0,0.5);
   }
+  margin: 1rem 0;
 }
 
-.subtypelist {
-  margin-top: -1em;
+md-card-header {
+  /deep/ .md-card-header-text {
+    width: 100%;
+  }
+  md-card-title {
+    md-chip {
+      display: inline;
+    }
+    .type {
+      font-weight: normal;
+      font-style: italic;
+      font-size: 0.7em;
+      text-transform: uppercase;
+      float: right;
+    }
+  }
+
+  h3 {
+    margin: 0;
+  }
 }
-.subtype {
-  border-radius: 16px;
-  display: inline-block;
-  height: 32px;
-  line-height: 32px;
-  margin: 8px 8px 0 0;
-  padding: 0 12px;
-  box-sizing: border-box;
-  max-width: 100%;
-  background: rgb(224,224,224);
+
+.subtypes {
+  margin-top: -1.3rem;
+  margin-bottom: 1rem;
+  margin-left: 2.7rem;
 }
-header {
-  .type {
-    font-weight: normal;
-    font-style: italic;
-    font-size: 0.7em;
-    text-transform: uppercase;
-    float: right;
+
+md-chip-list {
+  display: inline;
+  /deep/ .md-chip-list-wrapper {
+    display: inline;
+  }
+  md-chip {
+    padding: 1px 8px;
   }
 }
 
 table {
+  .dropdown {
+    $width: 20px;
+    width: $width;
+    max-width: $width;
+    display: none;
+    @media (max-width: 970px) {
+      display: table-cell;
+    }
+  }
+  .dropdown-row {
+    display: none;
+    @media (max-width: 970px) {
+      display: table-row;
+    }
+  }
   .type, .name {
     $width: 180px;
     width: $width;
     max-width: $width;
   }
+  .multiplicity {
+    $width: 80px;
+    width: $width;
+    max-width: $width;
+  }
+  .description {
+    @media (max-width: 970px) {
+      display: none;
+    }
+  }
 }
+
+md-card-content /deep/ {
+  h1 { font-size: 120%; }
+  h2 { font-size: 110%; }
+  h3 { font-size: 105%; }
+}
+
+td.details {
+  border-radius: 5px 0 5px 5px;
+}
+.hasDetails {
+  cursor: pointer;
+  &.isOpen {
+    border-radius: 5px 5px 0 0;
+  }
+}
+

@@ -25,7 +25,7 @@ svg.diagram {
     stroke-opacity: 0;
   }
 
-  g.class {
+  g.element {
     > rect {
       fill: white;
       fill-opacity: 1;
@@ -35,7 +35,7 @@ svg.diagram {
       stroke-width: 2;
       stroke: darken($border-color, 10%);
     }
-    &.table > rect {
+    &.class > rect {
       fill: $table-color;
     }
     &.datatype > rect {

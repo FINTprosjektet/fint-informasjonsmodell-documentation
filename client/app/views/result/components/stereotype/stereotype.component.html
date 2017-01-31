@@ -1,10 +1,10 @@
-<article *ngIf="(stereotype.class && stereotype.class.length) || (stereotype.packages && stereotype.packages.length)">
+<article>
   <header>
-    <h2 class="anchor" id="{{ stereotype.xmlId }}">
+    <h2 class="anchor" [attr.id]="stereotype.id">
       {{ stereotype.name }}
     </h2>
   </header>
-  <app-class *ngFor="let class of stereotype.class" [classification]="class"></app-class>
+  <app-class *ngFor="let class of stereotype.classes" [classification]="class"></app-class>
 
   <app-package *ngFor="let package of stereotype.packages" [package]="package"></app-package>
 </article>

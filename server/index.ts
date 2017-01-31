@@ -1,6 +1,7 @@
 // Module dependencies
 import * as path from 'path';
 import * as chalk from 'chalk';
+import * as fs from 'fs';
 
 // Express
 import * as http from 'http';
@@ -14,6 +15,10 @@ import * as morgan from 'morgan';
 // Other
 import { Logger } from './utils/Logger';
 import { ERROR_MESSAGES } from './messages';
+import * as Iconv from 'iconv-lite';
+
+const xml2js = require('xml2js');
+const parser = new xml2js.Parser();
 
 /**
  * The server.
@@ -33,9 +38,9 @@ export class Server {
    */
   static Initialize(): Promise<any> {
     Logger.log.debug(`
-${chalk.green     ('**********************')}
+${chalk.green('**********************')}
 ${chalk.green.bold('  Starting server')}
-${chalk.green     ('**********************')}
+${chalk.green('**********************')}
 `);
     return new Server()
       .start()
@@ -49,7 +54,8 @@ ${chalk.green     ('**********************')}
    * Constructor.
    */
   constructor() {
-    let appPath = path.resolve(__dirname);
+    const appPath = path.resolve(__dirname);
+    const me = this;
 
     // Setup ExpressJS application
     this.app = Express();
@@ -64,23 +70,50 @@ ${chalk.green     ('**********************')}
 
     // Setup static resources
     this.app.use(Express.static(this.clientPath));                    // Serve static paths
-    this.app.use(favicon(path.join(this.clientPath, 'favicon.ico'))); // Serve favicon
+    const faviconPath = path.join(this.clientPath, 'favicon.ico');
+    if (fs.existsSync(path.resolve(faviconPath))) {
+      this.app.use(favicon(faviconPath)); // Serve favicon
+    }
 
     // Pipe traffic to fetch raw github content
-    this.app.get('/api/github/*', function (req: Express.Request, res: Express.Response, next: Express.NextFunction) {
-      console.log('Fetching Github document');
-      let fileToFetch = req.url.substr('/api/github/'.length);
-      let newReq = request('https://rawgit.com/' + fileToFetch);
+    this.app.get('/api/doc/:version/xml', function (req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+      const url = `https://rawgit.com/FINTprosjektet/fint-informasjonsmodell/${req.params.version}/FINT-informasjonsmodell.xml`;
+      me.load(url, (xml: string) => {
+        res.header({ 'content-type': 'application/xml; charset=utf-8' });
+        res.send(xml);
+      }, (error: any) => res.send(500, error));
+    });
 
-      // Hardcode charset
-      req.pipe(newReq)
-        .on('response', newRes => newRes.headers['content-type'] = 'text/xml;charset=win-1252')
-        .pipe(res);
+    // Pipe traffic to fetch raw github content
+    this.app.get('/api/doc/:version/json', function (req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+      const url = `https://rawgit.com/FINTprosjektet/fint-informasjonsmodell/${req.params.version}/FINT-informasjonsmodell.xml`;
+      console.log(`I'm fetching ${url}`);
+      me.load(url, (xml: string) => {
+        console.log(`${url} fetched!`);
+        parser.parseString(xml, function (err: any, result: any) {
+          Logger.log.debug('Serving ' + url);
+          res.header({ 'content-type': 'text/json; charset=utf-8' });
+          res.send(result);
+        });
+      }, (error: any) => res.send(500, error));
     });
 
     // Setup base route to everything else
     this.app.get('/*', (req: Express.Request, res: Express.Response) => {
       res.sendFile(path.resolve(this.clientPath, 'index.html'));
+    });
+  }
+
+  load(url: string, callback: Function, error: Function) {
+    request({ url: url, encoding: null }, function (err, response, body) {
+      if (err) {
+        Logger.log.error(err);
+        error(err);
+      }
+      if (!err && response.statusCode == 200) {
+        const xml = Iconv.decode(body, 'win-1252');
+        callback(xml);
+      }
     });
   }
 
@@ -104,7 +137,7 @@ ${chalk.green     ('**********************')}
    * Fatal error occurred during startup of server
    * @param error
    */
-  public $onServerInitError(error: any){
+  public $onServerInitError(error: any) {
     // handle specific listen errors with friendly messages if configured. Default to the stack-trace.
     Logger.log.error((ERROR_MESSAGES[error.code] ? ERROR_MESSAGES[error.code] : error));
   }

@@ -1,4 +1,5 @@
-import { Stereotype } from './Stereotype';
+import { Classification } from './Classification';
+import { Comment } from './Comment';
 import { Collaboration } from './Collaboration';
 import { EABaseClass } from './EABaseClass';
 import * as D3 from '../../d3.bundle';
@@ -7,34 +8,72 @@ import * as D3 from '../../d3.bundle';
  *
  */
 export class Package extends EABaseClass {
-  collaboration: Collaboration;
-  package: Package;
-  stereotypes: Stereotype[] = [];
+  static umlId = 'uml:Package';
 
-  constructor(json: {}, parent: EABaseClass) {
-    super(json, parent);
-    if (json['Namespace.ownedElement'] && json['Namespace.ownedElement'].Collaboration) {
-      this.collaboration = new Collaboration(json['Namespace.ownedElement'].Collaboration, this);
-    }
-    if (json['Namespace.ownedElement'] && json['Namespace.ownedElement'].Package) {
-      if (Array.isArray(json['Namespace.ownedElement'].Package)) {
-        this.stereotypes = json['Namespace.ownedElement'].Package.map(cls => new Stereotype(cls, this));
-      } else {
-        this.package = new Package(json['Namespace.ownedElement'].Package, this);
-      }
-    }
+  get classes() { return EABaseClass.service.getClasses(this); }
+
+  // Properties for rendering
+  private _boxElement: SVGGElement;
+  get boxElement() { return this._boxElement; }
+  set boxElement(elm: SVGGElement) {
+    this._boxElement = elm;
+    this.render();
+  }
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+
+  constructor() {
+    super();
+  }
+  render() {
+    // Add a rect
+    const d3Select = D3.select(this.boxElement);
+    d3Select
+      .attr('class', 'stereotype')
+      .attr('id', this.xmiId)
+      .append('rect')
+      .attrs({ x: 0, y: 0, rx: 10, ry: 10, width: '100%', height: 100 });
+    const bbox = this.boxElement.getBBox();
+    this.width = bbox.width;
+    this.height = bbox.height;
+
+    // Add a header
+    d3Select
+      .append('text')
+      .text(this.name)
+      .attrs({ x: 10, y: 15 });
   }
 
-  filter(search: string, forceReturn?: boolean) {
-    if (this.package) {
-      this.package = this.package.filter(search);
-    }
-    if (this.stereotypes) {
-      this.stereotypes = this.stereotypes.filter(stereotype => stereotype.filter(search));
-    }
-    if (forceReturn || this.package || (this.stereotypes && this.stereotypes.length)) {
-      return this;
+  getHeight() {
+    const classContainer = this.boxElement.querySelector('g');
+    const bbox = (classContainer ? classContainer.getBBox() : this.boxElement.getBBox());
+    return bbox.height + 70;
+  }
+
+  getPrevious() {
+    if (this.boxElement.previousSibling) {
+      return this.boxElement.previousSibling['__data__'];
     }
     return null;
+  }
+
+  update() {
+    const idx = Array.prototype.indexOf.call(this.boxElement.parentNode.childNodes, this.boxElement);
+
+    // Calculate width / height
+    this.width = this.boxElement.ownerSVGElement.clientWidth - 5;
+    this.height = this.getHeight();
+    D3.select(this.boxElement.querySelector('rect'))
+      .attrs({ width: this.width, height: this.height });
+
+
+    // Calculate + render x/y translation
+    const previous: any = this.getPrevious();
+    this.x = 1;
+    this.y = (previous ? (previous.y + previous.height) : 0) + 10;
+    D3.select(this.boxElement)
+      .attr('transform', `translate(${this.x}, ${this.y})`);
   }
 }

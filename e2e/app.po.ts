@@ -1,6 +1,6 @@
 import { browser, element, by } from 'protractor';
 
-export class FintArbeidstakerInformasjonsmodellPage {
+export class FintInformasjonsmodellPage {
   navigateTo() {
     return browser.get('/');
   }

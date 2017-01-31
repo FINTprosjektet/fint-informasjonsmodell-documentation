@@ -1,8 +1,11 @@
-<div *ngIf="isLoading != true && model && model.package">
-  <app-sidebar [stereotypes]="menu"></app-sidebar>
+<div class="md-spinner-container" *ngIf="isLoading">
+  <md-spinner class="center"></md-spinner>
+</div>
+<div *ngIf="isLoading != true && model">
+  <app-sidebar [stereotypes]="model"></app-sidebar>
   <section>
-    <h2>Elementer i informasjonsmodellen</h2>
+    <h1>Elementer i informasjonsmodellen</h1>
 
-    <app-package [package]="model.package" header="false"></app-package>
+    <app-stereotype *ngFor="let stereotype of model" [stereotype]="stereotype"></app-stereotype>
   </section>
 </div>

@@ -1,0 +1,11 @@
+<section class="details">
+  <fint-fa [name]="isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
+  <div class="container">
+    <div (click)="toggleOpen()">
+      <ng-content select="header"></ng-content>
+    </div>
+    <div *ngIf="isOpen">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</section>

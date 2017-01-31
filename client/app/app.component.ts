@@ -13,13 +13,12 @@ import { ModelService } from './EA/model.service';
 })
 export class AppComponent implements OnInit {
   get model(): Model { return this.modelService.cachedModel; }
-  get isLoading() { return this.modelService.isLoading; }
 
   get searchValue(): string { return this.modelService.searchString; }
   set searchValue(value: string) {
-    let currentPath = this.router.parseUrl(this.router.url).toString();
-    if (currentPath.indexOf('api') < 1) {
-      this.router.navigate(['/api']);
+    const currentPath = this.router.parseUrl(this.router.url).toString();
+    if (currentPath.indexOf('docs') < 1) {
+      this.router.navigate(['/docs']);
     }
     this.modelService.searchString = value;
   }
@@ -33,6 +32,5 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.titleService.setTitle('FINT');
-    this.modelService.fetchModel();
   }
 }

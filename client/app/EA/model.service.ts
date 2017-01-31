@@ -1,15 +1,22 @@
+import { Package } from './model/Package';
+import { Classification } from './model/Classification';
+import { IMapper } from './mapper/IMapper';
+import { XMLMapper } from './mapper/XMLMapper';
+import { JSON_XMI21_Mapper } from './mapper/JSON_XMI21_Mapper';
+
 import { Association } from './model/Association';
-import { Generailzation } from './model/Generalization';
+import { Generalization } from './model/Generalization';
 import { EABaseClass } from './model/EABaseClass';
+
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/toPromise';
-import { each } from 'lodash';
+import 'rxjs/add/operator/share';
+import 'rxjs/add/operator/catch';
+import 'rxjs/observable/of';
+import * as each from 'lodash/each';
 import { Model } from './model/Model';
-
-declare const X2JS: any; // Global module
 
 /**
  *
@@ -19,18 +26,17 @@ declare const X2JS: any; // Global module
  */
 @Injectable()
 export class ModelService {
-  json: {};
+  mapper: IMapper;
   isLoading: boolean = false;
+  version: string = 'master'; // Default branch
   cachedModel: Model;
 
   // Repository
-  byXmlId = {};
-  byId = {};
+  // byXmlId = {};
+  // byId = {};
 
-  // Promise resolve/reject methods
-  modelPromise: Promise<Model>;
-  private modelResolve;
-  private modelReject;
+  modelObservable: Observable<Model>;
+  modelData: Model;
 
   // Filter
   private oldFilter: string = '';
@@ -38,7 +44,7 @@ export class ModelService {
   get searchString(): string { return this._searchString; }
   set searchString(value: string) {
     this._searchString = value;
-    this.filterModel(value);
+    //this.filterModel(value);
   }
 
   /**
@@ -59,100 +65,54 @@ export class ModelService {
    *
    * @memberOf ModelService
    */
-  fetchModel(): Promise<Model> {
-    let me = this;
+  fetchModel(): Observable<Model> {
+    const me = this;
 
-    if (!this.modelPromise) {
-      this.modelPromise = new Promise<Model>((resolve, reject) => {
-        this.modelResolve = resolve;
-        this.modelReject = reject;
-      });
-      let url = '/api/github/FINTprosjektet/fint-informasjonsmodell/master/FINT-informasjonsmodell.xml';
-      me.isLoading = true;
-      this.http.request(url)
+    me.isLoading = true;
+    if (!me.modelObservable) {
+      me.modelObservable = me.http.request(`/api/doc/${this.version}/json`)
         .map(function (res: Response) {
-          // Map to our model structure
-          me.json = new X2JS().xml2js(res.text()).XMI['XMI.content']['Model'];
-          let m = me.parseModel();
-          console.log(m);
-          return m;
+          let contentType = res.headers.get('content-type');
+          contentType = contentType.substr(0, contentType.indexOf(';'));
+          switch (contentType) {
+            case 'text/json': me.mapper = new JSON_XMI21_Mapper(res.json()); break;
+            default: me.mapper = new XMLMapper(res.text()); break;
+          }
+          me.modelData = me.mapper.parse();
+          me.modelObservable = Observable.of(me.modelData);
+          console.log(me.modelData);
+          return me.modelData;
         })
-        .subscribe(function (model: Model) {
-          me.isLoading = false;
-          me.modelResolve(model);
-        });
+        .share()
+        .catch(error => Observable.throw(error));
     }
-
-    // Reset model (if it allready is parsed)
-    if (this.cachedModel) {
-      this.parseModel();
-    }
-    return this.modelPromise;
+    return me.modelObservable;
   }
 
-  getAllGeneralizations(): Generailzation[] {
-    let generalizations: Generailzation[] = [];
-    each(this.cachedModel.package.stereotypes, type => {
-      generalizations = generalizations.concat(type.allGeneralizations);
+  getGeneralizations(from?: any): any[] {
+    return this.mapper.allOfXmiType(Generalization.umlId, from);
+  }
+
+  getAssociations(from?: any): any[] {
+    return this.mapper.allOfXmiType(Association.umlId, from);
+  }
+
+  getClasses(from?: any): any[] {
+    return this.mapper.allOfXmiType(Classification.umlId, from).filter(c => {
+      return c.type !== 'Boundary';
     });
-    return generalizations;
   }
 
-  getAllAssociations(): Association[] {
-    let associations: Association[] = [];
-    each(this.cachedModel.package.stereotypes, type => {
-      associations = associations.concat(type.allAssociations);
+  getTopPackages(from?: any): any[] {
+    const retArr = [];
+    const models = this.mapper.generatedModel[Model.umlId][0].packagedElement[0].packagedElement;
+    models.forEach(model => {
+      model.packagedElement.forEach(pkg => {
+        if (pkg instanceof Package) {
+          retArr.push(pkg);
+        }
+      });
     });
-    return associations;
-  }
-
-  private filterModel(filter?: string) {
-    if (filter != this.oldFilter) { // Reset model
-      this.cachedModel = this.parseModel().filter(filter);
-      this.oldFilter = filter;
-    }
-  }
-
-  /**
-   *
-   *
-   * @returns
-   *
-   * @memberOf ModelService
-   */
-  parseModel() {
-    this.byId = {};
-    this.byXmlId = {};
-    this.cachedModel = new Model(this.json, null);
-    return this.cachedModel;
-  }
-
-  register(cls: EABaseClass) {
-    if (cls.xmlId) { this.byXmlId[cls.xmlId] = cls; }
-    if (cls.id) { this.byId[cls.id] = cls; }
-  }
-
-  /**
-   *
-   *
-   * @param {string} xmlId
-   * @returns {EABaseClass}
-   *
-   * @memberOf ModelService
-   */
-  findByXmlId(xmlId: string): EABaseClass {
-    return this.byXmlId[xmlId];
-  }
-
-  /**
-   *
-   *
-   * @param {number} id
-   * @returns {EABaseClass}
-   *
-   * @memberOf ModelService
-   */
-  findById(id: number): EABaseClass {
-    return this.byId[id];
+    return retArr;
   }
 }

@@ -7,13 +7,13 @@ import { Package } from '../../../../EA/model/Package';
   styleUrls: ['./package.component.scss']
 })
 export class PackageComponent implements OnInit {
-  @Input() package: Package;
+  @Input() package: any;
   @Input() header: boolean = true;
 
   constructor(private elm: ElementRef, private renderer: Renderer) { }
 
   ngOnInit() {
-    this.renderer.setElementAttribute(this.elm.nativeElement, 'id', this.package.xmlId);
+    this.renderer.setElementAttribute(this.elm.nativeElement, 'id', this.package.xmiId);
   }
 
 }

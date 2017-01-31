@@ -1,0 +1,90 @@
+@import "variables";
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+html {
+  background-color: $navbar-color;
+}
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #fcfcfc;
+  color: $text-color;
+  min-height: 100vh;
+  position: relative;
+  margin: 0; padding:0;
+}
+h1, h2, h3, h4, h5, h6 {
+  color: darken($text-color, 5%);
+}
+h1 { font-size: 150%; }
+h2 { font-size: 130%; }
+h3 { font-size: 120%; }
+h4 { font-size: 110%; }
+* {
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+}
+
+.highlight {
+  background: yellow;
+}
+
+.success {
+  color: $success;
+}
+
+.warning {
+  color: $warning;
+}
+
+.status fint-fa {
+  border: 1px solid;
+  border-radius: 50%;
+
+  &.success {
+    border-color: darken($success, 20%);
+  }
+  &.warning {
+    border-color: darken($warning, 20%);
+  }
+}
+
+.center{
+  margin: 0 auto;
+}
+
+.pull-right {
+  float: right;
+}
+
+.pull-left {
+  float: left;
+}
+
+.anchor {
+  &:before {
+    content: '';
+    display: block;
+    height: 75px;
+    margin-top: -75px;
+  }
+}
+
+.md-spinner-container {
+  margin-top: $navbar-height * 2;
+}
+
+details, .details, .hasDetails {
+  border-radius: $extra-rounded;
+  padding: 0.5rem;
+  margin: 0 -0.5rem;
+  background: $details-background;
+  summary, header {
+    cursor: pointer;
+    &:focus, &:active {
+      outline: none;
+    }
+  }
+}

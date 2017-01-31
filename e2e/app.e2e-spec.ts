@@ -1,10 +1,10 @@
-import { FintArbeidstakerInformasjonsmodellPage } from './app.po';
+import { FintInformasjonsmodellPage } from './app.po';
 
-describe('fint-arbeidstaker-informasjonsmodell App', function() {
-  let page: FintArbeidstakerInformasjonsmodellPage;
+describe('fint-informasjonsmodell App', function() {
+  let page: FintInformasjonsmodellPage;
 
   beforeEach(() => {
-    page = new FintArbeidstakerInformasjonsmodellPage();
+    page = new FintInformasjonsmodellPage();
   });
 
   it('should display message saying app works', () => {

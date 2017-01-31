@@ -8,13 +8,18 @@ export class Connection extends EABaseClass {
   type: string;
   multiplicity: string;
 
-  constructor(json: any, parent: EABaseClass) {
-    super(json, parent);
+  constructor() {
+    super();
+  }
+
+  apply(json, parent: EABaseClass) {
+    super.apply(json, parent);
     this.aggregation = json['_aggregation'];
     this.isOrdered = json['_isOrdered'];
     this.targetScope = json['_targetScope'];
     this.changeable = json['_changeable'];
     this.multiplicity = json['_multiplicity'];
     this.type = json['_type'];
+    return this;
   }
 }

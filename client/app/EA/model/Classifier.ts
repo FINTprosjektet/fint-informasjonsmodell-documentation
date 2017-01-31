@@ -2,7 +2,11 @@ import { EABaseClass } from './EABaseClass';
 
 export class Classifier extends EABaseClass {
 
-  constructor(json, parent: EABaseClass) {
-    super(json, parent);
+  constructor() {
+    super();
+  }
+
+  apply(json, parent: EABaseClass) {
+    return super.apply(json, parent);
   }
 }

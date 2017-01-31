@@ -1,65 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @import "variables";
+@import "styles/material.setup.scss";
+@import "styles/document";
 @import "styles/table";
 @import "styles/svg";
-
-body {
-  margin: 0; padding:0;
-  font-family: Arial, Helvetica, sans-serif;
-  color: $text-color;
-}
-h1, h2, h3, h4, h5, h6 {
-  color: darken($text-color, 5%);
-}
-* {
-  box-sizing: border-box;
-}
-
-a {
-  text-decoration: none;
-}
-
-.highlight {
-  background: yellow;
-}
-
-.success {
-  color: $success;
-}
-
-.warning {
-  color: $warning;
-}
-
-.status fint-fa {
-  border: 1px solid;
-  border-radius: 50%;
-
-  &.success {
-    border-color: darken($success, 20%);
-  }
-  &.warning {
-    border-color: darken($warning, 20%);
-  }
-}
-
-.center{
-  margin: 0 auto;
-}
-
-.pull-right {
-  float: right;
-}
-
-.pull-left {
-  float: left;
-}
-
-.anchor {
-  &:before {
-    content: '';
-    display: block;
-    height: 75px;
-    margin-top: -75px;
-  }
-}

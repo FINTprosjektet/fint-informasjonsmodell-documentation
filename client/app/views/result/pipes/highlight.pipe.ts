@@ -9,12 +9,12 @@ export class HighlightPipe implements PipeTransform {
   constructor(public modelService: ModelService) { }
 
   transform(text: string): string {
-    let search = this.modelService.searchString;
+    const search = this.modelService.searchString;
     let pattern = search.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
     pattern = pattern.split(' ').filter((t) => {
       return t.length > 0;
     }).join('|');
-    let regex = new RegExp(pattern, 'gi');
+    const regex = new RegExp(pattern, 'gi');
     return search ? text.replace(regex, (match) => `<span class="highlight">${match}</span>`) : text;
   }
 }

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Stereotype } from '../../../EA/model/Stereotype';
-import { each } from 'lodash';
+import * as each from 'lodash/each';
 
 @Component({
   selector: 'app-sidebar',
@@ -8,7 +8,7 @@ import { each } from 'lodash';
   styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent implements OnInit {
-  @Input() stereotypes: Stereotype[] = null;
+  @Input() stereotypes: any[] = null;
   constructor() { }
 
   ngOnInit() {
@@ -33,10 +33,10 @@ export class SidebarComponent implements OnInit {
   }
   checkElementInView() {
     each(this.stereotypes, type => {
-      let elm = document.getElementById(type.xmlId);
+      let elm = document.getElementById(type.xmiId);
       if (elm) {
         elm = elm.parentElement.parentElement;
-        let box = elm.getBoundingClientRect();
+        const box = elm.getBoundingClientRect();
         if (box.top < (this.getWindowSize().h - 60) && box.bottom > 60) {
           type.isActive = true;
           return;

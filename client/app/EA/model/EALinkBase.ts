@@ -4,15 +4,15 @@ import { Classification } from './Classification';
 import * as D3 from '../../d3.bundle';
 
 export class EALinkBase extends EABaseClass {
-  constructor(json: any, parent: EABaseClass) {
-    super(json, parent);
+  constructor() {
+    super();
   }
 
   calculatePathTo(source: Classification, target: Classification): [number, number][] {
-    let pathArr: [number, number][] = [];
+    const pathArr: [number, number][] = [];
     if (source.boxElement && target.boxElement) { // If these references does not contain rendered elements, just return empty array.
-      let sMatrix = EABaseClass.createMatrix(source.boxElement);
-      let tMatrix = EABaseClass.createMatrix(target.boxElement);
+      const sMatrix = EABaseClass.createMatrix(source.boxElement);
+      const tMatrix = EABaseClass.createMatrix(target.boxElement);
 
       let endX = 'center'; // Calculate left/right/center (should mostly be center)
       if (tMatrix.mid.center.x < sMatrix.mid.left.x) { endX = 'right'; }
@@ -34,8 +34,8 @@ export class EALinkBase extends EABaseClass {
 
       pathArr.push([sMatrix.mid.center.x, sMatrix.mid.center.y]); // Start line from middle of source
 
-      let xMiddle = ((sMatrix.mid.center.x + tMatrix.mid.center.x) / 2);
-      let yMiddle = ((sMatrix.mid.center.y + tMatrix.mid.center.y) / 2);
+      const xMiddle = ((sMatrix.mid.center.x + tMatrix.mid.center.x) / 2);
+      const yMiddle = ((sMatrix.mid.center.y + tMatrix.mid.center.y) / 2);
       if (xMiddle === sMatrix.mid.center.x && yMiddle === sMatrix.mid.center.y) {
         pathArr.push([xMiddle - 50, yMiddle + 50]); // Source === Target. Make a loop
         pathArr.push([xMiddle + 50, yMiddle + 50]);

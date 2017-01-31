@@ -40,3 +40,4 @@ testem.log
 Thumbs.db
 *.iml
 /log/
+*.log*

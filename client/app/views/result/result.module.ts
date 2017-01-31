@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { MaterialModule } from '@angular/material';
+
 import { LibSharedModule } from 'fint-shared-components';
 
 import { ResultComponent } from './result.component';
@@ -11,13 +13,18 @@ import { ClassComponent } from './components/class/class.component';
 import { PackageComponent } from './components/package/package.component';
 import { AssociationComponent } from './components/association/association.component';
 
+import { MarkdownToHtmlModule } from 'markdown-to-html-pipe';
 import { HighlightPipe } from './pipes/highlight.pipe';
+import { ExpandablePipe } from './pipes/expandable.pipe';
+import { DetailsComponent } from './details/details.component';
 
 @NgModule({
   imports: [
     CommonModule,
     LibSharedModule,
-    RouterModule
+    RouterModule,
+    MaterialModule,
+    MarkdownToHtmlModule
   ],
   declarations: [
     ResultComponent,
@@ -28,7 +35,9 @@ import { HighlightPipe } from './pipes/highlight.pipe';
     PackageComponent,
     AssociationComponent,
 
-    HighlightPipe
+    HighlightPipe,
+    ExpandablePipe,
+    DetailsComponent
   ]
 })
 export class ResultModule { }
