@@ -11,7 +11,7 @@
     "start:server:watch": "nodemon ./dist/index.js -w dist -d .2",
     "start:client": "ng serve --proxy-config proxy.conf.json",
     "build": "npm run build:server && npm run build:client",
-    "build:client": "ng build --prod",
+    "build:client": "ng build",
     "build:server": "tsc --project ./server/tsconfig.json",
     "build:server:watch": "npm run build:server -- -w",
     "clean": "rm -rf dist",
@@ -47,7 +47,7 @@
     "serve-favicon": "~2.3.2",
     "ts-helpers": "^1.1.1",
     "winston": "~2.3.0",
-    "x2js": "~3.0.1",
+    "xml2js": "~0.4.17",
     "zone.js": "^0.7.2"
   },
   "devDependencies": {
@@ -65,7 +65,7 @@
     "@types/request": "0.0.36",
     "@types/serve-favicon": "~2.2.28",
     "@types/winston": "~2.2.0",
-    "@types/x2js": "0.0.27",
+    "@types/xml2js": "0.0.32",
     "codelyzer": "~2.0.0-beta.1",
     "concurrently": "~3.1.0",
     "jasmine-core": "2.5.2",

@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpModule, Request, XSRFStrategy } from '@angular/http';
+import { HttpModule, Request } from '@angular/http';
 import { MaterialModule } from '@angular/material';
 
 import { LibSharedModule } from 'fint-shared-components';
@@ -27,7 +27,7 @@ import { ModelComponent } from './views/model/model.component';
     AppRoutingModule,
     ResultModule
   ],
-  providers: [ModelService], // !!HACK!!
+  providers: [ModelService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
