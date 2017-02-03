@@ -25,11 +25,13 @@ export class ClassComponent implements OnInit {
   constructor(private elm: ElementRef, private renderer: Renderer, private route: ActivatedRoute) { }
 
   ngOnInit() {
-    this.route.fragment.subscribe(fragment => {
-      this.renderer.setElementClass(this.elm.nativeElement, 'selected', fragment === this.classification.xmiId);
-      setTimeout(() => {
-        this.renderer.setElementClass(this.elm.nativeElement, 'selected', false);
-      }, 2000);
+    this.route.params.subscribe((params: any) => {
+      if (params.id) {
+        this.renderer.setElementClass(this.elm.nativeElement, 'selected', params.id === this.classification.id);
+        setTimeout(() => {
+          this.renderer.setElementClass(this.elm.nativeElement, 'selected', false);
+        }, 2000);
+      }
     });
   }
 }

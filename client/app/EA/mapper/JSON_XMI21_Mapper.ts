@@ -79,8 +79,6 @@ export class JSON_XMI21_Mapper implements IMapper {
       }
     }
 
-    Object.defineProperty(node, 'id', { get: () => node.xmiId });
-
     // Merge in duplicates with different pieces of the data
     if (node.xmiId && this.flatModel[node.xmiId] != null) {
       const oldModel = this.flatModel[node.xmiId];
@@ -142,6 +140,10 @@ export class JSON_XMI21_Mapper implements IMapper {
       case 'uml:PackageImport': break;
       case 'uml:Boundary': break;
       case 'uml:Stereotype': break;
+    }
+
+    if (!node.id && node.xmiId) {
+      node.id = node.xmiId;
     }
 
     if (node.xmiId && this.flatModel[node.xmiId] == null) {

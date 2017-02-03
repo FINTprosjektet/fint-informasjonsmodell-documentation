@@ -1,13 +1,3 @@
-import { Package } from './model/Package';
-import { Classification } from './model/Classification';
-import { IMapper } from './mapper/IMapper';
-import { XMLMapper } from './mapper/XMLMapper';
-import { JSON_XMI21_Mapper } from './mapper/JSON_XMI21_Mapper';
-
-import { Association } from './model/Association';
-import { Generalization } from './model/Generalization';
-import { EABaseClass } from './model/EABaseClass';
-
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
@@ -16,7 +6,19 @@ import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/catch';
 import 'rxjs/observable/of';
 import * as each from 'lodash/each';
+
+import { FintDialogService } from 'fint-shared-components';
+
+import { IMapper } from './mapper/IMapper';
+import { XMLMapper } from './mapper/XMLMapper';
+import { JSON_XMI21_Mapper } from './mapper/JSON_XMI21_Mapper';
+
+import { EABaseClass } from './model/EABaseClass';
 import { Model } from './model/Model';
+import { Package } from './model/Package';
+import { Classification } from './model/Classification';
+import { Association } from './model/Association';
+import { Generalization } from './model/Generalization';
 
 /**
  *
@@ -30,10 +32,6 @@ export class ModelService {
   isLoading: boolean = false;
   version: string = 'master'; // Default branch
   cachedModel: Model;
-
-  // Repository
-  // byXmlId = {};
-  // byId = {};
 
   modelObservable: Observable<Model>;
   modelData: Model;
@@ -54,7 +52,7 @@ export class ModelService {
    *
    * @memberOf ModelService
    */
-  constructor(private http: Http) {
+  constructor(private http: Http, private fintDialog: FintDialogService) {
     EABaseClass.service = this;
   }
 
@@ -78,13 +76,17 @@ export class ModelService {
             case 'text/json': me.mapper = new JSON_XMI21_Mapper(res.json()); break;
             default: me.mapper = new XMLMapper(res.text()); break;
           }
-          me.modelData = me.mapper.parse();
-          me.modelObservable = Observable.of(me.modelData);
-          console.log(me.modelData);
-          return me.modelData;
+          try {
+            me.modelData = me.mapper.parse();
+            me.modelObservable = Observable.of(me.modelData);
+            console.log(me.modelData);
+            return me.modelData;
+          } catch (ex) {
+            console.error(ex);
+          }
         })
         .share()
-        .catch(error => Observable.throw(error));
+        .catch(error => this.handleError(error));
     }
     return me.modelObservable;
   }
@@ -114,5 +116,10 @@ export class ModelService {
       });
     });
     return retArr;
+  }
+
+  handleError(error: any) {
+    this.fintDialog.displayHttpError(error);
+    return Observable.throw(error);
   }
 }

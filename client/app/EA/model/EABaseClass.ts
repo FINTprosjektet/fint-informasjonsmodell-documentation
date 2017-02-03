@@ -63,4 +63,8 @@ export class EABaseClass {
   }
 
   constructor() { }
+
+  cleanId(str: string) {
+    return str.toLowerCase().replace(/æ/, 'a').replace(/ø/, 'o').replace(/å/, 'a')
+  }
 }

@@ -33,7 +33,7 @@ export class SidebarComponent implements OnInit {
   }
   checkElementInView() {
     each(this.stereotypes, type => {
-      let elm = document.getElementById(type.xmiId);
+      let elm = document.getElementById(type.id);
       if (elm) {
         elm = elm.parentElement.parentElement;
         const box = elm.getBoundingClientRect();

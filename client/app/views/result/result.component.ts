@@ -30,19 +30,20 @@ export class ResultComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     // Detect fragments and navigate
-    this.route.fragment.subscribe(xmiId => this.goto(xmiId));
+    this.route.params.subscribe((params: any) => this.goto(params.id));
   }
 
-  private goto(xmiId) {
-    if (xmiId) {
+  private goto(id) {
+    if (id) {
+      console.log(id);
       this.modelService.searchString = '';
-      let elm = document.querySelector('#' + xmiId);
+      let elm = document.querySelector('#' + id);
       if (elm) {                            // Element exists; scroll to it
         elm.scrollIntoView();
         this.gotoRetries = 0;
       } else if (this.gotoRetries < 5) {    // Element not found; retry max 5 times
         this.gotoRetries++;
-        setTimeout(() => this.goto(xmiId));
+        setTimeout(() => this.goto(id));
       } else {                              // Giving up. Reset counter and die
         this.gotoRetries = 0;
       }

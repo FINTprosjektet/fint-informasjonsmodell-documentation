@@ -11,6 +11,7 @@ export class Package extends EABaseClass {
   static umlId = 'uml:Package';
 
   get classes() { return EABaseClass.service.getClasses(this); }
+  get id(): string { return this.cleanId('package_' + this.name); }
 
   // Properties for rendering
   private _boxElement: SVGGElement;

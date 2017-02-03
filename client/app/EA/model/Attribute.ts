@@ -11,6 +11,8 @@ export class Attribute extends EABaseClass {
   upperValue: any;
   lowerValue: any;
 
+  get id(): string { return this.cleanId(this.parent.id + '~' + this.name); }
+
   get documentation(): string {
     if (this.extension && this.extension.documentation) {
       return this.extension.documentation.map(e => e.value).join('');

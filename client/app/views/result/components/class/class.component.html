@@ -1,7 +1,7 @@
 <div class="anchor" [attr.id]="classification.id"></div>
 <md-card [className]="classification.type.toLowerCase()">
   <md-card-header>
-    <a [routerLink]="['/docs']" [fragment]="classification.id" md-card-avatar>
+    <a [routerLink]="['/docs', classification.id]" md-card-avatar>
       <fint-fa [name]="classType"></fint-fa>
     </a>
     <md-card-title>
@@ -10,7 +10,7 @@
         <span *ngIf="classification.superType && classification.superType.length">
           <fint-fa name="arrow-left"></fint-fa>
           <md-chip *ngFor="let super of classification.superType" color="primary">
-            <a [routerLink]="['/docs']" [fragment]="super.generalRef.id">
+            <a [routerLink]="['/docs', super.generalRef.id]">
               {{ super.generalRef.name }}
             </a>
           </md-chip>
@@ -24,7 +24,7 @@
     <div class="subtypes" *ngIf="classification.subTypes && classification.subTypes.length">
       <md-chip-list>
         <md-chip *ngFor="let cls of classification.subTypes">
-          <a [routerLink]="['/docs']" [fragment]="cls.id">{{ cls.name }}</a>
+          <a [routerLink]="['/docs', cls.id]">{{ cls.name }}</a>
         </md-chip>
       </md-chip-list>
     </div>
@@ -52,7 +52,7 @@
           <td class="name" [innerHTML]="attribute.name | highlight"></td>
           <td class="type">
             <span *ngIf="attribute.isPrimitive">{{ attribute.typeName }}</span>
-            <a *ngIf="!attribute.isPrimitive && attribute.typeRef" [routerLink]="['/docs']" [fragment]="attribute.typeRef.id">{{ attribute.typeName }}</a>
+            <a *ngIf="!attribute.isPrimitive && attribute.typeRef" [routerLink]="['/docs', attribute.typeRef.id]">{{ attribute.typeName }}</a>
           </td>
           <td class="multiplicity">{{ attribute.multiplicity }}</td>
           <td class="description" (click)="attribute.isOpen = !attribute.isOpen" [ngClass]="{hasDetails: attribute.documentationBody.length > 0, isOpen: attribute.isOpen}">

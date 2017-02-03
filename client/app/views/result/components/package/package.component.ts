@@ -13,7 +13,7 @@ export class PackageComponent implements OnInit {
   constructor(private elm: ElementRef, private renderer: Renderer) { }
 
   ngOnInit() {
-    this.renderer.setElementAttribute(this.elm.nativeElement, 'id', this.package.xmiId);
+    this.renderer.setElementAttribute(this.elm.nativeElement, 'id', this.package.id);
   }
 
 }

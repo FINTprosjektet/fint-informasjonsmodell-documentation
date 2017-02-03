@@ -18,6 +18,8 @@ export class Classification extends EABaseClass {
   generalization: any;
   isAbstract;
 
+  get id(): string { return this.cleanId(this.type + '_' + this.name); }
+
   get type(): string {
     if (this.isAbstract === 'true') { return 'abstract'; }
     if (this.extension && this.extension.properties && this.extension.properties.length) {

@@ -1,7 +1,7 @@
 <aside (window:scroll)="checkElementInView()">
   <ul>
     <li *ngFor="let stereotype of stereotypes" [className]="stereotype.isActive ? 'active' : ''">
-      <a [routerLink]="['/docs']" [fragment]="stereotype.xmiId">{{ stereotype.name }}</a>
+      <a [routerLink]="['/docs', stereotype.id]">{{ stereotype.name }}</a>
     </li>
   </ul>
 </aside>
