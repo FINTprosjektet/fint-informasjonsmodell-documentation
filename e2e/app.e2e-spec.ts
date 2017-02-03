@@ -9,6 +9,6 @@ describe('fint-informasjonsmodell App', function() {
 
   it('should display message saying app works', () => {
     page.navigateTo();
-    expect(page.getParagraphText()).toEqual('fint works!');
+    expect(page.getParagraphText()).toEqual('app works!');
   });
 });
