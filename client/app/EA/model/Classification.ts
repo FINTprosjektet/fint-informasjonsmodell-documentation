@@ -177,13 +177,14 @@ export class Classification extends EABaseClass {
           me.removeClass(elm, 'over'); me.removeClass(elm, 'source'); me.removeClass(elm, 'target');
           D3.select(elm.querySelector('path')).attr('marker-end', 'url(#arrow_neutral)');
         });
-      });
+      })
+      .append('title').text(d => me.documentationHeader);
 
     // Calculate width of box based on text width
     D3.select(this.boxElement)
       .append('text')
       .text(this.name)
-      .each(function (d: Classification) {
+      .each(function (d: any) {
         me.width = this.getBBox().width + 20;
         if (this.remove) {
           this.remove();

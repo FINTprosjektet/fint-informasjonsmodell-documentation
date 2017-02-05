@@ -2,13 +2,11 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 
 html {
-  background-color: $navbar-color;
+  background-color: #fcfcfc;
 }
 body {
   font-family: 'Roboto', sans-serif;
-  background-color: #fcfcfc;
   color: $text-color;
-  min-height: 100vh;
   position: relative;
   margin: 0; padding:0;
 }
