@@ -1,20 +1,25 @@
-import { ModelService } from '../../../EA/model.service';
 import { Pipe, PipeTransform } from '@angular/core';
+
+import { ModelService } from '../../../EA/model.service';
 
 @Pipe({
   name: 'highlight'
 })
 export class HighlightPipe implements PipeTransform {
 
-  constructor(public modelService: ModelService) { }
+  constructor() { }
 
-  transform(text: string): string {
-    const search = this.modelService.searchString;
-    let pattern = search.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-    pattern = pattern.split(' ').filter((t) => {
-      return t.length > 0;
-    }).join('|');
-    const regex = new RegExp(pattern, 'gi');
-    return search ? text.replace(regex, (match) => `<span class="highlight">${match}</span>`) : text;
+  transform(text: string, search: string): string {
+    return (search && search.length
+      ? text.replace(new RegExp(this.pattern(search), 'gi'), (match) => `<span class="highlight">${match}</span>`)
+      : text);
+  }
+
+  pattern(search) {
+    return search
+      .replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&')
+      .split(' ')
+      .filter((t) => t.length > 0)
+      .join('|');
   }
 }

@@ -1,7 +1,6 @@
+import { EABaseClass } from './EABaseClass';
 import { Classification } from './Classification';
 import { Comment } from './Comment';
-import { Collaboration } from './Collaboration';
-import { EABaseClass } from './EABaseClass';
 import * as D3 from '../../d3.bundle';
 
 /**
@@ -9,9 +8,26 @@ import * as D3 from '../../d3.bundle';
  */
 export class Package extends EABaseClass {
   static umlId = 'uml:Package';
+  packagedElement: any;
 
-  get classes() { return EABaseClass.service.getClasses(this); }
+  get classes(): Classification[] { return EABaseClass.service.getClasses(this); }
   get id(): string { return this.cleanId('package_' + this.name); }
+
+  private _isVisible: boolean;
+  private _lastSearch: string;
+  public isVisible(): boolean {
+    const str = EABaseClass.service.searchString;
+    if (str && str.length > 0) {
+      if (str == this._lastSearch) { return this._isVisible; }
+      const meVisible = super.isVisible();
+      const clsVisible = this.classes.some(cls => cls.isVisible());
+
+      this._lastSearch = str;
+      this._isVisible = (meVisible || clsVisible);
+      return this._isVisible;
+    }
+    return true;
+  }
 
   // Properties for rendering
   private _boxElement: SVGGElement;

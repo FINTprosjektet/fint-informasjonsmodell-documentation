@@ -10,8 +10,6 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 
 import { StereotypeComponent } from './components/stereotype/stereotype.component';
 import { ClassComponent } from './components/class/class.component';
-import { PackageComponent } from './components/package/package.component';
-import { AssociationComponent } from './components/association/association.component';
 
 import { MarkdownToHtmlModule } from 'markdown-to-html-pipe';
 import { HighlightPipe } from './pipes/highlight.pipe';
@@ -32,8 +30,6 @@ import { DetailsComponent } from './details/details.component';
 
     StereotypeComponent,
     ClassComponent,
-    PackageComponent,
-    AssociationComponent,
 
     HighlightPipe,
     ExpandablePipe,

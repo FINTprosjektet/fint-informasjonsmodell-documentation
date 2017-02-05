@@ -1,14 +1,15 @@
-import { Generalization } from '../../EA/model/Generalization';
-import { Association } from '../../EA/model/Association';
-import { Classification } from '../../EA/model/Classification';
-import { Stereotype } from '../../EA/model/Stereotype';
-import { Model } from '../../EA/model/Model';
 import { Title } from '@angular/platform-browser';
-import { ModelService } from '../../EA/model.service';
 import { Router } from '@angular/router';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as D3 from '../../d3.bundle';
 import * as each from 'lodash/each';
+
+import { ModelService } from '../../EA/model.service';
+import { Model } from '../../EA/model/Model';
+import { Stereotype } from '../../EA/model/Stereotype';
+import { Classification } from '../../EA/model/Classification';
+import { Generalization } from '../../EA/model/Generalization';
+import { Association } from '../../EA/model/Association';
 
 @Component({
   selector: 'app-model',

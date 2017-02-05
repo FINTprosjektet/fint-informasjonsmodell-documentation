@@ -1,5 +1,5 @@
-import { ExpandablePipe } from '../../views/result/pipes/expandable.pipe';
 import { EABaseClass } from './EABaseClass';
+import { ExpandablePipe } from '../../views/result/pipes/expandable.pipe';
 
 export class Attribute extends EABaseClass {
   static pipe = new ExpandablePipe();
@@ -12,6 +12,23 @@ export class Attribute extends EABaseClass {
   lowerValue: any;
 
   get id(): string { return this.cleanId(this.parent.id + '~' + this.name); }
+
+  private _isVisible: boolean;
+  private _lastSearch: string;
+  public isVisible(): boolean {
+    const str = EABaseClass.service.searchString;
+    if (str && str.length > 0) {
+      if (str == this._lastSearch) { return this._isVisible; }
+      const meVisible = super.isVisible();
+      const typeVisible = this.match(this.typeName);
+
+      this._lastSearch = str;
+      this._isVisible = (meVisible || typeVisible);
+      return this._isVisible;
+    }
+    return true;
+  }
+
 
   get documentation(): string {
     if (this.extension && this.extension.documentation) {

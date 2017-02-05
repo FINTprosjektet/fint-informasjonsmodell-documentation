@@ -1,7 +1,7 @@
 import { Model } from '../model/Model';
 
 export interface IMapper {
-  generatedModel: any;
+  modelRoot: any;
   flatModel: { key: string, obj: {} };
 
   parse(): any;

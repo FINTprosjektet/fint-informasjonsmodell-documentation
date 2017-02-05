@@ -1,6 +1,5 @@
 import { EABaseClass } from './EABaseClass';
 import { EALinkBase } from './EALinkBase';
-import { Connection } from './Connection';
 import { Classification } from './Classification';
 import * as D3 from '../../d3.bundle';
 import * as each from 'lodash/each';

@@ -11,7 +11,6 @@ export class DetailsComponent {
   constructor() { }
 
   toggleOpen() {
-    console.log('Toggle open details');
     this.isOpen = !this.isOpen;
   }
 }

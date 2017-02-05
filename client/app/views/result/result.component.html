@@ -6,6 +6,6 @@
   <section>
     <h1>Elementer i informasjonsmodellen</h1>
 
-    <app-stereotype *ngFor="let stereotype of model" [stereotype]="stereotype"></app-stereotype>
+    <app-stereotype *ngFor="let stereotype of visiblePackages()" [stereotype]="stereotype"></app-stereotype>
   </section>
 </div>

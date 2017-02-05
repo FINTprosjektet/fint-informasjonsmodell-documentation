@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
-import { Observable } from 'rxjs/Rx';
+import { Observable, Observer, ReplaySubject } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/catch';
@@ -31,18 +31,23 @@ export class ModelService {
   mapper: IMapper;
   isLoading: boolean = false;
   version: string = 'master'; // Default branch
-  cachedModel: Model;
+  get model(): Model {
+    if (this.mapper && this.mapper.modelRoot) {
+      return this.mapper.modelRoot.modelBase;
+    }
+    return null;
+  };
 
   modelObservable: Observable<Model>;
   modelData: Model;
 
   // Filter
-  private oldFilter: string = '';
-  _searchString: string = '';
+  private _searchString: string = '';
   get searchString(): string { return this._searchString; }
   set searchString(value: string) {
-    this._searchString = value;
-    //this.filterModel(value);
+    if (this._searchString != value) {
+      this._searchString = value;
+    }
   }
 
   /**
@@ -63,7 +68,7 @@ export class ModelService {
    *
    * @memberOf ModelService
    */
-  fetchModel(): Observable<Model> {
+  fetchModel(): Observable<any> {
     const me = this;
 
     me.isLoading = true;
@@ -106,16 +111,7 @@ export class ModelService {
   }
 
   getTopPackages(from?: any): any[] {
-    const retArr = [];
-    const models = this.mapper.generatedModel[Model.umlId][0].packagedElement[0].packagedElement;
-    models.forEach(model => {
-      model.packagedElement.forEach(pkg => {
-        if (pkg instanceof Package) {
-          retArr.push(pkg);
-        }
-      });
-    });
-    return retArr;
+    return this.model.packages;
   }
 
   handleError(error: any) {

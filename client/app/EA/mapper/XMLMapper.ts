@@ -3,7 +3,7 @@ import { IMapper } from './IMapper';
 
 export class XMLMapper implements IMapper {
   xml: XMLDocument;
-  generatedModel: Model;
+  modelRoot: Model;
   flatModel: { key: string, obj: {} };
 
   constructor(modelData: string) {

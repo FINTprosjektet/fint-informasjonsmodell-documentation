@@ -12,15 +12,17 @@ import { ModelService } from './EA/model.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  get model(): Model { return this.modelService.cachedModel; }
+  get model(): Model { return this.modelService.model; }
 
   get searchValue(): string { return this.modelService.searchString; }
   set searchValue(value: string) {
     const currentPath = this.router.parseUrl(this.router.url).toString();
-    if (currentPath.indexOf('docs') < 1) {
+    this.modelService.searchString = value;
+    if (value) {
+      this.router.navigate(['/docs'], { queryParams: { s: value } });
+    } else {
       this.router.navigate(['/docs']);
     }
-    this.modelService.searchString = value;
   }
 
   constructor(
@@ -32,5 +34,10 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.titleService.setTitle('FINT');
+    this.route.queryParams.subscribe((params: any) => {
+      if (params.s) {
+        this.searchValue = params.s;
+      }
+    });
   }
 }

@@ -1,18 +1,20 @@
-import { Attribute } from '../model/Attribute';
-import { Association } from '../model/Association';
-import { Generalization } from '../model/Generalization';
-import { Classification } from '../model/Classification';
-import { Comment } from '../model/Comment';
-import { Model } from '../model/Model';
-import { Stereotype } from '../model/Stereotype';
-import { Package } from '../model/Package';
 import { EABaseClass } from '../model/EABaseClass';
+import { Model } from '../model/Model';
 import { IMapper } from './IMapper';
 import * as merge from 'lodash/merge';
 
+import { Stereotype } from '../model/Stereotype';
+import { Package } from '../model/Package';
+import { Classification } from '../model/Classification';
+import { Attribute } from '../model/Attribute';
+import { Association } from '../model/Association';
+import { Generalization } from '../model/Generalization';
+import { Comment } from '../model/Comment';
+
 export class JSON_XMI21_Mapper implements IMapper {
   json: {};
-  generatedModel: any;
+  modelRoot: any;
+  modelBase: any;
   flatModel: { key: string, obj: {} } = <{ key: string, obj: {} }>{};
   refTypes: string[] = ['reference', 'start', 'end', 'general', 'association', 'subject', 'modelElement', 'package', 'package2'];
 
@@ -21,9 +23,10 @@ export class JSON_XMI21_Mapper implements IMapper {
   }
 
   public parse(): Model {
-    this.generatedModel = this.walkTree(this.json['xmi:XMI'], null);
+    this.modelRoot = this.walkTree(this.json['xmi:XMI'], null);
     this.secondWalk(); // In order to add return references
-    return this.generatedModel;
+    this.modelRoot.modelBase = this.modelBase;
+    return this.modelRoot;
   }
 
   public checkType(node): string {
@@ -112,7 +115,7 @@ export class JSON_XMI21_Mapper implements IMapper {
     // Add type specific properties for rendering
     switch (node.xmiType) {
       // Primitives
-      case Model.umlId: Object.setPrototypeOf(node, new Model()); break;
+      case Model.umlId: Object.setPrototypeOf(node, new Model()); this.modelBase = node; break;
       case Package.umlId: Object.setPrototypeOf(node, new Package()); break;
       case Classification.umlId: Object.setPrototypeOf(node, new Classification()); break;
       case 'uml:Enumeration': Object.setPrototypeOf(node, new Classification()); break;

@@ -4,7 +4,5 @@
       {{ stereotype.name }}
     </h2>
   </header>
-  <app-class *ngFor="let class of stereotype.classes" [classification]="class"></app-class>
-
-  <app-package *ngFor="let package of stereotype.packages" [package]="package"></app-package>
+  <app-class *ngFor="let class of visibleClasses()" [classification]="class"></app-class>
 </article>

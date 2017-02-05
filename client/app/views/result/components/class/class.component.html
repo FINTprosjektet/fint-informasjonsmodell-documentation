@@ -1,21 +1,19 @@
 <div class="anchor" [attr.id]="classification.id"></div>
-<md-card [className]="classification.type.toLowerCase()">
+<md-card [className]="classification.type.toLowerCase()" [ngClass]="{'selected': isSelected}">
   <md-card-header>
     <a [routerLink]="['/docs', classification.id]" md-card-avatar>
       <fint-fa [name]="classType"></fint-fa>
     </a>
     <md-card-title>
       <h3>
-        <span [innerHTML]="classification.name | highlight"></span>
-        <span *ngIf="classification.superType && classification.superType.length">
+        <span [innerHTML]="classification.name | highlight:searchStr"></span>
+        <span *ngIf="classification.superType">
           <fint-fa name="arrow-left"></fint-fa>
-          <md-chip *ngFor="let super of classification.superType" color="primary">
-            <a [routerLink]="['/docs', super.generalRef.id]">
-              {{ super.generalRef.name }}
-            </a>
+          <md-chip *ngIf="classification.superType" color="primary">
+            <a [routerLink]="['/docs', classification.superType.id]" [innerHTML]="classification.superType.name | highlight:searchStr"></a>
           </md-chip>
         </span>
-        <small class="type" [innerHTML]="classification.type | highlight"></small>
+        <small class="type" [innerHTML]="classification.type | highlight:searchStr"></small>
       </h3>
     </md-card-title>
   </md-card-header>
@@ -24,7 +22,7 @@
     <div class="subtypes" *ngIf="classification.subTypes && classification.subTypes.length">
       <md-chip-list>
         <md-chip *ngFor="let cls of classification.subTypes">
-          <a [routerLink]="['/docs', cls.id]">{{ cls.name }}</a>
+          <a [routerLink]="['/docs', cls.id]" [innerHTML]="cls.name | highlight:searchStr"></a>
         </md-chip>
       </md-chip-list>
     </div>
@@ -49,10 +47,10 @@
           <td class="dropdown" (click)="attribute.isOpen = !attribute.isOpen" [ngClass]="{hasDetails: attribute.documentation.length > 0, isOpen: attribute.isOpen}">
             <fint-fa *ngIf="attribute.documentation.length > 0" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
           </td>
-          <td class="name" [innerHTML]="attribute.name | highlight"></td>
+          <td class="name" [innerHTML]="attribute.name | highlight:searchStr"></td>
           <td class="type">
-            <span *ngIf="attribute.isPrimitive">{{ attribute.typeName }}</span>
-            <a *ngIf="!attribute.isPrimitive && attribute.typeRef" [routerLink]="['/docs', attribute.typeRef.id]">{{ attribute.typeName }}</a>
+            <span *ngIf="attribute.isPrimitive" [innerHTML]="attribute.typeName | highlight:searchStr"></span>
+            <a *ngIf="!attribute.isPrimitive && attribute.typeRef" [routerLink]="['/docs', attribute.typeRef.id]" [innerHTML]="attribute.typeName | highlight:searchStr"></a>
           </td>
           <td class="multiplicity">{{ attribute.multiplicity }}</td>
           <td class="description" (click)="attribute.isOpen = !attribute.isOpen" [ngClass]="{hasDetails: attribute.documentationBody.length > 0, isOpen: attribute.isOpen}">

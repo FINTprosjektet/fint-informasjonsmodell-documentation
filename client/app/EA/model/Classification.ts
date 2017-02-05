@@ -1,9 +1,10 @@
+import { document } from '@angular/platform-browser/src/facade/browser';
+
+import { EABaseClass } from './EABaseClass';
+import { Stereotype } from './Stereotype';
 import { Package } from './Package';
 import { Generalization } from './Generalization';
-import { document } from '@angular/platform-browser/src/facade/browser';
 import { Association } from './Association';
-import { Stereotype } from './Stereotype';
-import { EABaseClass } from './EABaseClass';
 import { Attribute } from './Attribute';
 import * as D3 from '../../d3.bundle';
 import * as each from 'lodash/each';
@@ -16,9 +17,54 @@ export class Classification extends EABaseClass {
   parent: any;
   referredBy: any[];
   generalization: any;
+  ownedAttribute: Attribute[];
   isAbstract;
 
-  get id(): string { return this.cleanId(this.type + '_' + this.name); }
+  private _isVisible: boolean;
+  private _lastSearch: string;
+  public isVisible(noSuper?: boolean): boolean {
+    const str = EABaseClass.service.searchString;
+    if (str && str.length > 0) {
+      if (str == this._lastSearch) { return this._isVisible; }
+      const meVisible = super.isVisible();
+      const typeVisible = this.match(this.type);
+
+      const sub = this.subTypes;
+      const subVisible = (sub ? sub.some(s => s.match(s.name)) : meVisible);
+
+      const t = this.superType;
+      const superVisible = (t ? t.match(t.name) : meVisible);
+
+      const m = this.members;
+      const membersVisible = (m && m.length ? m.some(member => member.isVisible()) : meVisible);
+
+      this._lastSearch = str;
+      this._isVisible = (meVisible || typeVisible || membersVisible || superVisible || subVisible);
+      return this._isVisible;
+    }
+    return true;
+  }
+
+  get id(): string {
+    const pkgName = (this.package ? this.package.name : '');
+    return this.cleanId(pkgName + '_' + this.name);
+  }
+
+  get package(): Package {
+    let parent = this.parent;
+    while (parent) {
+      if (parent instanceof Package) {
+        return parent;
+      } else {
+        parent = parent.parent;
+      }
+    }
+    return null;
+  }
+
+  get members(): Attribute[] {
+    return this.ownedAttribute;
+  }
 
   get type(): string {
     if (this.isAbstract === 'true') { return 'abstract'; }
@@ -48,23 +94,32 @@ export class Classification extends EABaseClass {
     return idx > 0 ? doc.substr(doc.indexOf('\n') + 1) : '';
   }
 
+  _subTypes;
   get subTypes(): any[] {
     const me = this;
+    if (this._subTypes) { return this._subTypes; }
     if (this.referredBy) {
-      return this.referredBy
+      this._subTypes = this.referredBy
         .filter((c, idx, self) => {
           const index = self.findIndex(x => x.start === c.start);
           const isRelated = (c instanceof Generalization && (c.end === me.xmiId));
           return index !== idx && isRelated;
         })
         .map(c => c.startRef);
+      return this._subTypes;
     }
     return null;
   }
 
-  get superType(): any {
+  get superType(): Classification {
     const me = this;
-    return this.generalization;
+    if (this.generalization) {
+      if (this.generalization.length > 1) {
+        throw new Error('Class has more than one super type');
+      }
+      return (<Generalization>this.generalization[0]).generalRef;
+    }
+    return null;
   }
 
   // Properties for rendering
