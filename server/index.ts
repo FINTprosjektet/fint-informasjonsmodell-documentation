@@ -87,11 +87,8 @@ ${chalk.green('**********************')}
     // Pipe traffic to fetch raw github content
     this.app.get('/api/doc/:version/json', function (req: Express.Request, res: Express.Response, next: Express.NextFunction) {
       const url = `https://rawgit.com/FINTprosjektet/fint-informasjonsmodell/${req.params.version}/FINT-informasjonsmodell.xml`;
-      console.log(`I'm fetching ${url}`);
       me.load(url, (xml: string) => {
-        console.log(`${url} fetched!`);
         parser.parseString(xml, function (err: any, result: any) {
-          Logger.log.debug('Serving ' + url);
           res.header({ 'content-type': 'text/json; charset=utf-8' });
           res.send(result);
         });

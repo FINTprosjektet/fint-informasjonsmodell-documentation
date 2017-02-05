@@ -4,6 +4,7 @@
     <a [routerLink]="['/docs', classification.id]" md-card-avatar>
       <fint-fa [name]="classType"></fint-fa>
     </a>
+    <md-card-subtitle>{{ classification.package.packagePath }}</md-card-subtitle>
     <md-card-title>
       <h3>
         <span [innerHTML]="classification.name | highlight:searchStr"></span>
@@ -43,18 +44,18 @@
         </tr>
       </thead>
       <tbody *ngFor="let attribute of classification.ownedAttribute">
-        <tr>
-          <td class="dropdown" (click)="attribute.isOpen = !attribute.isOpen" [ngClass]="{hasDetails: attribute.documentation.length > 0, isOpen: attribute.isOpen}">
-            <fint-fa *ngIf="attribute.documentation.length > 0" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
+        <tr [ngClass]="{hasDetailsBody: attribute.documentationBody.length > 0, hasDetails: attribute.documentationHeader.length > 0, isOpen: attribute.isOpen}">
+          <td class="dropdown" (click)="attribute.isOpen = !attribute.isOpen">
+            <fint-fa *ngIf="attribute.documentationHeader.length > 0" class="toggleMobileDetails" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
+            <fint-fa *ngIf="attribute.documentationBody.length > 0" class="toggleDetailBody" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
           </td>
-          <td class="name" [innerHTML]="attribute.name | highlight:searchStr"></td>
+          <td class="name" (click)="attribute.isOpen = !attribute.isOpen" [innerHTML]="attribute.name | highlight:searchStr"></td>
           <td class="type">
             <span *ngIf="attribute.isPrimitive" [innerHTML]="attribute.typeName | highlight:searchStr"></span>
             <a *ngIf="!attribute.isPrimitive && attribute.typeRef" [routerLink]="['/docs', attribute.typeRef.id]" [innerHTML]="attribute.typeName | highlight:searchStr"></a>
           </td>
-          <td class="multiplicity">{{ attribute.multiplicity }}</td>
-          <td class="description" (click)="attribute.isOpen = !attribute.isOpen" [ngClass]="{hasDetails: attribute.documentationBody.length > 0, isOpen: attribute.isOpen}">
-            <fint-fa *ngIf="attribute.documentationBody.length > 0" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
+          <td class="multiplicity" (click)="attribute.isOpen = !attribute.isOpen">{{ attribute.multiplicity }}</td>
+          <td class="description" (click)="attribute.isOpen = !attribute.isOpen">
             <i>{{ attribute.documentationHeader }}</i>
           </td>
         </tr>

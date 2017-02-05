@@ -12,8 +12,12 @@ import { Model } from '../../EA/model/Model';
 })
 export class ResultComponent implements OnInit, AfterViewInit {
   model = null;
-  private gotoRetries: number = 0;
-
+  modelResolve;
+  modelReject;
+  hasModel: Promise<any> = new Promise((resolve, reject) => {
+    this.modelResolve = resolve;
+    this.modelReject = reject;
+  });
   isLoading: boolean = false;
 
   constructor(private modelService: ModelService, private route: ActivatedRoute, private titleService: Title) { }
@@ -29,31 +33,27 @@ export class ResultComponent implements OnInit, AfterViewInit {
     this.isLoading = true;
     this.modelService.fetchModel().subscribe(model => {
       me.model = me.modelService.getTopPackages();
-      this.isLoading = false;
+      me.modelResolve();
+      me.isLoading = false;
     });
   }
 
   ngAfterViewInit() {
     // Detect query parameter from search string, and filter
     const me = this;
-    this.route.params.subscribe((params: any) => this.goto(params.id));
+    this.route.params.subscribe((params: any) => {
+      me.hasModel.then(() => me.goto(params.id));
+    });
   }
 
   private goto(id) {
     if (id) {
       this.modelService.searchString = '';
-      let elm = document.querySelector('#' + id);
-      if (elm) {                            // Element exists; scroll to it
-        setTimeout(() => elm.scrollIntoView(true));
-        this.gotoRetries = 0;
-      } else if (this.gotoRetries < 5) {    // Element not found; retry max 5 times
-        this.gotoRetries++;
-        setTimeout(() => this.goto(id));
-      } else {                              // Giving up. Reset counter and die
-        this.gotoRetries = 0;
-      }
-    } else {
-      // Goto top
+      setTimeout(() => {
+        const elm = document.querySelector('#' + id);
+        if (elm) { elm.scrollIntoView(true); }
+      });
+    } else { // Goto top
       document.body.scrollIntoView();
     }
   }

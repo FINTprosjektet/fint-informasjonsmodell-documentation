@@ -27,6 +27,13 @@ md-card-header {
   /deep/ .md-card-header-text {
     width: 100%;
   }
+  md-card-subtitle:first-child {
+    margin-bottom: 0.4rem;
+    margin-top: -1rem;
+  }
+  [md-card-avatar] {
+    margin-top: 0.4rem;
+  }
   md-card-title {
     md-chip {
       display: inline;
@@ -62,14 +69,22 @@ md-chip-list {
 }
 
 table {
+  .toggleDetailBody {
+    display: none;
+    @media (min-width: 970px) {
+      display: block;
+    }
+  }
+  .toggleMobileDetails {
+    display: block;
+    @media (min-width: 970px) {
+      display: none;
+    }
+  }
   .dropdown {
     $width: 20px;
     width: $width;
     max-width: $width;
-    display: none;
-    @media (max-width: 970px) {
-      display: table-cell;
-    }
   }
   .dropdown-row {
     display: none;
@@ -100,13 +115,38 @@ md-card-content /deep/ {
   h3 { font-size: 105%; }
 }
 
+/deep/ .details {
+  border-radius: $extra-rounded;
+  padding: 0.5rem;
+  margin: 0 -0.5rem;
+  background: $details-background;
+  summary, header {
+    cursor: pointer;
+    &:focus, &:active {
+      outline: none;
+    }
+  }
+}
+
 td.details {
   border-radius: 5px 0 5px 5px;
 }
 .hasDetails {
-  cursor: pointer;
-  &.isOpen {
-    border-radius: 5px 5px 0 0;
+  background: transparent;
+  @media (max-width: 970px) {
+    background: $details-background;
+    cursor: pointer;
+    &.isOpen {
+      border-radius: 5px 5px 0 0;
+    }
   }
 }
-
+.hasDetailsBody {
+  @media (min-width: 970px) {
+    background: $details-background;
+    cursor: pointer;
+    &.isOpen {
+      border-radius: 5px 5px 0 0;
+    }
+  }
+}

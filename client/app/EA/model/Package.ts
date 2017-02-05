@@ -29,6 +29,32 @@ export class Package extends EABaseClass {
     return true;
   }
 
+  get parentPackage(): Package {
+    let parent = this.parent;
+    while (parent) {
+      if (parent instanceof Package) {
+        return parent;
+      } else {
+        parent = parent.parent;
+      }
+    }
+    return null;
+  }
+
+  get packagePath(): string {
+    const path = [];
+    let pkg: Package = this;
+    while (pkg != null) {
+      path.unshift(pkg.name.toLowerCase());
+      pkg = pkg.parentPackage;
+      if (pkg.name === 'FINT') {
+        pkg = null; // Hardcoded top package name
+      }
+    }
+    return path.join('.');
+  }
+
+
   // Properties for rendering
   private _boxElement: SVGGElement;
   get boxElement() { return this._boxElement; }

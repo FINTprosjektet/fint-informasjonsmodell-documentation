@@ -53,11 +53,8 @@ export class Classification extends EABaseClass {
   get package(): Package {
     let parent = this.parent;
     while (parent) {
-      if (parent instanceof Package) {
-        return parent;
-      } else {
-        parent = parent.parent;
-      }
+      if (parent instanceof Package) { return parent; }
+      parent = parent.parent;
     }
     return null;
   }
