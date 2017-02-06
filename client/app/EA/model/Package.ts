@@ -10,8 +10,20 @@ export class Package extends EABaseClass {
   static umlId = 'uml:Package';
   packagedElement: any;
 
-  get classes(): Classification[] { return EABaseClass.service.getClasses(this); }
-  get id(): string { return this.cleanId('package_' + this.name); }
+  _classCache: Classification[];
+  get classes(): Classification[] {
+    if (!this._classCache) {
+      this._classCache = EABaseClass.service.getClasses(this);
+    }
+    return this._classCache;
+  }
+  _id: string;
+  get id(): string {
+    if (!this._id) {
+      this._id = this.cleanId('package_' + this.name);
+    }
+    return this._id;
+  }
 
   private _isVisible: boolean;
   private _lastSearch: string;

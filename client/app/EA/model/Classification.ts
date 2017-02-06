@@ -1,3 +1,4 @@
+import { MarkdownToHtmlPipe } from 'markdown-to-html-pipe';
 import { document } from '@angular/platform-browser/src/facade/browser';
 
 import { EABaseClass } from './EABaseClass';
@@ -10,6 +11,7 @@ import * as D3 from 'app/d3.bundle';
 import * as each from 'lodash/each';
 
 export class Classification extends EABaseClass {
+  static markPipe = new MarkdownToHtmlPipe()
   static umlId = 'uml:Class';
 
   xmiId: string;
@@ -45,18 +47,29 @@ export class Classification extends EABaseClass {
     return true;
   }
 
+  _id: string;
   get id(): string {
-    const pkgName = (this.package ? this.package.name : '');
-    return this.cleanId(pkgName + '_' + this.name);
+    if (!this._id) {
+      const pkgName = (this.package ? this.package.name : '');
+      this._id = this.cleanId(pkgName + '_' + this.name);
+    }
+    return this._id;
   }
 
+  _package: Package;
   get package(): Package {
-    let parent = this.parent;
-    while (parent) {
-      if (parent instanceof Package) { return parent; }
-      parent = parent.parent;
+    if (!this._package) {
+      let parent = this.parent;
+      while (parent) {
+        if (parent instanceof Package) {
+          this._package = parent;
+          break;
+        } else {
+          parent = parent.parent;
+        }
+      }
     }
-    return null;
+    return this._package;
   }
 
   get members(): Attribute[] {
@@ -88,16 +101,24 @@ export class Classification extends EABaseClass {
     return '';
   }
 
+  _headerClean: string;
   get documentationHeader(): string {
-    const doc = this.documentation;
-    const idx = doc.indexOf('\n');
-    return Attribute.pipe.stripHtml(idx > 0 ? doc.substr(0, doc.indexOf('\n')) : doc);
+    if (!this._headerClean) {
+      const doc = this.documentation;
+      const idx = doc.indexOf('\n');
+      this._headerClean = idx > 0 ? doc.substr(0, doc.indexOf('\n')) : doc;
+    }
+    return this._headerClean;
   }
 
+  _docBody: string;
   get documentationBody(): string {
-    const doc = this.documentation;
-    const idx = doc.indexOf('\n');
-    return idx > 0 ? doc.substr(doc.indexOf('\n') + 1) : '';
+    if (!this._docBody) {
+      const doc = this.documentation;
+      const idx = doc.indexOf('\n');
+      this._docBody = Attribute.markPipe.transform(idx > 0 ? doc.substr(doc.indexOf('\n') + 1) : '');
+    }
+    return this._docBody;
   }
 
   _subTypes;

@@ -145,7 +145,8 @@ export class JSON_XMI21_Mapper implements IMapper {
       case 'uml:Stereotype': break;
     }
 
-    if (!node.id && node.xmiId) {
+    // __lookupGetter__ because Object.getOwnPropertyDescriptor(node, 'id') always returns undefined
+    if (!node.__lookupGetter__('id') && node.xmiId) {
       node.id = node.xmiId;
     }
 

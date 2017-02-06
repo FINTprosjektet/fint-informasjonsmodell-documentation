@@ -2,8 +2,6 @@ import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, Ren
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 
-import { MarkdownToHtmlPipe } from 'markdown-to-html-pipe';
-
 import { Classification } from 'app/EA/model/Classification';
 
 @Component({
@@ -14,6 +12,7 @@ import { Classification } from 'app/EA/model/Classification';
 export class ClassComponent implements OnInit, OnDestroy {
   @Input() classification: Classification;
   searchSubscription: Subscription;
+  routeParamSubscription: Subscription;
   isSelected: boolean = false;
   searchStr: string;
 
@@ -31,7 +30,7 @@ export class ClassComponent implements OnInit, OnDestroy {
   constructor(private elm: ElementRef, private renderer: Renderer, private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit() {
-    this.route.params.subscribe((params: any) => this.isSelected = params.id === this.classification.id);
+    this.routeParamSubscription = this.route.params.subscribe((params: any) => this.isSelected = params.id === this.classification.id);
     this.searchSubscription = this.route.queryParams.subscribe((params: any) => {
       this.searchStr = params.s;
     });
@@ -39,6 +38,7 @@ export class ClassComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.searchSubscription.unsubscribe();
+    this.routeParamSubscription.unsubscribe();
   }
 
   openAttribute(attr) {

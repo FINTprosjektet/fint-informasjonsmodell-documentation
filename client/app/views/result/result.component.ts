@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs/Rx';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 
@@ -11,8 +12,11 @@ import { Model } from 'app/EA/model/Model';
   templateUrl: './result.component.html',
   styleUrls: ['./result.component.scss']
 })
-export class ResultComponent implements OnInit, AfterViewInit {
+export class ResultComponent implements OnInit, AfterViewInit, OnDestroy {
   model = null;
+  versionChangedSubscription: Subscription;
+  routeParamsSubscription: Subscription;
+
   modelResolve;
   modelReject;
   hasModel: Promise<any> = new Promise((resolve, reject) => {
@@ -38,14 +42,14 @@ export class ResultComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.titleService.setTitle('Docs | Fint');
     this.isLoading = true;
-    this.modelService.versionChanged.subscribe(v => this.loadData());
+    this.versionChangedSubscription = this.modelService.versionChanged.subscribe(v => this.loadData());
     this.loadData(); // Initial load
   }
 
   ngAfterViewInit() {
     // Detect query parameter from search string, and filter
     const me = this;
-    this.route.params.subscribe((params: any) => {
+    this.routeParamsSubscription = this.route.params.subscribe((params: any) => {
       me.hasModel.then(() => {
         if (params.attribute) {
           const clazz: any = this.modelService.getObjectById(params.id);
@@ -58,26 +62,33 @@ export class ResultComponent implements OnInit, AfterViewInit {
             }
           }
         }
-        me.goto(params.id);
+        me.goto(params.id, params.attribute == null);
       });
     });
+  }
+
+  ngOnDestroy() {
+    this.versionChangedSubscription.unsubscribe();
+    this.routeParamsSubscription.unsubscribe();
   }
 
   private loadData() {
     const me = this;
     this.modelService.fetchModel().subscribe(model => {
       me.model = me.modelService.getTopPackages();
-      me.modelResolve();
       me.isLoading = false;
+      me.modelResolve();
     });
   }
 
-  private goto(id) {
+  private goto(id, force?: boolean) {
     if (id) {
       this.modelService.searchString = '';
       setTimeout(() => {
         const elm = document.querySelector('#' + id);
-        if (elm && !this.InView.isElmInView(elm)) { elm.scrollIntoView(true); }
+        if (elm && (force || !this.InView.isElmInView(elm))) {
+          elm.scrollIntoView(true);
+        }
       });
     } else { // Goto top
       document.body.scrollIntoView();

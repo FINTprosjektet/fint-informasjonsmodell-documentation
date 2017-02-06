@@ -1,8 +1,11 @@
+import { MarkdownToHtmlPipe } from 'markdown-to-html-pipe';
 import { EABaseClass } from './EABaseClass';
 import { ExpandablePipe } from '../../views/result/pipes/expandable.pipe';
 
 export class Attribute extends EABaseClass {
   static pipe = new ExpandablePipe();
+  static markPipe = new MarkdownToHtmlPipe()
+
   static umlId = 'uml:Property';
   parent: any;
   classRef: string;
@@ -36,32 +39,48 @@ export class Attribute extends EABaseClass {
     this._isOpen = flag;
   }
 
+  _documentation: string;
   get documentation(): string {
-    if (this.extension && this.extension.documentation) {
-      return this.extension.documentation.map(e => e.value).join('');
+    if (!this._documentation) {
+      if (this.extension && this.extension.documentation) {
+        this._documentation = this.extension.documentation.map(e => e.value).join('');
+      }
     }
-    return '';
+    return this._documentation || '';
   }
 
+  _headerClean: string;
   get documentationHeader(): string {
-    const doc = this.documentation;
-    const idx = doc.indexOf('\n');
-    return Attribute.pipe.stripHtml(idx > 0 ? doc.substr(0, doc.indexOf('\n')) : doc);
-  }
-
-  get documentationBody(): string {
-    const doc = this.documentation;
-    const idx = doc.indexOf('\n');
-    return idx > 0 ? doc.substr(doc.indexOf('\n') + 1) : '';
-  }
-
-  get isPrimitive() {
-    if (this.typeRef) {
-      if (this.typeRef.xmiType === 'uml:PrimitiveType') { return true; }
-      if (this.typeRef.type === 'XSDsimpleType') { return true; }
-      return false;
+    if (!this._headerClean) {
+      const doc = this.documentation;
+      const idx = doc.indexOf('\n');
+      this._headerClean = idx > 0 ? doc.substr(0, doc.indexOf('\n')) : doc;
     }
-    return true;
+    return this._headerClean;
+  }
+
+  _docBody: string;
+  get documentationBody(): string {
+    if (!this._docBody) {
+      const doc = this.documentation;
+      const idx = doc.indexOf('\n');
+      this._docBody = Attribute.markPipe.transform(idx > 0 ? doc.substr(doc.indexOf('\n') + 1) : '');
+    }
+    return this._docBody;
+  }
+
+  _isPrimitive: boolean;
+  get isPrimitive() {
+    if (!this._isPrimitive) {
+      if (this.typeRef) {
+        if (this.typeRef.xmiType === 'uml:PrimitiveType') { this._isPrimitive = true; }
+        else if (this.typeRef.type === 'XSDsimpleType') { this._isPrimitive = true; }
+        else { this._isPrimitive = false; }
+      } else {
+        this._isPrimitive = true;
+      }
+    }
+    return this._isPrimitive;
   }
 
   get typeRef() {
@@ -72,10 +91,13 @@ export class Attribute extends EABaseClass {
     return null;
   }
 
+  _typeName: string;
   get typeName() {
-    if (this.typeRef) { return this.typeRef.name; }
-    if (this.upperValue[0].xmiType === 'uml:LiteralInteger') { return 'number'; }
-    return '';
+    if (!this._typeName) {
+      if (this.typeRef) { this._typeName = this.typeRef.name; }
+      else if (this.upperValue[0].xmiType === 'uml:LiteralInteger') { this._typeName = 'number'; }
+    }
+    return this._typeName;
   }
 
   get multiplicity() {

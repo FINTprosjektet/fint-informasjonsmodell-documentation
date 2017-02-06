@@ -1,6 +1,6 @@
 import { InViewService } from '../in-view.service';
-import { Observable } from 'rxjs/Rx';
-import { AfterViewInit, Component, Input } from '@angular/core';
+import { Observable, Subscription } from 'rxjs/Rx';
+import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
 import * as each from 'lodash/each';
 
 import { Stereotype } from 'app/EA/model/Stereotype';
@@ -10,16 +10,19 @@ import { Stereotype } from 'app/EA/model/Stereotype';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent implements AfterViewInit {
+export class SidebarComponent implements AfterViewInit, OnDestroy {
   @Input() stereotypes: any[] = null;
+  onScrollSubscription: Subscription;
   constructor(private InView: InViewService) { }
 
   ngAfterViewInit() {
-    Observable.fromEvent(window, 'scroll')
-      .throttleTime(500)
-      .subscribe(e => {
-        this.checkElementInView();
-      });
+    this.onScrollSubscription = Observable.fromEvent(window, 'scroll')
+      .throttleTime(200)
+      .subscribe(e => this.checkElementInView());
+  }
+
+  ngOnDestroy() {
+    this.onScrollSubscription.unsubscribe();
   }
 
   checkElementInView() {
