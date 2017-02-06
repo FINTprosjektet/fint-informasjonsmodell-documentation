@@ -15,7 +15,7 @@ export class JSON_XMI21_Mapper implements IMapper {
   json: {};
   modelRoot: any;
   modelBase: any;
-  flatModel: { key: string, obj: {} } = <{ key: string, obj: {} }>{};
+  flatModel: { [key: string]: any } = {};
   refTypes: string[] = ['reference', 'start', 'end', 'general', 'association', 'subject', 'modelElement', 'package', 'package2'];
 
   constructor(modelData: {}) {

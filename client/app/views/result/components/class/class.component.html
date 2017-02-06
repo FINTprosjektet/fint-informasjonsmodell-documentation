@@ -43,8 +43,8 @@
           <th class="description">Beskrivelse</th>
         </tr>
       </thead>
-      <tbody *ngFor="let attribute of classification.ownedAttribute">
-        <tr [ngClass]="{hasDetailsBody: attribute.documentationBody.length > 0, hasDetails: attribute.documentationHeader.length > 0, isOpen: attribute.isOpen}" (click)="attribute.isOpen = !attribute.isOpen">
+      <tbody *ngFor="let attribute of classification.ownedAttribute" [attr.id]="attribute.id">
+        <tr [ngClass]="{hasDetailsBody: attribute.documentationBody.length > 0, hasDetails: attribute.documentationHeader.length > 0, isOpen: attribute.isOpen}" (click)="openAttribute(attribute)">
           <td class="dropdown">
             <fint-fa *ngIf="attribute.documentationHeader.length > 0" class="toggleMobileDetails" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
             <fint-fa *ngIf="attribute.documentationBody.length > 0" class="toggleDetailBody" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>

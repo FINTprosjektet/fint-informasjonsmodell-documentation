@@ -143,6 +143,15 @@ export class ModelService {
     return this.model.packages;
   }
 
+  getObjectById(id) {
+    for (let key in this.mapper.flatModel) {
+      const model = this.mapper.flatModel[key];
+      if (model && model.id == id) {
+        return model;
+      }
+    }
+  }
+
   handleError(error: any) {
     console.error(error);
     this.fintDialog.displayHttpError(error);

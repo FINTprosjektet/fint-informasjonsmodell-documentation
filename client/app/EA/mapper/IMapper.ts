@@ -2,7 +2,7 @@ import { Model } from '../model/Model';
 
 export interface IMapper {
   modelRoot: any;
-  flatModel: { key: string, obj: {} };
+  flatModel: { [key: string]: any };
 
   parse(): any;
 

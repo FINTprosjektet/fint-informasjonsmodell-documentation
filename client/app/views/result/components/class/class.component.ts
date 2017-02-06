@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, Renderer } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 
 import { MarkdownToHtmlPipe } from 'markdown-to-html-pipe';
@@ -28,7 +28,7 @@ export class ClassComponent implements OnInit, OnDestroy {
     }
   }
 
-  constructor(private elm: ElementRef, private renderer: Renderer, private route: ActivatedRoute) { }
+  constructor(private elm: ElementRef, private renderer: Renderer, private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit() {
     this.route.params.subscribe((params: any) => this.isSelected = params.id === this.classification.id);
@@ -39,5 +39,14 @@ export class ClassComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.searchSubscription.unsubscribe();
+  }
+
+  openAttribute(attr) {
+    attr.isOpen = !attr.isOpen;
+    if (attr.isOpen) {
+      setTimeout(() => this.router.navigate(['/docs', this.classification.id, attr.id]));
+    } else {
+      setTimeout(() => this.router.navigate(['/docs', this.classification.id]));
+    }
   }
 }

@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 
 import { ModelService } from '../../EA/model.service';
@@ -21,7 +21,7 @@ export class ResultComponent implements OnInit, AfterViewInit {
   get isLoading() { return this.modelService.isLoading; }
   set isLoading(flag) { this.modelService.isLoading = flag; }
 
-  constructor(private modelService: ModelService, private route: ActivatedRoute, private titleService: Title) { }
+  constructor(private modelService: ModelService, private route: ActivatedRoute, private router: Router, private titleService: Title) { }
 
   visiblePackages() {
     const packages = this.model.filter(pkg => pkg.isVisible());
@@ -39,7 +39,21 @@ export class ResultComponent implements OnInit, AfterViewInit {
     // Detect query parameter from search string, and filter
     const me = this;
     this.route.params.subscribe((params: any) => {
-      me.hasModel.then(() => me.goto(params.id));
+      me.hasModel.then(() => {
+        if (params.attribute) {
+          const clazz: any = this.modelService.getObjectById(params.id);
+          if (clazz) {
+            const attr = clazz.findMember(params.attribute);
+            if (attr) { // if attribute is found, mark as opened
+              attr.isOpen = true;
+            } else {
+              // If attribute not found, remove attribute reference from url
+              this.router.navigate(['../'], { relativeTo: this.route });
+            }
+          }
+        }
+        me.goto(params.id);
+      });
     });
   }
 

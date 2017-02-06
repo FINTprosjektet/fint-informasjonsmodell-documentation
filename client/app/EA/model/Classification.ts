@@ -63,6 +63,15 @@ export class Classification extends EABaseClass {
     return this.ownedAttribute;
   }
 
+  findMember(id) {
+    for (let j = 0; j < this.members.length; j++) {
+      if (this.members[j].id == id) {
+        return this.members[j];
+      }
+    }
+    return null;
+  }
+
   get type(): string {
     if (this.isAbstract === 'true') { return 'abstract'; }
     if (this.extension && this.extension.properties && this.extension.properties.length) {

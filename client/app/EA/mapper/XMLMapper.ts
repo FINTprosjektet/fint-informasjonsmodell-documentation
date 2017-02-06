@@ -4,7 +4,7 @@ import { IMapper } from './IMapper';
 export class XMLMapper implements IMapper {
   xml: XMLDocument;
   modelRoot: Model;
-  flatModel: { key: string, obj: {} };
+  flatModel: { [key: string]: any } = {};
 
   constructor(modelData: string) {
     this.xml = new DOMParser().parseFromString(modelData, 'application/xml');

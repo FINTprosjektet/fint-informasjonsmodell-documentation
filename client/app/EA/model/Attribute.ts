@@ -11,7 +11,7 @@ export class Attribute extends EABaseClass {
   upperValue: any;
   lowerValue: any;
 
-  get id(): string { return this.cleanId(this.parent.id + '~' + this.name); }
+  get id(): string { return this.cleanId('~' + this.name); }
 
   private _isVisible: boolean;
   private _lastSearch: string;
@@ -29,6 +29,12 @@ export class Attribute extends EABaseClass {
     return true;
   }
 
+  private _isOpen: boolean = false;
+  get isOpen() { return this._isOpen; }
+  set isOpen(flag) {
+    if (flag) { this.parent.members.forEach(m => m.isOpen = false); } // Close others
+    this._isOpen = flag;
+  }
 
   get documentation(): string {
     if (this.extension && this.extension.documentation) {
