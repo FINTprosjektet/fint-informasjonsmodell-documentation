@@ -30,16 +30,34 @@ import { Generalization } from './model/Generalization';
 export class ModelService {
   mapper: IMapper;
   isLoading: boolean = false;
-  version: string = 'master'; // Default branch
+
+  private _version: string;
+  private versionObserver: Observer<string>;
+  public versionChanged: Observable<string> = new Observable(observer => this.versionObserver = observer);
+  get version(): string {
+    if (!this._version) { this.version = 'master'; }
+    return this._version;
+  }
+  set version(value) {
+    this._version = value;
+    // Remove cache
+    this.modelObservable = null;
+    this.modelData = null;
+
+    // Emit change
+    if (this.versionObserver) {
+      this.versionObserver.next(value);
+    }
+  }
+
+  modelObservable: Observable<any>;
+  modelData: any;
   get model(): Model {
     if (this.mapper && this.mapper.modelRoot) {
       return this.mapper.modelRoot.modelBase;
     }
     return null;
   };
-
-  modelObservable: Observable<Model>;
-  modelData: Model;
 
   // Filter
   private _searchString: string = '';
@@ -59,6 +77,13 @@ export class ModelService {
    */
   constructor(private http: Http, private fintDialog: FintDialogService) {
     EABaseClass.service = this;
+    this.versionChanged.subscribe().unsubscribe(); // Just to register the observable
+  }
+
+  fetchBranches(): Observable<any> {
+    return this.http.request('/api/doc/branches')
+      .map(res => res.json().map(r => r.name))
+      .catch(error => this.handleError(error));
   }
 
   /**
@@ -115,6 +140,7 @@ export class ModelService {
   }
 
   handleError(error: any) {
+    console.error(error);
     this.fintDialog.displayHttpError(error);
     return Observable.throw(error);
   }

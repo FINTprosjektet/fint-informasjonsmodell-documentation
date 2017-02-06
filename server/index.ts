@@ -95,6 +95,21 @@ ${chalk.green('**********************')}
       }, (error: any) => res.send(500, error));
     });
 
+    this.app.get('/api/doc/branches', function (req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+      const options = {
+        method: 'GET',
+        url: 'https://api.github.com/repos/FINTprosjektet/fint-informasjonsmodell/branches',
+        headers: {
+          'User-Agent': 'NodeJS-Express',
+          'cache-control': 'no-cache'
+        }
+      };
+      request(options, function (err, response, body) {
+        if (err) { Logger.log.error(err); res.send(500, err); }
+        res.send(body);
+      });
+    });
+
     // Setup base route to everything else
     this.app.get('/*', (req: Express.Request, res: Express.Response) => {
       res.sendFile(path.resolve(this.clientPath, 'index.html'));
@@ -103,10 +118,7 @@ ${chalk.green('**********************')}
 
   load(url: string, callback: Function, error: Function) {
     request({ url: url, encoding: null }, function (err, response, body) {
-      if (err) {
-        Logger.log.error(err);
-        error(err);
-      }
+      if (err) { Logger.log.error(err); error(err); }
       if (!err && response.statusCode == 200) {
         const xml = Iconv.decode(body, 'win-1252');
         callback(xml);

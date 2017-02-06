@@ -34,12 +34,17 @@ export class ModelComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    const me = this;
     this.htmlElement = this.element.nativeElement;
     this.host = D3.select(this.htmlElement);
 
     // Load data and render
     this.modelService.searchString = '';
+    this.modelService.versionChanged.subscribe(v => this.loadData());
+    this.loadData(); // Initial load
+  }
+
+  loadData() {
+    const me = this;
     this.isLoading = true;
     this.modelService.fetchModel().subscribe(model => {
       me.model = model;

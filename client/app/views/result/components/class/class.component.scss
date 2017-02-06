@@ -56,17 +56,19 @@ md-card-header {
   margin-top: -1.3rem;
   margin-bottom: 1rem;
   margin-left: 2.7rem;
+  md-chip-list {
+    display: inline;
+    /deep/ .md-chip-list-wrapper {
+      display: inline;
+    }
+    md-chip {
+      padding: 1px 8px;
+      margin-left: 0;
+      margin-right: 5px;
+    }
+  }
 }
 
-md-chip-list {
-  display: inline;
-  /deep/ .md-chip-list-wrapper {
-    display: inline;
-  }
-  md-chip {
-    padding: 1px 8px;
-  }
-}
 
 table {
   .toggleDetailBody {
