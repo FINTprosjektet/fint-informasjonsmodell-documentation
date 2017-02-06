@@ -1,15 +1,15 @@
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import * as D3 from '../../d3.bundle';
+import * as D3 from 'app/d3.bundle';
 import * as each from 'lodash/each';
 
-import { ModelService } from '../../EA/model.service';
-import { Model } from '../../EA/model/Model';
-import { Stereotype } from '../../EA/model/Stereotype';
-import { Classification } from '../../EA/model/Classification';
-import { Generalization } from '../../EA/model/Generalization';
-import { Association } from '../../EA/model/Association';
+import { ModelService } from 'app/EA/model.service';
+import { Model } from 'app/EA/model/Model';
+import { Stereotype } from 'app/EA/model/Stereotype';
+import { Classification } from 'app/EA/model/Classification';
+import { Generalization } from 'app/EA/model/Generalization';
+import { Association } from 'app/EA/model/Association';
 
 @Component({
   selector: 'app-model',
@@ -32,7 +32,7 @@ export class ModelComponent implements OnInit, AfterViewInit {
   constructor(private modelService: ModelService, private router: Router, private titleService: Title) { }
 
   ngOnInit() {
-    this.titleService.setTitle('FINT | model');
+    this.titleService.setTitle('Model | Fint');
   }
 
   ngAfterViewInit() {

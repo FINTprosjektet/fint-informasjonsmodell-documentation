@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { ModelService } from '../../../EA/model.service';
+import { ModelService } from 'app/EA/model.service';
 
 @Pipe({
   name: 'highlight'

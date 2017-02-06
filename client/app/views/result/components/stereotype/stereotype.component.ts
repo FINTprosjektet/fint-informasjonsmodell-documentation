@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ElementRef, Renderer } from '@angular/core';
 
-import { Package } from '../../../../EA/model/Package';
-import { Stereotype } from '../../../../EA/model/Stereotype';
+import { Package } from 'app/EA/model/Package';
+import { Stereotype } from 'app/EA/model/Stereotype';
 
 @Component({
   selector: 'app-stereotype',

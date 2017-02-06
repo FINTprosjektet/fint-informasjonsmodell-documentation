@@ -2,8 +2,9 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 
-import { ModelService } from '../../EA/model.service';
-import { Model } from '../../EA/model/Model';
+import { InViewService } from './in-view.service';
+import { ModelService } from 'app/EA/model.service';
+import { Model } from 'app/EA/model/Model';
 
 @Component({
   selector: 'app-result',
@@ -21,7 +22,13 @@ export class ResultComponent implements OnInit, AfterViewInit {
   get isLoading() { return this.modelService.isLoading; }
   set isLoading(flag) { this.modelService.isLoading = flag; }
 
-  constructor(private modelService: ModelService, private route: ActivatedRoute, private router: Router, private titleService: Title) { }
+  constructor(
+    private modelService: ModelService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private titleService: Title,
+    private InView: InViewService
+  ) { }
 
   visiblePackages() {
     const packages = this.model.filter(pkg => pkg.isVisible());
@@ -29,7 +36,7 @@ export class ResultComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.titleService.setTitle('FINT | docs');
+    this.titleService.setTitle('Docs | Fint');
     this.isLoading = true;
     this.modelService.versionChanged.subscribe(v => this.loadData());
     this.loadData(); // Initial load
@@ -70,7 +77,7 @@ export class ResultComponent implements OnInit, AfterViewInit {
       this.modelService.searchString = '';
       setTimeout(() => {
         const elm = document.querySelector('#' + id);
-        if (elm) { elm.scrollIntoView(true); }
+        if (elm && !this.InView.isElmInView(elm)) { elm.scrollIntoView(true); }
       });
     } else { // Goto top
       document.body.scrollIntoView();

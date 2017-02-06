@@ -5,6 +5,8 @@ import { MaterialModule } from '@angular/material';
 
 import { LibSharedModule } from 'fint-shared-components';
 
+import { InViewService } from './in-view.service';
+
 import { ResultComponent } from './result.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 
@@ -34,6 +36,7 @@ import { DetailsComponent } from './details/details.component';
     HighlightPipe,
     ExpandablePipe,
     DetailsComponent
-  ]
+  ],
+  providers: [InViewService]
 })
 export class ResultModule { }

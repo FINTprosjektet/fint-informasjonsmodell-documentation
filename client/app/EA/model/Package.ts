@@ -1,7 +1,7 @@
 import { EABaseClass } from './EABaseClass';
 import { Classification } from './Classification';
 import { Comment } from './Comment';
-import * as D3 from '../../d3.bundle';
+import * as D3 from 'app/d3.bundle';
 
 /**
  *

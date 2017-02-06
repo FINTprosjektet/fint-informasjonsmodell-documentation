@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs/Rx';
 
 import { MarkdownToHtmlPipe } from 'markdown-to-html-pipe';
 
-import { Classification } from '../../../../EA/model/Classification';
+import { Classification } from 'app/EA/model/Classification';
 
 @Component({
   selector: 'app-class',

@@ -6,7 +6,7 @@ import { Package } from './Package';
 import { Generalization } from './Generalization';
 import { Association } from './Association';
 import { Attribute } from './Attribute';
-import * as D3 from '../../d3.bundle';
+import * as D3 from 'app/d3.bundle';
 import * as each from 'lodash/each';
 
 export class Classification extends EABaseClass {

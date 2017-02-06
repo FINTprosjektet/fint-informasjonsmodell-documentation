@@ -1,7 +1,7 @@
 import { EABaseClass } from './EABaseClass';
 import { EALinkBase } from './EALinkBase';
 import { Classification } from './Classification';
-import * as D3 from '../../d3.bundle';
+import * as D3 from 'app/d3.bundle';
 
 export class Generalization extends EALinkBase {
   static umlId = 'uml:Generalization';

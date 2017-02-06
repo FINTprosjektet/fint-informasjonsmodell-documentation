@@ -1,8 +1,9 @@
+import { InViewService } from '../in-view.service';
 import { Observable } from 'rxjs/Rx';
 import { AfterViewInit, Component, Input } from '@angular/core';
 import * as each from 'lodash/each';
 
-import { Stereotype } from '../../../EA/model/Stereotype';
+import { Stereotype } from 'app/EA/model/Stereotype';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,7 +12,7 @@ import { Stereotype } from '../../../EA/model/Stereotype';
 })
 export class SidebarComponent implements AfterViewInit {
   @Input() stereotypes: any[] = null;
-  constructor() { }
+  constructor(private InView: InViewService) { }
 
   ngAfterViewInit() {
     Observable.fromEvent(window, 'scroll')
@@ -21,40 +22,11 @@ export class SidebarComponent implements AfterViewInit {
       });
   }
 
-  getWindowSize() {
-    let winW = 0; let winH = 0;
-    if (document.body && document.body.offsetWidth) {
-      winW = document.body.offsetWidth;
-      winH = document.body.offsetHeight;
-    }
-    if (document.compatMode === 'CSS1Compat' &&
-      document.documentElement &&
-      document.documentElement.offsetWidth) {
-      winW = document.documentElement.offsetWidth;
-      winH = document.documentElement.offsetHeight;
-    }
-    if (window.innerWidth && window.innerHeight) {
-      winW = window.innerWidth;
-      winH = window.innerHeight;
-    }
-    return { w: winW, h: winH };
-  }
-
   checkElementInView() {
     const me = this;
     this.stereotypes.forEach(type => {
-      type.isActive = me.isElmInView(document.getElementById(type.id));
-      type.classes.forEach(cls => cls.isActive = me.isElmInView(document.getElementById(cls.id)));
+      type.isActive = me.InView.isElmInView(document.getElementById(type.id));
+      type.classes.forEach(cls => cls.isActive = me.InView.isElmInView(document.getElementById(cls.id)));
     });
-  }
-
-  isElmInView(elm) {
-    if (elm) {
-      const box = elm.getBoundingClientRect();
-      if (box.top < (this.getWindowSize().h - 60) && box.bottom > 60) {
-        return true;
-      }
-    }
-    return false;
   }
 }
