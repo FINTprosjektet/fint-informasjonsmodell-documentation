@@ -38,7 +38,9 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.titleService.setTitle('FINT');
-    this.modelService.fetchBranches().subscribe(r => this.repos = r);
+    this.modelService.fetchVersions().subscribe(r => {
+      this.repos = r;
+    });
     this.route.queryParams.subscribe((params: any) => {
       if (params.s) {
         this.searchValue = params.s;

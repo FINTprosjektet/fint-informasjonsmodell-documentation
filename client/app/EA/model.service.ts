@@ -80,9 +80,13 @@ export class ModelService {
     this.versionChanged.subscribe().unsubscribe(); // Just to register the observable
   }
 
-  fetchBranches(): Observable<any> {
-    return this.http.request('/api/doc/branches')
-      .map(res => res.json().map(r => r.name))
+  fetchVersions(): Observable<any> {
+    return this.http.request('/api/doc/versions')
+      .map(res => {
+        const map = res.json().map(r => r.name);
+        map.unshift('master'); // Add latest version to the top
+        return map;
+      })
       .catch(error => this.handleError(error));
   }
 
@@ -98,7 +102,7 @@ export class ModelService {
 
     me.isLoading = true;
     if (!me.modelObservable) {
-      me.modelObservable = me.http.request(`/api/doc/${this.version}/json`)
+      me.modelObservable = me.http.request(`/api/doc/${this.version}`)
         .map(function (res: Response) {
           let contentType = res.headers.get('content-type');
           contentType = contentType.substr(0, contentType.indexOf(';'));
