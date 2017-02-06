@@ -46,8 +46,7 @@ export class ResultComponent implements OnInit, AfterViewInit {
             const attr = clazz.findMember(params.attribute);
             if (attr) { // if attribute is found, mark as opened
               attr.isOpen = true;
-            } else {
-              // If attribute not found, remove attribute reference from url
+            } else {    // If attribute not found, remove attribute reference from url
               this.router.navigate(['../'], { relativeTo: this.route });
             }
           }

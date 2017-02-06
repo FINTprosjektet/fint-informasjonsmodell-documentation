@@ -1,4 +1,4 @@
-<aside (window:scroll)="checkElementInView()">
+<aside>
   <ul>
     <li *ngFor="let stereotype of stereotypes" [className]="stereotype.isActive ? 'active' : ''">
       <a [routerLink]="['/docs', stereotype.id]">{{ stereotype.name }}</a>
