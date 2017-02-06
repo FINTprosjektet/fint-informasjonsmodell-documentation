@@ -16,6 +16,9 @@ export class AppComponent implements OnInit {
   get selectedRepo(): string { return this.modelService.version; }
   set selectedRepo(value: string) { this.modelService.version = value; }
 
+  get isLoading() { return this.modelService.isLoading; }
+  set isLoading(flag) { this.modelService.isLoading = flag; }
+
   get model(): Model { return this.modelService.model; }
 
   get searchValue(): string { return this.modelService.searchString; }

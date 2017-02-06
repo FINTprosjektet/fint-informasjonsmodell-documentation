@@ -1,6 +1,3 @@
-<div class="md-spinner-container" *ngIf="isLoading">
-  <md-spinner class="center"></md-spinner>
-</div>
 <div *ngIf="isLoading != true && model">
   <app-sidebar [stereotypes]="model"></app-sidebar>
   <section>

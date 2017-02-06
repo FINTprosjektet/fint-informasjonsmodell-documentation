@@ -18,7 +18,8 @@ export class ResultComponent implements OnInit, AfterViewInit {
     this.modelResolve = resolve;
     this.modelReject = reject;
   });
-  isLoading: boolean = false;
+  get isLoading() { return this.modelService.isLoading; }
+  set isLoading(flag) { this.modelService.isLoading = flag; }
 
   constructor(private modelService: ModelService, private route: ActivatedRoute, private titleService: Title) { }
 

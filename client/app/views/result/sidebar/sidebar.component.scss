@@ -12,14 +12,31 @@ ul {
   list-style: none;
   padding-left: 0;
 
-  li a {
-    display: block;
-    padding: 10px 20px;
-    &:hover {
-      background-color: $border-color;
+  li {
+    a {
+      display: block;
+      padding: 10px 20px;
+      &:hover {
+        background-color: $border-color;
+      }
+    }
+    ul li {
+      &:before {
+        content: '-';
+        float: left;
+        text-indent: 1.5rem;
+        padding-top: 4px;
+      }
+      &:last-child {
+        padding-bottom: 10px;
+      }
+      a {
+        padding: 5px 2rem;
+        font-size: 90%;
+      }
     }
   }
-  li.active {
+  li.active > a {
     font-weight: bold;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import * as each from 'lodash/each';
 
 import { Stereotype } from '../../../EA/model/Stereotype';
@@ -8,12 +8,10 @@ import { Stereotype } from '../../../EA/model/Stereotype';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent {
   @Input() stereotypes: any[] = null;
   constructor() { }
 
-  ngOnInit() {
-  }
   getWindowSize() {
     let winW = 0; let winH = 0;
     if (document.body && document.body.offsetWidth) {
@@ -32,18 +30,22 @@ export class SidebarComponent implements OnInit {
     }
     return { w: winW, h: winH };
   }
+
   checkElementInView() {
-    each(this.stereotypes, type => {
-      let elm = document.getElementById(type.id);
-      if (elm) {
-        elm = elm.parentElement.parentElement;
-        const box = elm.getBoundingClientRect();
-        if (box.top < (this.getWindowSize().h - 60) && box.bottom > 60) {
-          type.isActive = true;
-          return;
-        }
-      }
-      type.isActive = false;
+    const me = this;
+    this.stereotypes.forEach(type => {
+      type.isActive = me.isElmInView(document.getElementById(type.id));
+      type.classes.forEach(cls => cls.isActive = me.isElmInView(document.getElementById(cls.id)));
     });
+  }
+
+  isElmInView(elm) {
+    if (elm) {
+      const box = elm.getBoundingClientRect();
+      if (box.top < (this.getWindowSize().h - 60) && box.bottom > 60) {
+        return true;
+      }
+    }
+    return false;
   }
 }

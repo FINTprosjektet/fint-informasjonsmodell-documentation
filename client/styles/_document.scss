@@ -1,8 +1,9 @@
 @import "variables";
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 
+$body-background: #fcfcfc;
 html {
-  background-color: #fcfcfc;
+  background-color: $body-background;
 }
 body {
   font-family: 'Roboto', sans-serif;
@@ -72,5 +73,10 @@ a {
 
 .md-spinner-container {
   margin-top: $navbar-height * 2;
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 0; right: 0;
+  padding-top: 100px;
+  background: rgba($body-background, 0.7);
 }
 

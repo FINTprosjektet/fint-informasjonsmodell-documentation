@@ -25,7 +25,9 @@ export class ModelComponent implements OnInit, AfterViewInit {
   private width;
   private height;
   private htmlElement: HTMLElement;
-  isLoading: boolean = false;
+
+  get isLoading() { return this.modelService.isLoading; }
+  set isLoading(flag) { this.modelService.isLoading = flag; }
 
   constructor(private modelService: ModelService, private router: Router, private titleService: Title) { }
 
