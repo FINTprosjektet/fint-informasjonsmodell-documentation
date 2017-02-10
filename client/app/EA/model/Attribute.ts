@@ -95,6 +95,9 @@ export class Attribute extends EABaseClass {
   get typeName() {
     if (!this._typeName) {
       if (this.typeRef) { this._typeName = this.typeRef.name; }
+      else if (this.extension && this.extension.properties && this.extension.properties.length) {
+        this._typeName = this.extension.properties[0].type;
+      }
       else if (this.upperValue[0].xmiType === 'uml:LiteralInteger') { this._typeName = 'number'; }
     }
     return this._typeName;
