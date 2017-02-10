@@ -84,6 +84,7 @@ export class ModelService {
     return this.http.request('/api/doc/versions')
       .map(res => {
         const map = res.json().map(r => r.name);
+        this.version = map[0];
         map.unshift('master'); // Add latest version to the top
         return map;
       })

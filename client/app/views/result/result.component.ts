@@ -43,7 +43,6 @@ export class ResultComponent implements OnInit, AfterViewInit, OnDestroy {
     this.titleService.setTitle('Docs | Fint');
     this.isLoading = true;
     this.versionChangedSubscription = this.modelService.versionChanged.subscribe(v => this.loadData());
-    this.loadData(); // Initial load
   }
 
   ngAfterViewInit() {

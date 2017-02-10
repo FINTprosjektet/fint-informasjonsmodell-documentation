@@ -42,7 +42,6 @@ export class ModelComponent implements OnInit, AfterViewInit {
     // Load data and render
     this.modelService.searchString = '';
     this.modelService.versionChanged.subscribe(v => this.loadData());
-    this.loadData(); // Initial load
   }
 
   loadData() {
