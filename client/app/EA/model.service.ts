@@ -5,6 +5,7 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/catch';
 import 'rxjs/observable/of';
+import 'rxjs/observable/empty';
 import * as each from 'lodash/each';
 
 import { FintDialogService } from 'fint-shared-components';
@@ -35,7 +36,6 @@ export class ModelService {
   private versionObserver: Observer<string>;
   public versionChanged: Observable<string> = new Observable(observer => this.versionObserver = observer);
   get version(): string {
-    if (!this._version) { this.version = 'master'; }
     return this._version;
   }
   set version(value) {
@@ -103,6 +103,9 @@ export class ModelService {
 
     me.isLoading = true;
     if (!me.modelObservable) {
+      if (!this.version) {
+        return Observable.empty();
+      }
       me.modelObservable = me.http.request(`/api/doc/${this.version}`)
         .map(function (res: Response) {
           let contentType = res.headers.get('content-type');
