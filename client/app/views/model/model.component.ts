@@ -94,24 +94,25 @@ export class ModelComponent implements OnInit, AfterViewInit {
 
     // Put all links in a top layer, so as not to disturb the stereotype groups bounding box,
     // since associations and generalizations can go accross stereotypes
-    const links = this.svg
-      .append('g')
-      .attr('class', 'links');
-    links // Render associations
-      .selectAll('g.association')
-      .data(this.modelService.getAssociations())
-      .enter()
-      .append('g')
-      .attr('class', 'association')
-      .each(function (d) { d.boxElement = this; }); // Each association is responsible for its own render
-    links // Render generalizations
-      .selectAll('g.generalization')
-      .data(this.modelService.getGeneralizations())
-      .enter()
-      .append('g')
-      .attr('class', 'generalization')
-      .each(function (d) { d.boxElement = this; }); // Each generalization is responsible for its own render
-
+    /*
+        const links = this.svg
+          .append('g')
+          .attr('class', 'links');
+        links // Render associations
+          .selectAll('g.association')
+          .data(this.modelService.getAssociations())
+          .enter()
+          .append('g')
+          .attr('class', 'association')
+          .each(function (d) { d.boxElement = this; }); // Each association is responsible for its own render
+        links // Render generalizations
+          .selectAll('g.generalization')
+          .data(this.modelService.getGeneralizations())
+          .enter()
+          .append('g')
+          .attr('class', 'generalization')
+          .each(function (d) { d.boxElement = this; }); // Each generalization is responsible for its own render
+    */
     // Render stereotypes
     const allStereotypes = this.svg
       .append('g')
@@ -142,10 +143,12 @@ export class ModelComponent implements OnInit, AfterViewInit {
     each(this.modelService.getTopPackages(), type => {
       each(this.modelService.getClasses(type), cls => cls.update());
       type.update();
-      setTimeout(() => each(this.modelService.getAssociations(type), ass => ass.update()));
-      setTimeout(() => each(this.modelService.getGeneralizations(type), general => {
-        general.update();
-      }));
+      /*
+            setTimeout(() => each(this.modelService.getAssociations(type), ass => ass.update()));
+            setTimeout(() => each(this.modelService.getGeneralizations(type), general => {
+              general.update();
+            }));
+      */
     });
     setTimeout(() => {
       const height = (<SVGGElement>document.querySelector('svg.diagram > g.model')).getBBox().height;
