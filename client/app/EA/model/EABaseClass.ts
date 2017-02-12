@@ -20,6 +20,10 @@ export class EABaseClass {
   name: string;
   visibility: string;
 
+  get queryParams() {
+    return EABaseClass.service.queryParams;
+  }
+
   public isVisible(): boolean {
     const str = EABaseClass.service.searchString;
     if (str && str.length > 0) {

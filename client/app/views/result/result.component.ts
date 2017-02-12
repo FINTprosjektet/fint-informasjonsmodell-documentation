@@ -16,23 +16,13 @@ export class ResultComponent implements OnInit, AfterViewInit, OnDestroy {
   model = null;
   versionChangedSubscription: Subscription;
   routeParamsSubscription: Subscription;
+  queryParamsSubscription: Subscription;
 
-  modelResolve;
-  modelReject;
-  hasModel: Promise<any> = new Promise((resolve, reject) => {
-    this.modelResolve = resolve;
-    this.modelReject = reject;
-  });
   get isLoading() { return this.modelService.isLoading; }
   set isLoading(flag) { this.modelService.isLoading = flag; }
 
-  constructor(
-    private modelService: ModelService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private titleService: Title,
-    private InView: InViewService
-  ) { }
+  constructor(private modelService: ModelService, private route: ActivatedRoute, private router: Router, private titleService: Title,
+    private InView: InViewService) { }
 
   visiblePackages() {
     const packages = this.model.filter(pkg => pkg.isVisible());
@@ -50,19 +40,13 @@ export class ResultComponent implements OnInit, AfterViewInit, OnDestroy {
     // Detect query parameter from search string, and filter
     const me = this;
     this.routeParamsSubscription = this.route.params.subscribe((params: any) => {
-      me.hasModel.then(() => {
-        if (params.attribute) {
-          const clazz: any = this.modelService.getObjectById(params.id);
-          if (clazz) {
-            const attr = clazz.findMember(params.attribute);
-            if (attr) { // if attribute is found, mark as opened
-              attr.isOpen = true;
-            } else {    // If attribute not found, remove attribute reference from url
-              this.router.navigate(['../'], { relativeTo: this.route });
-            }
-          }
-        }
+      me.modelService.hasModel.then(() => {
         me.goto(params.id, params.attribute == null);
+      });
+    });
+    this.queryParamsSubscription = this.route.queryParams.subscribe((params: any) => {
+      me.modelService.hasModel.then(() => {
+        me.goto(this.route.snapshot.params['id'], true);
       });
     });
   }
@@ -70,6 +54,7 @@ export class ResultComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy() {
     this.versionChangedSubscription.unsubscribe();
     this.routeParamsSubscription.unsubscribe();
+    this.queryParamsSubscription.unsubscribe();
   }
 
   private loadData() {
@@ -77,21 +62,40 @@ export class ResultComponent implements OnInit, AfterViewInit, OnDestroy {
     this.modelService.fetchModel().subscribe(model => {
       me.model = me.modelService.getTopPackages();
       me.isLoading = false;
-      me.modelResolve();
     });
   }
 
-  private goto(id, force?: boolean) {
+  private goto(id, force?: boolean): boolean {
+    let clazz: any;
     if (id) {
       this.modelService.searchString = '';
-      setTimeout(() => {
-        const elm = document.querySelector('#' + id);
-        if (elm && (force || !this.InView.isElmInView(elm))) {
-          elm.scrollIntoView(true);
-        }
-      });
-    } else { // Goto top
-      document.body.scrollIntoView();
+      clazz = this.modelService.getObjectById(id);
+      if (!clazz) { // If class not found, remove reference from url
+        this.router.navigate(['/docs'], { queryParams: this.modelService.queryParams });
+        document.body.scrollIntoView(); // Goto top and terminate
+        return false;
+      }
     }
+
+    let attr: any;
+    const attribute = this.route.snapshot.params['attribute'];
+    if (attribute) {
+      attr = clazz.findMember(attribute);
+      if (!attr) { // If attribute not found, remove reference from url
+        this.router.navigate(['../'], { relativeTo: this.route, queryParams: this.modelService.queryParams });
+        return false;
+      }
+
+      // Mark attribute as opened
+      attr.isOpen = true;
+    }
+
+    // If class and attribute tests completes successfully, we scroll class element into view.
+    setTimeout(() => {
+      const elm = document.querySelector('#' + id);
+      if (elm && (force || !this.InView.isElmInView(elm))) {
+        elm.scrollIntoView(true);
+      }
+    });
   }
 }

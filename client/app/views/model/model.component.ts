@@ -122,7 +122,7 @@ export class ModelComponent implements OnInit, AfterViewInit {
     const stereotypeGroup = allStereotypes.append('g')
       .each(function (d) {
         d.boxElement = this;  // Let the stereotype render the element
-        D3.select(d.boxElement.querySelector('rect')).on('click', () => me.router.navigate(['/docs', d.id]));
+        D3.select(d.boxElement.querySelector('rect')).on('click', () => me.router.navigate(['/docs', d.id], { queryParams: me.modelService.queryParams }));
       })
       .append('g');
 
@@ -132,7 +132,7 @@ export class ModelComponent implements OnInit, AfterViewInit {
       .enter()
       .append('g')
       .each(function (d) { d.boxElement = this; }) // Let the Class render the element
-      .on('click', d => me.router.navigate(['/docs', d.id]));
+      .on('click', d => me.router.navigate(['/docs', d.id], { queryParams: me.modelService.queryParams }));
 
     setTimeout(() => this.update());
   }

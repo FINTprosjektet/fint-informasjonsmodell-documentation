@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable, Observer, ReplaySubject } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
@@ -6,7 +6,6 @@ import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/catch';
 import 'rxjs/observable/of';
 import 'rxjs/observable/empty';
-import * as each from 'lodash/each';
 
 import { FintDialogService } from 'fint-shared-components';
 
@@ -32,23 +31,28 @@ export class ModelService {
   mapper: IMapper;
   isLoading: boolean = false;
 
+  public defaultVersion: string;
   private _version: string;
-  private versionObserver: Observer<string>;
-  public versionChanged: Observable<string> = new Observable(observer => this.versionObserver = observer);
+  public versionChanged: EventEmitter<string> = new EventEmitter<string>();
   get version(): string {
     return this._version;
   }
   set version(value) {
-    this._version = value;
-    // Remove cache
-    this.modelObservable = null;
-    this.modelData = null;
+    if (value != this._version) {
+      this._version = value;
+      // Remove cache
+      this.modelObservable = null;
+      this.modelData = null;
+      this.hasModel = this.createModelPromise(); // Reset promise
 
-    // Emit change
-    if (this.versionObserver) {
-      this.versionObserver.next(value);
+      // Emit change
+      this.versionChanged.emit(value);
     }
   }
+
+  modelResolve;
+  modelReject;
+  hasModel: Promise<any> = this.createModelPromise();
 
   modelObservable: Observable<any>;
   modelData: any;
@@ -68,6 +72,13 @@ export class ModelService {
     }
   }
 
+  get queryParams(): any {
+    const qParam: any = {};
+    if (this.searchString) { qParam.s = this.searchString; }
+    if (this.version) { qParam.v = this.version; }
+    return qParam;
+  }
+
   /**
    * Creates an instance of ModelService.
    *
@@ -77,18 +88,25 @@ export class ModelService {
    */
   constructor(private http: Http, private fintDialog: FintDialogService) {
     EABaseClass.service = this;
-    this.versionChanged.subscribe().unsubscribe(); // Just to register the observable
   }
 
   fetchVersions(): Observable<any> {
     return this.http.request('/api/doc/versions')
       .map(res => {
         const map = res.json().map(r => r.name);
-        this.version = map[0];
+        this.defaultVersion = map[0];
+        if (!this.version) { this.version = this.defaultVersion; }
         map.unshift('master'); // Add latest version to the top
         return map;
       })
       .catch(error => this.handleError(error));
+  }
+
+  createModelPromise(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.modelResolve = resolve;
+      this.modelReject = reject;
+    });
   }
 
   /**
@@ -118,9 +136,11 @@ export class ModelService {
             me.modelData = me.mapper.parse();
             me.modelObservable = Observable.of(me.modelData);
             console.log(me.modelData);
+            setTimeout(() => me.modelResolve());
             return me.modelData;
           } catch (ex) {
             console.error(ex);
+            me.modelReject();
           }
         })
         .share()

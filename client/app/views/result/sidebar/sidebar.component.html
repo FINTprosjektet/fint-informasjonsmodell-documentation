@@ -1,10 +1,10 @@
 <aside>
   <ul>
     <li *ngFor="let stereotype of stereotypes" [className]="stereotype.isActive ? 'active' : ''">
-      <a [routerLink]="['/docs', stereotype.id]">{{ stereotype.name }}</a>
+      <a [routerLink]="['/docs', stereotype.id]" [queryParams]="stereotype.queryParams">{{ stereotype.name }}</a>
       <ul *ngIf="stereotype.classes">
         <li *ngFor="let clazz of stereotype.classes" [className]="clazz.isActive ? 'active' : ''">
-          <a [routerLink]="['/docs', clazz.id]">{{ clazz.name }}</a>
+          <a [routerLink]="['/docs', clazz.id]" [queryParams]="clazz.queryParams">{{ clazz.name }}</a>
         </li>
       </ul>
     </li>

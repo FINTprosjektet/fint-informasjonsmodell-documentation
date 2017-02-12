@@ -1,3 +1,4 @@
+import { EABaseClass } from '../../../../EA/model/EABaseClass';
 import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, Renderer } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
@@ -44,9 +45,9 @@ export class ClassComponent implements OnInit, OnDestroy {
   openAttribute(attr) {
     attr.isOpen = !attr.isOpen;
     if (attr.isOpen) {
-      setTimeout(() => this.router.navigate(['/docs', this.classification.id, attr.id]));
+      setTimeout(() => this.router.navigate(['/docs', this.classification.id, attr.id], { queryParams: this.classification.queryParams }));
     } else {
-      setTimeout(() => this.router.navigate(['/docs', this.classification.id]));
+      setTimeout(() => this.router.navigate(['/docs', this.classification.id], { queryParams: this.classification.queryParams }));
     }
   }
 }

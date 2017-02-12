@@ -7,16 +7,16 @@ import { LibSharedModule } from 'fint-shared-components';
 
 import { InViewService } from './in-view.service';
 
-import { ResultComponent } from './result.component';
-import { SidebarComponent } from './sidebar/sidebar.component';
-
-import { StereotypeComponent } from './components/stereotype/stereotype.component';
-import { ClassComponent } from './components/class/class.component';
-
+import { DetailsComponent } from './details/details.component';
 import { MarkdownToHtmlModule } from 'markdown-to-html-pipe';
 import { HighlightPipe } from './pipes/highlight.pipe';
 import { ExpandablePipe } from './pipes/expandable.pipe';
-import { DetailsComponent } from './details/details.component';
+
+import { ResultRoutes } from './result.routes';
+import { ResultComponent } from './result.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
+import { StereotypeComponent } from './components/stereotype/stereotype.component';
+import { ClassComponent } from './components/class/class.component';
 
 @NgModule({
   imports: [
