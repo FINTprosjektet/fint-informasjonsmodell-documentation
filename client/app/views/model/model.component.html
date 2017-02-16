@@ -1,3 +1,11 @@
 <section>
+  <aside class="legend pull-right">
+    <header>Legend:</header>
+    <ul class="unstyled horisontal pull-right">
+      <li *ngFor="let cls of types">
+        <div [className]="'box ' + cls.type">{{ cls.name }}</div>
+      </li>
+    </ul>
+  </aside>
   <div #container class="container"></div>
 </section>

@@ -25,6 +25,14 @@ export class ModelComponent implements OnInit, AfterViewInit {
   private height;
   private htmlElement: HTMLElement;
 
+  types = [
+    { name: 'Hoved klasse', type: 'mainclass' },
+    { name: 'Klasse', type: 'class' },
+    { name: 'Data type', type: 'datatype' },
+    { name: 'Opplisting', type: 'enumeration' },
+    { name: 'Kodeliste', type: 'codelist' }
+  ];
+
   get isLoading() { return this.modelService.isLoading; }
   set isLoading(flag) { this.modelService.isLoading = flag; }
 
