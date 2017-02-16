@@ -11,7 +11,7 @@ import * as mapValues from 'lodash/mapValues';
  * @export
  * @class EABaseClass
  */
-export class EABaseClass {
+export abstract class EABaseClass {
   static service: ModelService;
   static highlight: HighlightPipe = new HighlightPipe();
 
@@ -19,6 +19,13 @@ export class EABaseClass {
   xmiType: string;
   name: string;
   visibility: string;
+
+  protected _boxElement: SVGElement;
+  public get boxElement() { return this._boxElement; }
+  public set boxElement(elm: SVGElement) {
+    this._boxElement = elm;
+    this.render();
+  }
 
   get queryParams() {
     return EABaseClass.service.queryParams;
@@ -89,6 +96,9 @@ export class EABaseClass {
   constructor() { }
 
   cleanId(str: string) {
-    return str.toLowerCase().replace(/æ/gi, 'a').replace(/ø/gi, 'o').replace(/å/gi, 'a');
+    return str.toLowerCase().replace(/æ/gi, 'a').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(' ', '_');
   }
+
+  abstract render();
+  abstract update();
 }

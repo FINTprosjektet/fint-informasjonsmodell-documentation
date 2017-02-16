@@ -164,7 +164,7 @@ export class ModelService {
   }
 
   getTopPackages(from?: any): any[] {
-    return this.model.packages;
+    return this.model.stereotypes;
   }
 
   getObjectById(id) {

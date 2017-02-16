@@ -4,7 +4,7 @@
       <a [routerLink]="['/docs', classification.id]" [queryParams]="classification.queryParams" md-card-avatar>
         <fint-fa [name]="classType"></fint-fa>
       </a>
-      <md-card-subtitle>{{ classification.package.packagePath }}</md-card-subtitle>
+      <md-card-subtitle>{{ classification.parentPackage.packagePath }}</md-card-subtitle>
       <md-card-title>
         <h3>
           <span [innerHTML]="classification.name | highlight:searchStr"></span>

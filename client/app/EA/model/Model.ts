@@ -1,8 +1,13 @@
+import { Stereotype } from './Stereotype';
 import { EABaseClass } from './EABaseClass';
 import { Package } from './Package';
 import { Classification } from './Classification';
 
+import * as D3 from 'app/d3.bundle';
 
+export interface IModelContainer {
+  modelBase: Model;
+}
 /**
  * Top node of the EA xml tree
  */
@@ -27,20 +32,57 @@ export class Model extends EABaseClass {
     return true;
   }
 
-  get packages() {
-    const retArr = [];
-    const pkgs = this.packagedElement[0].packagedElement;
-    pkgs.forEach(elements => {
-      elements.packagedElement.forEach(pkg => {
-        if (pkg instanceof Package) {
-          retArr.push(pkg);
-        }
+  _stereotypes: Stereotype[];
+  get stereotypes() {
+    if (!this._stereotypes) {
+      const retArr = [];
+      const pkgs = this.packagedElement[0].packagedElement;
+      pkgs.forEach(elements => {
+        elements.packagedElement.forEach(pkg => {
+          if (pkg instanceof Stereotype) {
+            retArr.push(pkg);
+          }
+        });
       });
-    });
-    return retArr;
+      this._stereotypes = retArr;
+    }
+    return this._stereotypes;
+  }
+
+  _packages: Package[];
+  get packages() {
+    if (!this._packages) {
+      const retArr = [];
+      const pkgs = this.packagedElement[0].packagedElement;
+      pkgs.forEach(elements => {
+        elements.packagedElement.forEach(pkg => {
+          if (pkg instanceof Package) {
+            retArr.push(pkg);
+          }
+        });
+      });
+      this._packages = retArr;
+    }
+    return this._packages;
   }
 
   constructor() {
     super();
+  }
+
+  render() {
+    const allStereotypes = D3.select(this.boxElement)
+      .append('g')
+      .attr('class', 'stereotypes')
+      .selectAll('g.stereotype')
+      .data(this.stereotypes)
+      .enter();
+
+    // Let the stereotype render the element
+    allStereotypes.append('g').each(function (d) { d.boxElement = <SVGGElement>this; });
+  }
+
+  update() {
+    this.stereotypes.forEach(t => t.update());
   }
 }

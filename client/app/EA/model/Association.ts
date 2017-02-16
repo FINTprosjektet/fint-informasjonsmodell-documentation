@@ -13,14 +13,6 @@ export class Association extends EALinkBase {
   get startRef(): any { return EABaseClass.service.mapper.flatModel[this.start]; }
   get endRef(): any { return EABaseClass.service.mapper.flatModel[this.end]; }
 
-  // Properties for rendering
-  private _boxElement: SVGElement;
-  get boxElement() { return this._boxElement; }
-  set boxElement(elm: SVGElement) {
-    this._boxElement = elm;
-    this.render();
-  }
-
   constructor() {
     super();
   }

@@ -98,6 +98,9 @@ export class JSON_XMI21_Mapper implements IMapper {
         const host = this.flatModel[node['xmi:idref']];
         if (host && (host.xmiType === node.xmiType || host.name === node.name)) {
           host.extension = node; // Just to keep a clean copy if it all
+          if (node.properties && node.properties[0]['$'].stereotype === 'applicationSchema') {
+            Object.setPrototypeOf(host, new Stereotype());
+          }
         }
       }
     }

@@ -19,6 +19,6 @@ export class StereotypeComponent implements OnInit {
   }
 
   visibleClasses() {
-    return this.stereotype.classes.filter(c => c.isVisible());
+    return this.stereotype.allClasses.filter(c => c.isVisible());
   }
 }

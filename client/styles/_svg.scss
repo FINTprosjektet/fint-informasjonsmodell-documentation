@@ -6,17 +6,23 @@ svg.diagram {
     stroke-width: 1;
   }
 
-  g.stereotype {
-    cursor: pointer;
+  g.stereotype, g.package {
     > rect {
-      fill-opacity: 0;
       stroke: $border-color;
-      stroke-dasharray: 5, 5;
     }
     &:hover > rect {
       stroke-width: 2;
       stroke: darken($border-color, 10%);
     }
+  }
+  g.stereotype > rect {
+    stroke-dasharray: 10, 5;
+    fill-opacity: 0;
+  }
+  g.package > rect {
+    fill: rgba(0,0,0,0.03);
+    fill-opacity: 1;
+    stroke-dasharray: 5, 5;
   }
   text {
     fill-opacity: 1;
@@ -26,6 +32,7 @@ svg.diagram {
   }
 
   g.element {
+    cursor: pointer;
     > rect {
       fill: white;
       fill-opacity: 1;
@@ -46,6 +53,9 @@ svg.diagram {
     }
     &.codelist > rect {
       fill: $codelist-color;
+    }
+    &.mainclass > text {
+      font-weight: bold;
     }
   }
 

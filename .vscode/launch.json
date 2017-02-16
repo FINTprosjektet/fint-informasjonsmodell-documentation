@@ -21,8 +21,10 @@
       "url": "http://localhost:4200/*",
       "sourceMaps": true,
       "webRoot": "${workspaceRoot}/client",
+      "port": 9223,
+      "userDataDir": "${workspaceRoot}/out/chrome",
       "sourceMapPathOverrides": {
-        "webpack:///D:/dev/FINT/fint-informasjonsmodell-documentation/*": "${workspaceRoot}/*"
+        "webpack:///./*": "${workspaceRoot}/*"
       }
     },
     {
@@ -32,9 +34,8 @@
       "port": 9222,
       "sourceMaps": true,
       "webRoot": "${workspaceRoot}/client",
-      "url": "http://localhost:4200/*",
       "sourceMapPathOverrides": {
-        "webpack:///D:/dev/FINT/fint-informasjonsmodell-documentation/*": "${workspaceRoot}/*"
+        "webpack:///./*": "${workspaceRoot}/*"
       }
     }
   ]

@@ -113,4 +113,7 @@ export class Attribute extends EABaseClass {
   constructor() {
     super();
   }
+
+  render() { }
+  update() { }
 }

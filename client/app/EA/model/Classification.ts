@@ -2,6 +2,8 @@ import { MarkdownToHtmlPipe } from 'markdown-to-html-pipe';
 import { document } from '@angular/platform-browser/src/facade/browser';
 
 import { EABaseClass } from './EABaseClass';
+import { EANodeContainer } from './EANodeContainer';
+import { EANode } from './EANode';
 import { Stereotype } from './Stereotype';
 import { Package } from './Package';
 import { Generalization } from './Generalization';
@@ -10,17 +12,25 @@ import { Attribute } from './Attribute';
 import * as D3 from 'app/d3.bundle';
 import * as each from 'lodash/each';
 
-export class Classification extends EABaseClass {
-  static markPipe = new MarkdownToHtmlPipe()
+export class Classification extends EANode {
+  static markPipe = new MarkdownToHtmlPipe();
   static umlId = 'uml:Class';
 
   xmiId: string;
   extension: any;
-  parent: any;
   referredBy: any[];
   generalization: any;
   ownedAttribute: Attribute[];
   isAbstract;
+
+  _id: string;
+  get id(): string {
+    if (!this._id) {
+      const pkgName = (this.parentPackage ? this.parentPackage.name : '');
+      this._id = this.cleanId(pkgName + '_' + this.name);
+    }
+    return this._id;
+  }
 
   private _isVisible: boolean;
   private _lastSearch: string;
@@ -47,31 +57,6 @@ export class Classification extends EABaseClass {
     return true;
   }
 
-  _id: string;
-  get id(): string {
-    if (!this._id) {
-      const pkgName = (this.package ? this.package.name : '');
-      this._id = this.cleanId(pkgName + '_' + this.name);
-    }
-    return this._id;
-  }
-
-  _package: Package;
-  get package(): Package {
-    if (!this._package) {
-      let parent = this.parent;
-      while (parent) {
-        if (parent instanceof Package) {
-          this._package = parent;
-          break;
-        } else {
-          parent = parent.parent;
-        }
-      }
-    }
-    return this._package;
-  }
-
   get members(): Attribute[] {
     return this.ownedAttribute;
   }
@@ -83,6 +68,16 @@ export class Classification extends EABaseClass {
       }
     }
     return null;
+  }
+
+  get isBaseClass(): boolean {
+    if (this.extension && this.extension.project && this.extension.project.length) {
+      const meta = this.extension.project[0];
+      if (meta.keywords) {
+        return meta.keywords.indexOf('hovedklasse') > -1;
+      }
+    }
+    return false;
   }
 
   get type(): string {
@@ -150,19 +145,62 @@ export class Classification extends EABaseClass {
   }
 
   // Properties for rendering
-  private _boxElement: SVGGElement;
-  get boxElement() { return this._boxElement; }
-  set boxElement(elm: SVGGElement) {
-    this._boxElement = elm;
-    this.render();
+  get x(): number {
+    const parent = this.parentPackage;
+    const previous = this.getPrevious();
+    let x = (previous ? (previous.x + previous.width) : parent.x) + 15;
+    if (parent.width > 0) {
+      if (previous && x + this.width > parent.x + parent.width) {
+        x = parent.x + 15;
+      }
+    }
+    return x;
+  };
+
+  get y(): number {
+    const parent = this.parentPackage;
+    const previous = this.getPrevious();
+    const x = (previous ? (previous.x + previous.width) : parent.x) + 15;
+    let y = (previous ? previous.y : parent.y + parent.classPadding);
+    this.yLine = (previous ? previous.yLine : 1);
+    if (parent.width > 0) {
+      if (previous && x + this.width > parent.x + parent.width) {
+        y = previous.y + previous.height;
+        this.yLine++;
+      }
+    }
+    return y;
   }
-  x: number;
-  y: number;
-  width: number;
+  width: number = 0;
   height: number = 30;
 
   constructor() {
     super();
+  }
+
+  getPrevious(): Classification {
+    const previous = this.boxElement.previousSibling;
+    if (previous) {
+      const obj = previous['__data__'];
+      if (obj && obj instanceof Classification) {
+        return obj;
+      }
+    }
+    return null;
+  }
+
+  _calculatedWidth: number;
+  calculatedWidth(): number {
+    if (!this._calculatedWidth) {
+      const box = D3.select(this.boxElement)
+        .append('text')
+        .text(this.name);
+      const el = (<SVGGElement>box.node());
+      this._calculatedWidth = el.getBBox().width + 20;
+      if (el.remove) { el.remove(); }
+      else { el.parentNode.removeChild(el); } // Supporting IE
+    }
+    return this._calculatedWidth;
   }
 
   addClass(elm: SVGGElement, className: string) {
@@ -189,9 +227,11 @@ export class Classification extends EABaseClass {
   render() {
     const me = this;
     // Add class and id attributes to box element
-    D3.select(this.boxElement)
-      .attr('class', 'element ' + this.type.toLowerCase())
-      .attr('id', this.xmiId)
+    const classNames = ['element', this.type.toLowerCase()];
+    const container = D3.select(this.boxElement);
+    if (this.isBaseClass) { classNames.push('mainclass'); }
+    container
+      .attrs({ 'class': classNames.join(' '), 'id': this.xmiId })
       .on('mouseover', function () {
         each(document.querySelectorAll('.source_' + me.xmiId), elm => {
           me.addClass(elm, 'over'); me.addClass(elm, 'source');
@@ -211,60 +251,28 @@ export class Classification extends EABaseClass {
       .append('title').text(d => me.documentationHeader);
 
     // Calculate width of box based on text width
-    D3.select(this.boxElement)
-      .append('text')
-      .text(this.name)
-      .each(function (d: any) {
-        me.width = this.getBBox().width + 20;
-        if (this.remove) {
-          this.remove();
-        } else {
-          this.parentNode.removeChild(this); // Supporting IE
-        }
-      });
+    me.width = me.calculatedWidth();
 
     // Add a rect
-    D3.select(this.boxElement)
+    container
       .append('rect')
       .attrs({ x: 0, y: 0, rx: 5, ry: 5, width: this.width, height: this.height });
 
     // Add a header
-    D3.select(this.boxElement)
+    container
       .append('text')
       .text(this.name)
       .attrs({ x: 10, y: 20 });
   }
 
-  getPackage(): Package {
-    let parent = this.parent;
-    while (!parent.boxElement) { parent = parent.parent; } // Find closest _rendered_ parent
-    return parent;
-  }
-
-  getPrevious(): Classification {
-    const previous = this.boxElement.previousSibling;
-    if (previous) {
-      if (previous['__data__'] && previous['__data__'] instanceof Classification) {
-        return previous['__data__'];
-      }
-    }
-    return null;
-  }
-
   update() {
-    const idx = Array.prototype.indexOf.call(this.boxElement.parentNode.childNodes, this.boxElement);
-    const parent = this.getPackage();
-    const previous = this.getPrevious();
+    if (this.boxElement) { // No need to update if this is not rendered
+      const parent = this.parentPackage;
+      const previous = this.getPrevious();
 
-    this.x = (previous ? (previous.x + previous.width) : 0) + 15;
-    this.y = (previous ? previous.y : 30);
-    if (previous && (this.x + this.width) > parent.width) {
-      // Fall down one line
-      this.y = previous.y + 45;
-      this.x = 15;
+      const container = D3.select(this.boxElement);
+      container.select('rect').attrs({ x: this.x, y: this.y });
+      container.select('text').attrs({ x: this.x + 10, y: this.y + 20 });
     }
-
-    D3.select(this.boxElement)
-      .attr('transform', `translate(${this.x}, ${this.y})`);
   }
 }

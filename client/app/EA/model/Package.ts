@@ -1,4 +1,7 @@
+import { EANode } from './EANode';
 import { EABaseClass } from './EABaseClass';
+import { EANodeContainer } from './EANodeContainer';
+import { Stereotype } from './Stereotype';
 import { Classification } from './Classification';
 import { Comment } from './Comment';
 import * as D3 from 'app/d3.bundle';
@@ -6,24 +9,8 @@ import * as D3 from 'app/d3.bundle';
 /**
  *
  */
-export class Package extends EABaseClass {
+export class Package extends EANodeContainer {
   static umlId = 'uml:Package';
-  packagedElement: any;
-
-  _classCache: Classification[];
-  get classes(): Classification[] {
-    if (!this._classCache) {
-      this._classCache = EABaseClass.service.getClasses(this);
-    }
-    return this._classCache;
-  }
-  _id: string;
-  get id(): string {
-    if (!this._id) {
-      this._id = this.cleanId('package_' + this.name);
-    }
-    return this._id;
-  }
 
   private _isVisible: boolean;
   private _lastSearch: string;
@@ -32,7 +19,7 @@ export class Package extends EABaseClass {
     if (str && str.length > 0) {
       if (str == this._lastSearch) { return this._isVisible; }
       const meVisible = super.isVisible();
-      const clsVisible = this.classes.some(cls => cls.isVisible());
+      const clsVisible = this.allClasses.some(cls => cls.isVisible());
 
       this._lastSearch = str;
       this._isVisible = (meVisible || clsVisible);
@@ -41,94 +28,113 @@ export class Package extends EABaseClass {
     return true;
   }
 
-  get parentPackage(): Package {
-    let parent = this.parent;
-    while (parent) {
-      if (parent instanceof Package) {
-        return parent;
-      } else {
-        parent = parent.parent;
-      }
-    }
-    return null;
-  }
-
-  get packagePath(): string {
-    const path = [];
-    let pkg: Package = this;
-    while (pkg != null) {
-      path.unshift(pkg.name.toLowerCase());
-      pkg = pkg.parentPackage;
-      if (pkg.name === 'FINT') {
-        pkg = null; // Hardcoded top package name
-      }
-    }
-    return path.join('.');
-  }
-
-
   // Properties for rendering
-  private _boxElement: SVGGElement;
-  get boxElement() { return this._boxElement; }
-  set boxElement(elm: SVGGElement) {
-    this._boxElement = elm;
-    this.render();
+  get x(): number {
+    const parent = this.parentPackage;
+    const previous = this.getPrevious();
+    let x = (previous ? (previous.x + previous.width) : parent.x) + 15;
+    if (previous && x + this.width > parent.x + parent.width) {
+      x = parent.x + 15;
+    }
+    return x;
+  };
+
+  get y(): number {
+    const parent = this.parentPackage;
+    const previous = this.getPrevious();
+    const x = (previous ? (previous.x + previous.width) : parent.x) + parent.packagePadding;
+    let y = (previous ? previous.y : parent.y + parent.packagePadding);
+    this.yLine = (previous ? previous.yLine : 1);
+
+    if (previous && x + this.width > parent.x + parent.width) {
+      y = previous.y + previous.height;
+      this.yLine++;
+      y += 5 * this.yLine;
+    }
+
+    if (previous instanceof Classification && this.yLine === 1) {
+      y -= parent.packagePadding;
+    }
+    return y;
   }
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  width: number = 0;
+  height: number = 0;
 
   constructor() {
     super();
   }
+
+  _previous: EANode;
+  getPrevious(): EANode {
+    if (!this._previous) {
+      const previous = this.boxElement.previousSibling;
+      if (previous) {
+        const obj = previous['__data__'];
+        if (obj && ((obj instanceof Package && !(obj instanceof Stereotype)) || obj instanceof Classification)) {
+          this._previous = obj;
+        }
+      }
+    }
+    return this._previous;
+  }
+
+  calculatedWidth(): number {
+    const parent = this.parentPackage;
+    const bbox = (<SVGGElement>this.boxElement).getBBox();
+    let width = 0;
+    this.classes.forEach(c => width += c.calculatedWidth());
+    this.packages.forEach(p => width += p.calculatedWidth());
+    width += (20 * this.classes.length);
+    if (parent.width > 0) {
+      if (this.x + width > parent.x + parent.width) {
+        width = parent.x + parent.width - this.x;
+      }
+    }
+    return width;
+  }
+
   render() {
     // Add a rect
-    const d3Select = D3.select(this.boxElement);
-    d3Select
-      .attr('class', 'stereotype')
-      .attr('id', this.xmiId)
-      .append('rect')
-      .attrs({ x: 0, y: 0, rx: 10, ry: 10, width: '100%', height: 100 });
-    const bbox = this.boxElement.getBBox();
-    this.width = bbox.width;
-    this.height = bbox.height;
+    const container = D3.select(this.boxElement);
+    container.attr('class', 'package').attr('id', this.xmiId)
+      .append('rect').attrs({ x: this.x, y: this.y, rx: 10, ry: 10 });
 
     // Add a header
-    d3Select
-      .append('text')
-      .text(this.name)
-      .attrs({ x: 10, y: 15 });
-  }
+    container.append('text').text(this.name).attrs({ x: this.x + 10, y: this.y + 15 });
 
-  getHeight() {
-    const classContainer = this.boxElement.querySelector('g');
-    const bbox = (classContainer ? classContainer.getBBox() : this.boxElement.getBBox());
-    return bbox.height + 70;
-  }
+    // Render standalone clases
+    container.selectAll('g.element')
+      .data((d: Package) => d.classes)
+      .enter().append('g').each(function (d: Classification) { d.boxElement = <SVGElement>this; });
 
-  getPrevious() {
-    if (this.boxElement.previousSibling) {
-      return this.boxElement.previousSibling['__data__'];
-    }
-    return null;
+    // Render packages
+    container.selectAll('g.package')
+      .data((d: Package) => d.packages)
+      .enter().append('g').each(function (d: Package) { d.boxElement = <SVGElement>this; });
+
+    const bbox = (<SVGGElement>this.boxElement).getBBox();
+    this.width = this.calculatedWidth();
+    this.height = bbox.height;
   }
 
   update() {
-    const idx = Array.prototype.indexOf.call(this.boxElement.parentNode.childNodes, this.boxElement);
+    if (this.boxElement) {
+      const parent = this.parentPackage;
+      const container = D3.select(this.boxElement);
 
-    // Calculate width / height
-    this.width = this.boxElement.ownerSVGElement.clientWidth - 5;
-    this.height = this.getHeight();
-    D3.select(this.boxElement.querySelector('rect'))
-      .attrs({ width: this.width, height: this.height });
+      // Update children
+      this.classes.forEach(c => c.update());
+      this.packages.forEach(p => p.update());
 
+      // Calculate width / height
+      this.width = this.calculatedWidth();
+      this.height = this.calculatedHeight();
+      container.select('rect')
+        .attrs({ width: this.width, height: this.height });
 
-    // Calculate + render x/y translation
-    const previous: any = this.getPrevious();
-    this.x = 1;
-    this.y = (previous ? (previous.y + previous.height) : 0) + 10;
-    D3.select(this.boxElement)
-      .attr('transform', `translate(${this.x}, ${this.y})`);
+      container.select('rect').attrs({ x: this.x, y: this.y });
+      container.select('text').attrs({ x: this.x + 10, y: this.y + 15 });
+      //.attr('transform', `translate(${this.x}, ${this.y})`);
+    }
   }
 }

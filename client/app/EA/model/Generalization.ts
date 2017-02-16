@@ -14,8 +14,6 @@ export class Generalization extends EALinkBase {
   get generalRef(): any { return EABaseClass.service.mapper.flatModel[this.general]; }
 
   // Properties for rendering
-  private _boxElement: SVGElement;
-  get boxElement() { return this._boxElement; }
   set boxElement(elm: SVGElement) {
     if (this.start) {
       this._boxElement = elm;
