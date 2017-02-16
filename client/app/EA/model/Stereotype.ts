@@ -35,7 +35,7 @@ export class Stereotype extends EANodeContainer {
   }
 
   calculatedWidth(): number {
-    return this.boxElement.ownerSVGElement.clientWidth - 5;
+    return (this.boxElement.ownerSVGElement.clientWidth || window.innerWidth) - 5;
   }
 
   render() {
@@ -64,13 +64,13 @@ export class Stereotype extends EANodeContainer {
   update() {
     if (this.boxElement) {
       const container = D3.select(this.boxElement);
+      this.width = this.calculatedWidth();
 
       // Update children
       this.classes.forEach(c => c.update());
       this.packages.forEach(p => p.update());
 
       // Calculate width / height
-      this.width = this.boxElement.ownerSVGElement.clientWidth - 5;
       this.height = this.calculatedHeight();
       container.select('rect')
         .attrs({ width: this.width, height: this.height });

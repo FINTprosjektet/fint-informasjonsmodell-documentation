@@ -1,6 +1,6 @@
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import * as D3 from 'app/d3.bundle';
 
 import { ModelService } from 'app/EA/model.service';
@@ -55,6 +55,7 @@ export class ModelComponent implements OnInit, AfterViewInit {
     });
   }
 
+  @HostListener('window:resize', ['$event'])
   onResize($event) {
     this.update();
   }
