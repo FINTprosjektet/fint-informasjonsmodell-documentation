@@ -65,6 +65,14 @@ export abstract class EANodeContainer extends EANode {
     return this._depth;
   }
 
+  getMaxHeight(): number {
+    if (this.packages.length) {
+      const height = this.packages.map(p => p.height);
+      return 5 + Math.max.apply(Math, height);
+    }
+    return 1;
+  }
+
   constructor() {
     super();
   }

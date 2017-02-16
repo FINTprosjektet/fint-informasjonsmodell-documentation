@@ -12,9 +12,13 @@ import * as D3 from 'app/d3.bundle';
  * @extends {Package}
  */
 export class Stereotype extends EANodeContainer {
+  static umlId = 'uml:Package';
 
-  x: number = 0;
-  y: number = 0;
+  get x(): number { return 1; };
+  get y(): number {
+    const previous: any = this.getPrevious();
+    return (previous ? (previous.y + previous.height) : 0) + 10;
+  };
   width: number = 0;
   height: number = 0;
 
@@ -28,16 +32,6 @@ export class Stereotype extends EANodeContainer {
    */
   constructor() {
     super();
-  }
-
-  getPrevious() {
-    const previous = this.boxElement.previousSibling;
-    if (previous) {
-      const obj = previous['__data__'];
-      if (obj && obj instanceof Stereotype) {
-        return obj;
-      }
-    }
   }
 
   calculatedWidth(): number {
@@ -83,9 +77,6 @@ export class Stereotype extends EANodeContainer {
 
 
       // Calculate + render x/y translation
-      const previous: any = this.getPrevious();
-      this.x = 1;
-      this.y = (previous ? (previous.y + previous.height) : 0) + 10;
       container.select('rect').attrs({ x: this.x, y: this.y });
       container.select('text').attrs({ x: this.x + 10, y: this.y + 15 });
     }

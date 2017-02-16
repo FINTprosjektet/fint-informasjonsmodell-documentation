@@ -145,48 +145,11 @@ export class Classification extends EANode {
   }
 
   // Properties for rendering
-  get x(): number {
-    const parent = this.parentPackage;
-    const previous = this.getPrevious();
-    let x = (previous ? (previous.x + previous.width) : parent.x) + 15;
-    if (parent.width > 0) {
-      if (previous && x + this.width > parent.x + parent.width) {
-        x = parent.x + 15;
-      }
-    }
-    return x;
-  };
-
-  get y(): number {
-    const parent = this.parentPackage;
-    const previous = this.getPrevious();
-    const x = (previous ? (previous.x + previous.width) : parent.x) + 15;
-    let y = (previous ? previous.y : parent.y + parent.classPadding);
-    this.yLine = (previous ? previous.yLine : 1);
-    if (parent.width > 0) {
-      if (previous && x + this.width > parent.x + parent.width) {
-        y = previous.y + previous.height;
-        this.yLine++;
-      }
-    }
-    return y;
-  }
   width: number = 0;
   height: number = 30;
 
   constructor() {
     super();
-  }
-
-  getPrevious(): Classification {
-    const previous = this.boxElement.previousSibling;
-    if (previous) {
-      const obj = previous['__data__'];
-      if (obj && obj instanceof Classification) {
-        return obj;
-      }
-    }
-    return null;
   }
 
   _calculatedWidth: number;

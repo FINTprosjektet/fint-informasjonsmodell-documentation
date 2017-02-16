@@ -54,8 +54,14 @@ svg.diagram {
     &.codelist > rect {
       fill: $codelist-color;
     }
-    &.mainclass > text {
-      font-weight: bold;
+    &.mainclass {
+      > text {
+        font-weight: bold;
+        font-size: 110%;
+      }
+      > rect {
+        stroke: darken($border-color, 30%);
+      }
     }
   }
 

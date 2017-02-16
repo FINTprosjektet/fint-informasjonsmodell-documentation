@@ -29,53 +29,11 @@ export class Package extends EANodeContainer {
   }
 
   // Properties for rendering
-  get x(): number {
-    const parent = this.parentPackage;
-    const previous = this.getPrevious();
-    let x = (previous ? (previous.x + previous.width) : parent.x) + 15;
-    if (previous && x + this.width > parent.x + parent.width) {
-      x = parent.x + 15;
-    }
-    return x;
-  };
-
-  get y(): number {
-    const parent = this.parentPackage;
-    const previous = this.getPrevious();
-    const x = (previous ? (previous.x + previous.width) : parent.x) + parent.packagePadding;
-    let y = (previous ? previous.y : parent.y + parent.packagePadding);
-    this.yLine = (previous ? previous.yLine : 1);
-
-    if (previous && x + this.width > parent.x + parent.width) {
-      y = previous.y + previous.height;
-      this.yLine++;
-      y += 5 * this.yLine;
-    }
-
-    if (previous instanceof Classification && this.yLine === 1) {
-      y -= parent.packagePadding;
-    }
-    return y;
-  }
   width: number = 0;
   height: number = 0;
 
   constructor() {
     super();
-  }
-
-  _previous: EANode;
-  getPrevious(): EANode {
-    if (!this._previous) {
-      const previous = this.boxElement.previousSibling;
-      if (previous) {
-        const obj = previous['__data__'];
-        if (obj && ((obj instanceof Package && !(obj instanceof Stereotype)) || obj instanceof Classification)) {
-          this._previous = obj;
-        }
-      }
-    }
-    return this._previous;
   }
 
   calculatedWidth(): number {
