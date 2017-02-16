@@ -24,7 +24,7 @@ md-card {
 }
 
 md-card-header {
-  /deep/ .md-card-header-text {
+  /deep/ .mat-card-header-text {
     width: 100%;
   }
   md-card-subtitle:first-child {
@@ -53,9 +53,9 @@ md-card-header {
 }
 
 .subtypes {
-  margin-top: -1.3rem;
+  margin-top: -1.3rem !important;
   margin-bottom: 1rem;
-  margin-left: 2.7rem;
+  margin-left: 2rem;
   md-chip-list {
     display: inline;
     /deep/ .md-chip-list-wrapper {
