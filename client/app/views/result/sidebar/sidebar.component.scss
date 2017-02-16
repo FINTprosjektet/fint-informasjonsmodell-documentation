@@ -37,7 +37,13 @@ ul {
       }
     }
   }
-  li.active > a {
+}
+aside > ul > li.active {
+  > a {
     font-weight: bold;
   }
+  li.active {
+    background-color: rgba(0,0,0,0.07);
+  }
 }
+

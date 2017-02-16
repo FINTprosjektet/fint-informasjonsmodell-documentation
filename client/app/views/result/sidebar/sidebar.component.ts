@@ -29,7 +29,7 @@ export class SidebarComponent implements AfterViewInit, OnDestroy {
     const me = this;
     this.stereotypes.forEach(type => {
       type.isActive = me.InView.isElmInView(document.getElementById(type.id));
-      type.classes.forEach(cls => cls.isActive = me.InView.isElmInView(document.getElementById(cls.id)));
+      type.allClasses.forEach(cls => cls.isActive = me.InView.isElmInView(document.getElementById(cls.id)));
     });
   }
 }
