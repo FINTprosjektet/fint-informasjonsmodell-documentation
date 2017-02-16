@@ -38,9 +38,9 @@
   </section>
 </nav>
 
-<div class="md-spinner-container" *ngIf="isLoading">
-  <md-spinner class="center"></md-spinner>
-</div>
 <section>
+  <div class="md-spinner-container" *ngIf="isLoading">
+    <md-spinner class="center"></md-spinner>
+  </div>
   <router-outlet></router-outlet>
 </section>
