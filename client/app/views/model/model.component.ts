@@ -28,6 +28,7 @@ export class ModelComponent implements OnInit, AfterViewInit {
   types = [
     { name: 'Hoved klasse', type: 'mainclass' },
     { name: 'Klasse', type: 'class' },
+    { name: 'Abstrakt', type: 'abstract' },
     { name: 'Data type', type: 'datatype' },
     { name: 'Opplisting', type: 'enumeration' },
     { name: 'Kodeliste', type: 'codelist' }

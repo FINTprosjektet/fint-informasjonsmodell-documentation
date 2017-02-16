@@ -15,9 +15,14 @@ svg.diagram {
       stroke: darken($border-color, 10%);
     }
   }
-  g.stereotype > rect {
-    stroke-dasharray: 10, 5;
-    fill-opacity: 0;
+  g.stereotype {
+    > rect {
+      stroke-dasharray: 10, 5;
+      fill-opacity: 0;
+    }
+    > text {
+      font-weight: bold;
+    }
   }
   g.package > rect {
     fill: rgba(0,0,0,0.03);

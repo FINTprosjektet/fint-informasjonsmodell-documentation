@@ -53,7 +53,7 @@ export abstract class EANode extends EABaseClass {
   get y(): number {
     const parent = this.parentPackage;
     const previous = this.getPrevious();
-    const padding = 20;
+    const padding = 25;
     const x = (previous ? (previous.x + previous.width) : parent.x) + padding;
     let y = (previous ? previous.y : parent.y + padding);
     this.yLine = (previous ? previous.yLine : 1);

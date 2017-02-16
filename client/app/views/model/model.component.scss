@@ -12,19 +12,23 @@
 }
 
 .legend {
+  font-size: 0.8rem;
   header {
     display: inline-block;
     margin-top: 0.4rem;
   }
   .box {
     min-width: 30px;
-    height: 30px;
+    height: 25px;
     margin: 2px;
     padding: 0.25rem 0.7rem;
     border: 1px solid $border-color;
     border-radius: 4px;
     &.class, &.mainclass {
       background-color: $table-color;
+    }
+    &.abstract {
+      background-color: white;
     }
     &.datatype {
       background-color: $datatype-color;
