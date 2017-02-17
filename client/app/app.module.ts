@@ -22,7 +22,7 @@ import { ModelComponent } from './views/model/model.component';
     BrowserModule,
     FormsModule,
     HttpModule,
-    MaterialModule.forRoot(),
+    MaterialModule,
     LibSharedModule,
     AppRoutingModule,
     ResultModule
