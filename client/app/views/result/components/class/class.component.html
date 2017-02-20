@@ -8,8 +8,8 @@
       <md-card-title>
         <h3>
           <span [innerHTML]="classification.name | highlight:searchStr"></span>
-          <span *ngIf="classification.superType">
-            <fint-fa name="arrow-left"></fint-fa>
+          <span *ngIf="classification.superType" title="{{classification.name}} arver fra {{classification.superType.name}}">
+            <fint-fa name="arrow-right"></fint-fa>
             <md-chip *ngIf="classification.superType">
               <a [routerLink]="[ '/docs', classification.superType.id]" [queryParams]="classification.queryParams" [innerHTML]="classification.superType.name | highlight:searchStr"></a>
             </md-chip>
