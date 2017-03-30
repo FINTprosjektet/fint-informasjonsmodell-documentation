@@ -1,9 +1,5 @@
 import { HighlightPipe } from '../../views/result/pipes/highlight.pipe';
 import { ModelService } from '../model.service';
-import * as merge from 'lodash/merge';
-import * as map from 'lodash/map';
-import * as keyBy from 'lodash/keyBy';
-import * as mapValues from 'lodash/mapValues';
 
 /**
  *
@@ -20,15 +16,17 @@ export abstract class EABaseClass {
   name: string;
   visibility: string;
 
-  protected _boxElement: SVGElement;
-  public get boxElement() { return this._boxElement; }
-  public set boxElement(elm: SVGElement) {
-    this._boxElement = elm;
-    this.render();
-  }
+  parent: EABaseClass;
+  comments: EABaseClass[];
 
   get queryParams() {
     return EABaseClass.service.queryParams;
+  }
+
+  constructor() { }
+
+  cleanId(str: string) {
+    return str.toLowerCase().replace(/æ/gi, 'a').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(' ', '_');
   }
 
   public isVisible(): boolean {
@@ -48,57 +46,4 @@ export abstract class EABaseClass {
     const m = str.match(regExp);
     return m != null;
   }
-
-  parent: EABaseClass;
-
-  comments: EABaseClass[];
-
-  static createMatrix(elm) {
-    const converter = EABaseClass.makeAbsoluteContext(elm);
-    const margin = 5;
-    const bbox = elm.getBBox();
-    const xLeft = bbox.x - margin;
-    const xCenter = bbox.x + (bbox.width / 2);
-    const xRight = bbox.x + bbox.width + margin;
-    const yTop = bbox.y - margin;
-    const yMid = bbox.y + (bbox.height / 2);
-    const yBot = bbox.y + bbox.height + margin;
-    return {
-      top: {
-        left: converter(xLeft, yTop),
-        center: converter(xCenter, yTop),
-        right: converter(xRight, yTop)
-      },
-      mid: {
-        left: converter(xLeft, yMid),
-        center: converter(xCenter, yMid),
-        right: converter(xRight, yMid)
-      },
-      bot: {
-        left: converter(xLeft, yBot),
-        center: converter(xCenter, yBot),
-        right: converter(xRight, yBot)
-      }
-    };
-  }
-
-  static makeAbsoluteContext(element) {
-    return function (x, y) {
-      const offset = element.ownerSVGElement.getBoundingClientRect();
-      const matrix = element.getScreenCTM();
-      return {
-        x: (matrix.a * x) + (matrix.c * y) + matrix.e - offset.left,
-        y: (matrix.b * x) + (matrix.d * y) + matrix.f - offset.top
-      };
-    };
-  }
-
-  constructor() { }
-
-  cleanId(str: string) {
-    return str.toLowerCase().replace(/æ/gi, 'a').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(' ', '_');
-  }
-
-  abstract render();
-  abstract update();
 }

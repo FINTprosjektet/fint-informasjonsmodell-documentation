@@ -28,6 +28,16 @@ export class ClassComponent implements OnInit, OnDestroy {
     }
   }
 
+  get cssClass() {
+    const cls = [];
+    if (this.classification.isBaseClass) { cls.push('mainclass'); }
+    else {
+      cls.push(this.classification.type.toLowerCase())
+    }
+    if (this.isSelected) { cls.push('selected'); }
+    return cls.join(' ');
+  }
+
   constructor(private elm: ElementRef, private renderer: Renderer, private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit() {

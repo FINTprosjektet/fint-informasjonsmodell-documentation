@@ -14,6 +14,9 @@ import { XMLMapper } from './mapper/XMLMapper';
 import { JSON_XMI21_Mapper } from './mapper/JSON_XMI21_Mapper';
 
 import { EABaseClass } from './model/EABaseClass';
+import { EALinkBase } from './model/EALinkBase';
+import { EANode } from './model/EANode';
+
 import { Model } from './model/Model';
 import { Package } from './model/Package';
 import { Classification } from './model/Classification';
@@ -93,11 +96,16 @@ export class ModelService {
   fetchVersions(): Observable<any> {
     return this.http.request('/api/doc/versions')
       .map(res => {
-        const map = res.json().map(r => r.name);
-        this.defaultVersion = map[0];
-        if (!this.version) { this.version = this.defaultVersion; }
-        map.unshift('master'); // Add latest version to the top
-        return map;
+        let map = res.json();
+        if (Array.isArray(map)) {
+          map = map.map(r => r.name);
+          this.defaultVersion = map[0];
+          if (!this.version) { this.version = this.defaultVersion; }
+          map.unshift('master'); // Add latest version to the top
+          return map;
+        }
+        else { console.error(map); }
+        return null;
       })
       .catch(error => this.handleError(error));
   }
@@ -149,8 +157,39 @@ export class ModelService {
     return me.modelObservable;
   }
 
+  getLinkNodes(from?: any): EALinkBase[] {
+    return this.getAssociations(from).concat(this.getGeneralizations(from));
+  }
+
+  getNodes(from?: any): EANode[] {
+    let results: any[] = [];
+    Object.keys(this.mapper.flatModel).forEach(key => {
+      const model = this.mapper.flatModel[key];
+      const props = model.extension && model.extension.properties ? model.extension.properties[0] : {stereotype: '', sType: ''};
+      if (model instanceof EANode
+        && (!props.stereotype || props.stereotype.toLowerCase() !== "xsdsimpletype")
+        && (!props.sType || props.sType.toLowerCase() !== 'boundary')) {
+        results.push(model);
+      }
+    });
+    if (from) {
+      results = results.filter(n => {
+        let parent = n.parent;
+        while (parent) {
+          if (parent === from) { return true; }
+          parent = parent.parent;
+        }
+        return false;
+      });
+    }
+
+    return results;
+  }
+
   getGeneralizations(from?: any): any[] {
-    return this.mapper.allOfXmiType(Generalization.umlId, from);
+    return this.mapper.allOfXmiType(Generalization.umlId, from).filter((g: Generalization) => {
+      return g.source != null && g.target != null && g.source.type.toLowerCase() !== 'xsdsimpletype' && g.target.type.toLowerCase() !== 'xsdsimpletype';
+    });
   }
 
   getAssociations(from?: any): any[] {
@@ -158,9 +197,7 @@ export class ModelService {
   }
 
   getClasses(from?: any): any[] {
-    return this.mapper.allOfXmiType(Classification.umlId, from).filter(c => {
-      return c.type !== 'Boundary';
-    });
+    return this.mapper.allOfXmiType(Classification.umlId, from).filter((c: Classification) => c.type !== 'Boundary' && c.type.toLowerCase() !== 'xsdsimpletype');
   }
 
   getTopPackages(from?: any): any[] {

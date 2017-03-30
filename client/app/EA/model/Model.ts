@@ -69,20 +69,4 @@ export class Model extends EABaseClass {
   constructor() {
     super();
   }
-
-  render() {
-    const allStereotypes = D3.select(this.boxElement)
-      .append('g')
-      .attr('class', 'stereotypes')
-      .selectAll('g.stereotype')
-      .data(this.stereotypes)
-      .enter();
-
-    // Let the stereotype render the element
-    allStereotypes.append('g').each(function (d) { d.boxElement = <SVGGElement>this; });
-  }
-
-  update() {
-    this.stereotypes.forEach(t => t.update());
-  }
 }

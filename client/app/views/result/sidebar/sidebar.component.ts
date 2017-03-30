@@ -1,7 +1,6 @@
 import { InViewService } from '../in-view.service';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
-import * as each from 'lodash/each';
 
 import { Stereotype } from 'app/EA/model/Stereotype';
 

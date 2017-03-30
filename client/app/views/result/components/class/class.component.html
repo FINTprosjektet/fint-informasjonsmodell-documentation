@@ -1,5 +1,5 @@
 <div class="anchor" [attr.id]="classification.id">
-  <md-card [className]="classification.type.toLowerCase()" [ngClass]="{'selected': isSelected}">
+  <md-card [className]="cssClass">
     <md-card-header>
       <a [routerLink]="['/docs', classification.id]" [queryParams]="classification.queryParams" md-card-avatar>
         <fint-fa [name]="classType"></fint-fa>

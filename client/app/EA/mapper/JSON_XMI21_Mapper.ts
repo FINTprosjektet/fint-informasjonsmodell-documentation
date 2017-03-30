@@ -1,7 +1,6 @@
 import { EABaseClass } from '../model/EABaseClass';
 import { Model } from '../model/Model';
 import { IMapper } from './IMapper';
-import * as merge from 'lodash/merge';
 
 import { Stereotype } from '../model/Stereotype';
 import { Package } from '../model/Package';
@@ -73,7 +72,7 @@ export class JSON_XMI21_Mapper implements IMapper {
       node['uml:Model'].forEach(model => this.walkTree(model, node));
     }
     if (node['$']) { // XML Attributes are mapped to `$`
-      merge(node, node['$']);
+      Object.assign(node, node['$']);
       delete node['$'];
       if (node['xmi:id']) { node.xmiId = node['xmi:id']; delete node['xmi:id']; }
       if (node['xmi:type']) { node.xmiType = node['xmi:type']; delete node['xmi:type']; }
@@ -86,7 +85,7 @@ export class JSON_XMI21_Mapper implements IMapper {
     if (node.xmiId && this.flatModel[node.xmiId] != null) {
       const oldModel = this.flatModel[node.xmiId];
       if (oldModel != node) {
-        merge(oldModel, node);
+        Object.assign(oldModel, node);
         node = oldModel;
       }
     }

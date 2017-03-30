@@ -4,8 +4,11 @@ md-card {
   transition-duration: 0.5s;
   transition-timing-function: ease-in-out;
   transition-property: border-color, box-shadow;
-  &.class {
+  &.mainclass {
     background-color: $table-color;
+  }
+  &.class {
+    background-color: $class-color;
   }
   &.datatype {
     background-color: $datatype-color;

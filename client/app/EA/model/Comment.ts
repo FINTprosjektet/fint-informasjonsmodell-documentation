@@ -6,7 +6,4 @@ export class Comment extends EABaseClass {
   constructor() {
     super();
   }
-
-  render() { }
-  update() { }
 }
