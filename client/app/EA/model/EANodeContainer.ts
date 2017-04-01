@@ -44,14 +44,6 @@ export abstract class EANodeContainer extends EANode {
     return this._allClassCache;
   }
 
-  get classPadding(): number {
-    return this.getInnerDepth() * 20;
-  };
-
-  get packagePadding(): number {
-    return this.getInnerDepth() * 10;
-  };
-
   _depth: number;
   getInnerDepth(): number {
     if (!this._depth) {
@@ -65,34 +57,7 @@ export abstract class EANodeContainer extends EANode {
     return this._depth;
   }
 
-  getMaxHeight(): number {
-    if (this.packages.length) {
-      const height = this.packages.map(p => p.height);
-      return 5 + Math.max.apply(Math, height);
-    }
-    return 1;
-  }
-
   constructor() {
     super();
-  }
-
-  abstract calculatedWidth();
-
-  calculatedHeight(): number {
-    let height = 0;
-    this.classes.forEach(c => {
-      const yh = c.y + c.height;
-      if (yh > this.y + height) {
-        height = yh - this.y;
-      }
-    });
-    this.packages.forEach(p => {
-      const yh = p.y + p.calculatedHeight();
-      if (yh > this.y + height) {
-        height = yh - this.y;
-      }
-    });
-    return height + 5;
   }
 }

@@ -1,5 +1,4 @@
 import { MarkdownToHtmlPipe } from 'markdown-to-html-pipe';
-import { document } from '@angular/platform-browser/src/facade/browser';
 
 import { EABaseClass } from './EABaseClass';
 import { EANodeContainer } from './EANodeContainer';
@@ -10,14 +9,12 @@ import { Generalization } from './Generalization';
 import { Association } from './Association';
 import { Attribute } from './Attribute';
 import * as D3 from 'app/d3.bundle';
-import * as each from 'lodash/each';
 
 export class Classification extends EANode {
   static markPipe = new MarkdownToHtmlPipe();
   static umlId = 'uml:Class';
 
   xmiId: string;
-  extension: any;
   referredBy: any[];
   generalization: any;
   ownedAttribute: Attribute[];
@@ -32,6 +29,9 @@ export class Classification extends EANode {
     return this._id;
   }
 
+  /**
+   * Used for search filtration
+   */
   private _isVisible: boolean;
   private _lastSearch: string;
   public isVisible(noSuper?: boolean): boolean {
@@ -150,92 +150,5 @@ export class Classification extends EANode {
 
   constructor() {
     super();
-  }
-
-  _calculatedWidth: number;
-  calculatedWidth(): number {
-    if (!this._calculatedWidth) {
-      const box = D3.select(this.boxElement)
-        .append('text')
-        .text(this.name);
-      const el = (<SVGGElement>box.node());
-      this._calculatedWidth = el.getBBox().width + 20;
-      if (el.remove) { el.remove(); }
-      else { el.parentNode.removeChild(el); } // Supporting IE
-    }
-    return this._calculatedWidth;
-  }
-
-  addClass(elm: SVGGElement, className: string) {
-    if (elm) {
-      if (elm.classList) { elm.classList.add(className); }
-      else if (!(new RegExp('(\\s|^)' + className + '(\\s|$)').test(elm.getAttribute('class')))) {
-        elm.setAttribute('class', elm.getAttribute('class') + ' ' + className);
-      }
-    }
-  }
-
-  removeClass(elm: SVGGElement, className: string) {
-    if (elm) {
-      if (elm.classList) { elm.classList.remove(className); }
-      else {
-        const removedClass = elm.getAttribute('class').replace(new RegExp('(\\s|^)' + className + '(\\s|$)', 'g'), '$2');
-        if (new RegExp('(\\s|^)' + className + '(\\s|$)').test(elm.getAttribute('class'))) {
-          elm.setAttribute('class', removedClass);
-        }
-      }
-    }
-  }
-
-  render() {
-    const me = this;
-    // Add class and id attributes to box element
-    const classNames = ['element', this.type.toLowerCase()];
-    const container = D3.select(this.boxElement);
-    if (this.isBaseClass) { classNames.push('mainclass'); }
-    container
-      .attrs({ 'class': classNames.join(' '), 'id': this.xmiId })
-      .on('mouseover', function () {
-        each(document.querySelectorAll('.source_' + me.xmiId), elm => {
-          me.addClass(elm, 'over'); me.addClass(elm, 'source');
-          D3.select(elm.querySelector('path')).attr('marker-end', 'url(#arrow_source)');
-        });
-        each(document.querySelectorAll('.target_' + me.xmiId), elm => {
-          me.addClass(elm, 'over'); me.addClass(elm, 'target');
-          D3.select(elm.querySelector('path')).attr('marker-end', 'url(#arrow_target)');
-        });
-      })
-      .on('mouseout', function () {
-        each(document.querySelectorAll('.source_' + me.xmiId + ', .target_' + me.xmiId), elm => {
-          me.removeClass(elm, 'over'); me.removeClass(elm, 'source'); me.removeClass(elm, 'target');
-          D3.select(elm.querySelector('path')).attr('marker-end', 'url(#arrow_neutral)');
-        });
-      })
-      .append('title').text(d => me.documentationHeader);
-
-    // Calculate width of box based on text width
-    me.width = me.calculatedWidth();
-
-    // Add a rect
-    container
-      .append('rect')
-      .attrs({ x: 0, y: 0, rx: 5, ry: 5, width: this.width, height: this.height });
-
-    // Add a header
-    container
-      .append('text')
-      .text(this.name)
-      .attrs({ x: 10, y: 20 });
-  }
-
-  update() {
-    if (this.boxElement) { // No need to update if this is not rendered
-      const parent = this.parentPackage;
-      const previous = this.getPrevious();
-
-      const container = D3.select(this.boxElement);
-      container.select('rect').attrs({ x: this.x, y: this.y });
-      container.select('text').attrs({ x: this.x + 10, y: this.y + 20 });
-    }
   }
 }
