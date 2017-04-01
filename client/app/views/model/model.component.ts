@@ -185,7 +185,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       // Apply boundaries, avoid nodes being rendered off-canvas
       .force('box', forceBoundedBox<EANode>()
         .size(d => [d.width, d.height])
-        .bounds({ x0: 0, y0: 0, x1: d => this.width, y1: d => this.height }))
+        .bounds({ x0: 0, y0: this.hullOffset * 2, x1: d => this.width, y1: d => this.height - (this.hullOffset * 2) }))
 
       // Lastly, apply custom force logic for each tick.
       .on('tick', () => this.update());
