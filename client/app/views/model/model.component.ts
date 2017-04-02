@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Title, DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { Subscription } from "rxjs/Subscription";
+import { Subscription } from 'rxjs/Subscription';
 
 import * as D3 from 'app/d3.bundle';
 import { forceRectCollide } from './util/ForceRectCollide';
@@ -16,8 +16,8 @@ import { EANode } from 'app/EA/model/EANode';
 import { Classification } from 'app/EA/model/Classification';
 import { Generalization } from 'app/EA/model/Generalization';
 import { Association } from 'app/EA/model/Association';
-import { Package } from "app/EA/model/Package";
-import { EANodeContainer } from "app/EA/model/EANodeContainer";
+import { Package } from 'app/EA/model/Package';
+import { EANodeContainer } from 'app/EA/model/EANodeContainer';
 
 @Component({
   selector: 'app-model',
@@ -126,7 +126,8 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       .attr('transform', 'translate(0,0)');
 
     // Define Arrow markers
-    this.svg.append('defs')
+    const defs = this.svg.append('defs');
+    defs
       .selectAll('marker')
       .data(['neutral', 'source', 'target'])
       .enter()
@@ -143,6 +144,12 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       .append('path')
       .attr('d', 'M 0 0 12 6 0 12 3 6')
       .attr('class', 'arrowHead');
+
+    // Define reusable drop shadow filter
+    const filter = defs.append('filter').attrs({'id': 'dropshadow'});
+    filter.append('feGaussianBlur').attrs({'in': 'SourceAlpha', 'stdDeviation': 2, 'result': 'offOut'});
+    filter.append('feOffset').attrs({'in': 'offOut', 'dx': 0, 'dy': 2, 'result': 'blurOut'});
+    filter.append('feBlend').attrs({'in': 'SourceGraphic', 'in2': 'blurOut', 'mode': 'normal'});
 
     // Extract data to present
     const allLinks = this.modelService.getLinkNodes();
@@ -248,12 +255,12 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     const hullGroup = this.svg.append('g').attr('class', 'hull');
     const fill = D3.scaleOrdinal(D3.schemeCategory20c);
 
-    const hull = hullGroup.selectAll("path.hull")
+    const hull = hullGroup.selectAll('path.hull')
       .data(hullData)
-      .enter().append("path")
-        .attr("class", d => 'hull ' + d.group.toLowerCase().replace(new RegExp(' ', 'g'), '_'))
-        .attr("d", d => this.hullCurve(d.path))
-        .style("fill", d => fill(d.group))
+      .enter().append('path')
+        .attr('class', d => 'hull ' + d.group.toLowerCase().replace(new RegExp(' ', 'g'), '_'))
+        .attr('d', d => this.hullCurve(d.path))
+        .style('fill', d => fill(d.group))
         .on('mouseover', d => {
           this.addClass(document.querySelector(`.legend .colors .box.${d.group.toLowerCase().replace(new RegExp(' ', 'g'), '_')}`), 'spotlight');
         })
@@ -321,7 +328,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         return c.width;                                           // Return the calculated width
       },
       height: (c: EANode) => c.height
-    });
+    }).style('filter', c => c.isBaseClass ? 'url(#dropshadow)' : '');
 
     // Add the text
     nodes.append('text').text((c: EANode) => c instanceof Classification ? c.name : ''/*`P:${c.name}`*/).attrs({ x: 10, y: 20 });
@@ -360,7 +367,10 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     // Click event
-    nodes.on('click', (c: EANode) => c instanceof Classification ? this.router.navigate(['/docs', c.id], { queryParams: this.modelService.queryParams }) : null);
+    nodes.on('click', (c: EANode) => {
+      if (D3.event.defaultPrevented) return;
+      return c instanceof Classification ? this.router.navigate(['/docs', c.id], { queryParams: this.modelService.queryParams }) : null;
+    });
 
     return nodes;
   }
@@ -422,6 +432,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   dragStarted(d) {
+    D3.event.sourceEvent.stopPropagation();
     this.vx = 0
     this.vy = 0
     this.offsetX = (this.px = D3.event.x) - (d.fx = d.x)

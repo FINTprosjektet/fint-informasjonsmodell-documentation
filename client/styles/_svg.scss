@@ -52,8 +52,8 @@ svg.diagram {
       stroke: $border-color;
     }
     &:hover > rect {
-      stroke-width: 2;
-      stroke: darken($border-color, 10%);
+      stroke-width: 1;
+      stroke: black !important;
     }
     &.class > rect {
       fill: $class-color;
@@ -70,7 +70,6 @@ svg.diagram {
     &.mainclass {
       > text {
         font-weight: bold;
-        font-size: 110%;
       }
       > rect {
         fill: $table-color;
