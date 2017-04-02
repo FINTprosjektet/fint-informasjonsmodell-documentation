@@ -2,7 +2,7 @@
   <aside [class]="'legend' + (legendVisible ? ' open' : '')">
     <header (click)="legendVisible = !legendVisible">
       Tegnforklaring:
-      <i [ngClass]="{'open': legendVisible}">&#x25BC;</i>
+      <fint-fa [name]="legendVisible ? 'caret-down' : 'caret-right'"></fint-fa>
     </header>
     <div [ngClass]="{'visible': legendVisible}">
       <div class="pull-right">

@@ -48,8 +48,8 @@ export class ClassComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.searchSubscription.unsubscribe();
-    this.routeParamSubscription.unsubscribe();
+    // if (this.searchSubscription) { this.searchSubscription.unsubscribe(); }
+    if (this.routeParamSubscription) { this.routeParamSubscription.unsubscribe(); }
   }
 
   openAttribute(attr) {

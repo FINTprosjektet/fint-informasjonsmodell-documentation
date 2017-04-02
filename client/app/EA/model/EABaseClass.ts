@@ -33,7 +33,7 @@ export abstract class EABaseClass {
     const str = EABaseClass.service.searchString;
     if (str && str.length > 0) {
       const hasType = this.match(this.xmiType);
-      const hasName = this.match(this.name);
+      const hasName = this.name ? this.match(this.name) : false;
 
       return (hasType || hasName);
     }

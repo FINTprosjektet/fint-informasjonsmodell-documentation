@@ -17,6 +17,23 @@ export class Stereotype extends EANodeContainer {
   width: number = 0;
   height: number = 0;
 
+  private _isVisible: boolean;
+  private _lastSearch: string;
+  public isVisible(): boolean {
+    const str = EABaseClass.service.searchString;
+    if (str && str.length > 0) {
+      if (str == this._lastSearch) { return this._isVisible; }
+      const meVisible = super.isVisible();
+      const pkgVisible = this.packages.some(pkg => pkg.isVisible());
+      const clsVisible = this.allClasses.some(cls => cls.isVisible());
+
+      this._lastSearch = str;
+      this._isVisible = (meVisible || pkgVisible || clsVisible);
+      return this._isVisible;
+    }
+    return true;
+  }
+
   /**
    * Creates an instance of Stereotype.
    *
@@ -28,4 +45,5 @@ export class Stereotype extends EANodeContainer {
   constructor() {
     super();
   }
+
 }

@@ -21,7 +21,7 @@ export class SidebarComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.onScrollSubscription.unsubscribe();
+    if (this.onScrollSubscription) { this.onScrollSubscription.unsubscribe(); }
   }
 
   checkElementInView() {

@@ -19,10 +19,11 @@ export class Package extends EANodeContainer {
     if (str && str.length > 0) {
       if (str == this._lastSearch) { return this._isVisible; }
       const meVisible = super.isVisible();
+      const pkgVisible = this.packages.some(pkg => pkg.isVisible());
       const clsVisible = this.allClasses.some(cls => cls.isVisible());
 
       this._lastSearch = str;
-      this._isVisible = (meVisible || clsVisible);
+      this._isVisible = (meVisible || pkgVisible || clsVisible);
       return this._isVisible;
     }
     return true;

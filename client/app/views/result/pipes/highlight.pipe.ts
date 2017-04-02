@@ -10,7 +10,7 @@ export class HighlightPipe implements PipeTransform {
   constructor() { }
 
   transform(text: string, search: string): string {
-    return (search && search.length
+    return (search && search.length && text
       ? text.replace(new RegExp(this.pattern(search), 'gi'), (match) => `<span class="highlight">${match}</span>`)
       : text);
   }
