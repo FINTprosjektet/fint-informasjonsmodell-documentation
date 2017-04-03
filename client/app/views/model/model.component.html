@@ -1,8 +1,13 @@
 <section>
   <aside [class]="'legend' + (legendVisible ? ' open' : '')">
-    <header (click)="legendVisible = !legendVisible">
-      Tegnforklaring:
-      <fint-fa [name]="legendVisible ? 'caret-down' : 'caret-right'"></fint-fa>
+    <header>
+      <span (click)="legendVisible = !legendVisible">Tegnforklaring:
+        <fint-fa [name]="legendVisible ? 'caret-down' : 'caret-right'"></fint-fa>
+      </span>
+      <label [ngClass]="{'stick': isSticky, 'pull-right': true, 'pin': true}">
+        <input type="checkbox" name="isSticky" [(ngModel)]="isSticky">
+        <fint-fa name="thumb-tack"></fint-fa>
+      </label>
     </header>
     <div [ngClass]="{'visible': legendVisible}">
       <div class="pull-right">

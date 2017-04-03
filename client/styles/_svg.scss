@@ -1,4 +1,9 @@
 @import 'variables';
+
+$line-color: rgba(0,0,0,0.5);
+$source-color: green;
+$target-color: red;
+
 svg.diagram {
   width: 100%;
   height: calc(100vh - 54px);
@@ -73,27 +78,22 @@ svg.diagram {
       }
       > rect {
         fill: $table-color;
-        stroke: darken($border-color, 30%);
+        stroke: $line-color;
       }
     }
   }
 
-  $source-color: #00ff00;
-  $target-color: #ff0000;
-
   defs {
-    .neutral > path { fill: $border-color; }
+    .neutral > path { fill: $line-color; }
     .source > path { fill: $source-color; }
     .target > path { fill: $target-color; }
   }
   .association, .generalization {
-//    > path {
-      fill-opacity: 0;
-      stroke: black;
-      stroke-width: 1;
-//    }
+    fill-opacity: 0;
+    stroke: rgba(0,0,0,0.5);
+    stroke-width: 1;
     &.over  {
-      stroke-width: 1.5;
+      stroke-width: 2;
     }
     &.source  {
       stroke: $source-color;
@@ -101,14 +101,9 @@ svg.diagram {
     &.target  {
       stroke: $target-color;
     }
-    // > text {
-    //   background: white;
-    // }
   }
 
   .generalization {
-    // > path {
-      stroke-dasharray: 5 5;
-    // }
+    stroke-dasharray: 5 5;
   }
 }

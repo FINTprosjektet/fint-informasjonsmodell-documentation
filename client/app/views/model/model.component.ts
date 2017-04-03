@@ -18,6 +18,7 @@ import { Generalization } from 'app/EA/model/Generalization';
 import { Association } from 'app/EA/model/Association';
 import { Package } from 'app/EA/model/Package';
 import { EANodeContainer } from 'app/EA/model/EANodeContainer';
+import { ModelStateService } from 'app/views/model/model-state.service';
 
 @Component({
   selector: 'app-model',
@@ -31,7 +32,8 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   private host;
   private svg;
 
-  legendVisible: boolean = true;
+  get legendVisible() { return this.state.legendVisible; }
+  set legendVisible(value) { this.state.legendVisible = value; }
 
   // Our datasource
   private model: IModelContainer;
@@ -51,12 +53,25 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Properties used in D3 drag event
   private maxVelocity = 8;
+  private sx;
+  private sy;
   private px;
   private py;
   private vx;
   private vy;
   private offsetX;
   private offsetY;
+
+  get isSticky() { return this.state.isSticky; }
+  set isSticky(value) {
+    this.state.isSticky = value;
+    if (this.nodes && this.simulation && value == false) {
+      this.nodes.each(d => {
+        d.fx = null;
+        d.fy = null;
+      });
+    }
+  }
 
   // Properties used for displaying legend
   types = [
@@ -78,7 +93,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   get isLoading() { return this.modelService.isLoading; }
   set isLoading(flag) { this.modelService.isLoading = flag; }
 
-  constructor(private modelService: ModelService, private router: Router, private titleService: Title, private sanitizer: DomSanitizer) { }
+  constructor(private modelService: ModelService, private router: Router, private titleService: Title, private sanitizer: DomSanitizer, private state: ModelStateService) { }
 
   ngOnInit() {
     this.titleService.setTitle('Model | Fint');
@@ -167,7 +182,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       .force('link', D3.forceLink(allLinks).id((l: EALinkBase) => l.xmiId).strength(0.3)
         .distance((l: EALinkBase) => { // larger distance for bigger groups:
           const n1: EANode = l.source, n2: EANode = l.target;
-          return n1.parentPackage === n2.parentPackage ? 10 : 100;
+          return n1.parentPackage === n2.parentPackage ? 10 : 50;
         }))
 
       // Group nodes/packages in same parent package together.
@@ -178,13 +193,13 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         return 100;
       }))
 
+      // Apply collision detection, avoiding node overlap
+      .force('collision', forceRectCollide<EANode>()
+        .size(d => [d.width + 10, d.height + 10]).iterations(2))
+
       // Apply node repellant, keeping each node at a distance
       .force('charge', D3.forceManyBody<EANode>()
         .strength((c: EANode) => -600))
-
-      // Apply collision detection, avoiding node overlap
-      .force('collision', forceRectCollide<EANode>()
-        .size(d => [d.width + 10, d.height + 10]))
 
       // Apply center of gravity
       .force('center', D3.forceCenter(this.width / 2, this.height / 2))
@@ -192,7 +207,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       // Apply boundaries, avoid nodes being rendered off-canvas
       .force('box', forceBoundedBox<EANode>()
         .size(d => [d.width, d.height])
-        .bounds({ x0: 0, y0: this.hullOffset * 2, x1: d => this.width, y1: d => this.height - (this.hullOffset * 2) }))
+        .bounds({ x0: 0, y0: this.hullOffset * 3, x1: d => this.width, y1: d => this.height - (this.hullOffset * 3) }))
 
       // Lastly, apply custom force logic for each tick.
       .on('tick', () => this.update());
@@ -334,11 +349,6 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     nodes.append('text').text((c: EANode) => c instanceof Classification ? c.name : ''/*`P:${c.name}`*/).attrs({ x: 10, y: 20 });
 
     // Apply event handling
-    // Drag handling
-    nodes.call(D3.drag()
-      .on('start', d => this.dragStarted(d))
-      .on('drag', d => this.dragged(d))
-      .on('end', d => this.dragEnded(d)));
     // MouseOver
     nodes.on('mouseover', (c: EANode) => {
       if (c instanceof Classification) {
@@ -367,10 +377,12 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     // Click event
-    nodes.on('click', (c: EANode) => {
-      if (D3.event.defaultPrevented) return;
-      return c instanceof Classification ? this.router.navigate(['/docs', c.id], { queryParams: this.modelService.queryParams }) : null;
-    });
+    nodes.on('click', d => this.clicked(d));
+    // Drag handling
+    nodes.call(D3.drag()
+      .on('start', d => this.dragStarted(d))
+      .on('drag', d => this.dragged(d))
+      .on('end', d => this.dragEnded(d)));
 
     return nodes;
   }
@@ -392,11 +404,22 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   calc(l: EALinkBase) {
-    var source = this.createMatrix(l.source);
-    var target = this.createMatrix(l.target);
+    const source = this.createMatrix(l.source);
+    const target = this.createMatrix(l.target);
+    const offset = 4;
+
+    let x;
+    if (source.xLeft <= target.xRight && source.xRight >= target.xLeft) { x = l.target.width / 2.0 + l.target.x; }
+    else if (source.xLeft < target.xLeft) { x = target.xLeft - offset; }
+    else { x = target.xRight + offset; }
+
+    let y;
+    if (source.yTop <= target.yBottom && source.yBottom >= target.yTop) { y = l.target.height / 2.0 + l.target.y - offset; }
+    else if (source.yTop < target.yTop) { y = l.target.y - offset; }
+    else { y = target.yBottom + offset; }
     return {
       x1: source.xCenter, y1: source.yCenter,
-      x2: target.xCenter, y2: target.yCenter
+      x2: x, y2: y
     }
   }
 
@@ -406,9 +429,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       xCenter: (c.width / 2) + c.x,
       xRight: c.x + c.width,
 
-      yLeft: c.y,
+      yTop: c.y,
       yCenter: (c.height / 2) + c.y,
-      yRight: c.y + c.height,
+      yBottom: c.y + c.height,
     }
   }
 
@@ -431,32 +454,43 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     [].forEach.call(document.querySelectorAll('svg path.hull'), elm => this.removeClass(elm, 'spotlight'));
   }
 
+  clicked(d: EANode) {
+    console.log('clicked');
+    if (D3.event.defaultPrevented) return;
+    return d instanceof Classification ? this.router.navigate(['/docs', d.id], { queryParams: this.modelService.queryParams }) : null;
+  }
+
   dragStarted(d) {
-    D3.event.sourceEvent.stopPropagation();
-    this.vx = 0
-    this.vy = 0
-    this.offsetX = (this.px = D3.event.x) - (d.fx = d.x)
-    this.offsetY = (this.py = D3.event.y) - (d.fy = d.y)
+    this.vx = 0;
+    this.vy = 0;
+    this.sx = D3.event.x; this.sy = D3.event.y;
+    this.offsetX = (this.px = this.sx) - (d.fx = d.x);
+    this.offsetY = (this.py = this.sy) - (d.fy = d.y);
   }
 
   dragged(d) {
+    console.log('dragged');
+    this.vx = D3.event.x - this.px;
+    this.vy = D3.event.y - this.py;
+    d.fx = Math.max(Math.min((this.px = D3.event.x) - this.offsetX, this.width - d.width), 0);
+    d.fy = Math.max(Math.min((this.py = D3.event.y) - this.offsetY, this.height - d.height), 0);
     this.simulation.restart();
-    this.vx = D3.event.x - this.px
-    this.vy = D3.event.y - this.py
-    d.fx = Math.max(Math.min((this.px = D3.event.x) - this.offsetX, this.width - d.width), 0)
-    d.fy = Math.max(Math.min((this.py = D3.event.y) - this.offsetY, this.height - d.height), 0)
   }
 
   dragEnded(d) {
+    if (this.sx === D3.event.x && this.sy === D3.event.y) { return this.clicked(d); }
     this.simulation.alpha(0.2).restart();
-    var vScalingFactor = this.maxVelocity / Math.max(Math.sqrt(this.vx * this.vx + this.vy * this.vy), this.maxVelocity)
-    d.fx = null
-    d.fy = null
-    d.vx = this.vx * vScalingFactor
-    d.vy = this.vy * vScalingFactor
+    const vScalingFactor = this.maxVelocity / Math.max(Math.sqrt(this.vx * this.vx + this.vy * this.vy), this.maxVelocity);
+    if (!this.isSticky) {
+      d.fx = null;
+      d.fy = null;
+    }
+    d.vx = this.vx * vScalingFactor;
+    d.vy = this.vy * vScalingFactor;
   }
 
-    addClass(elm: Element, className: string) {
+  // DOM Manipulators --------------------
+  addClass(elm: Element, className: string) {
     if (elm) {
       if (elm.classList) { elm.classList.add(className); }
       else if (!(new RegExp('(\\s|^)' + className + '(\\s|$)').test(elm.getAttribute('class')))) {

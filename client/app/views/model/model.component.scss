@@ -31,11 +31,28 @@
   }
   header {
     display: block;
-    padding-top: 0.9rem;
-    padding-bottom: 0.9rem;
     padding-right: 0.5rem;
     text-align: center;
-    cursor: pointer;
+    > span {
+      cursor: pointer;
+      display: inline-block;
+      padding-top: 0.9rem;
+      padding-bottom: 0.9rem;
+      width: 70%;
+    }
+    .pin {
+      padding-top: 0.9rem;
+      fint-fa {
+        display: inline-block;
+        transition: transform 0.2s ease-in-out;
+        transform: rotate(-90deg);
+      }
+      &.stick {
+        fint-fa {
+          transform: rotate(0);
+        }
+      }
+    }
     > i {
       transition: transform 0.2s ease-in-out;
       transform: rotate(0);
