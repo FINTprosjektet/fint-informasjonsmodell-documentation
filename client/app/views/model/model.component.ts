@@ -80,10 +80,8 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     { name: 'Abstrakt', type: 'abstract' },
   ];
   lines = [
-    { name: 'Generalization target', type: 'generalization target' },
-    { name: 'Generalization source', type: 'generalization source' },
-    { name: 'Association target', type: 'association target' },
-    { name: 'Association source', type: 'association source' },
+    { name: 'Arv', type: 'generalization' },
+    { name: 'Assosiasjon', type: 'association' },
   ];
   colors = [];
 
@@ -307,7 +305,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
               return `association source_${l.source.xmiId} target_${l.target.xmiId}`;
             }
           })
-          .attr('marker-end', 'url(#arrow_neutral)');
+          .attr('marker-end', d => {
+            if (d instanceof Generalization) return 'url(#arrow_neutral)';
+          });
   }
 
   /**
@@ -354,11 +354,11 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       if (c instanceof Classification) {
         [].forEach.call(document.querySelectorAll('.source_' + c.xmiId), elm => {
           this.addClasses(elm, ['over', 'source']);
-          D3.select(elm).attr('marker-end', 'url(#arrow_source)');
+          D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) return 'url(#arrow_source)'; });
         });
         [].forEach.call(document.querySelectorAll('.target_' + c.xmiId), elm => {
           this.addClasses(elm, ['over', 'target']);
-          D3.select(elm).attr('marker-end', 'url(#arrow_target)');
+          D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) return 'url(#arrow_target)'; });
         });
         const p = c.parentPackage.name.toLowerCase().replace(new RegExp(' ', 'g'), '_');
         this.addClass(document.querySelector(`.legend .colors .box.${p}`), 'spotlight');
@@ -370,7 +370,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       if (c instanceof Classification) {
         [].forEach.call(document.querySelectorAll('.source_' + c.xmiId + ', .target_' + c.xmiId), elm => {
           this.removeClasses(elm, ['over', 'source', 'target']);
-          D3.select(elm).attr('marker-end', 'url(#arrow_neutral)');
+          D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) return 'url(#arrow_neutral)'; });
         });
         [].forEach.call(document.querySelectorAll('.legend .colors .box'), elm => this.removeClass(elm, 'spotlight'));
         this.clearHull();

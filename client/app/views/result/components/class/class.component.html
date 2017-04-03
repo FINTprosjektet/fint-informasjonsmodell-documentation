@@ -1,5 +1,5 @@
 <div class="anchor" [attr.id]="classification.id">
-  <md-card [className]="cssClass">
+  <md-card [ngClass]="cssClass">
     <md-card-header>
       <a [routerLink]="['/docs', classification.id]" [queryParams]="classification.queryParams" md-card-avatar>
         <fint-fa [name]="classType"></fint-fa>
@@ -33,40 +33,70 @@
         <span [innerHTML]="classification.documentationBody"></span>
       </app-details>
 
-      <table *ngIf="classification.ownedAttribute">
-        <thead>
-          <tr>
-            <th class="dropdown"></th>
-            <th class="name">Felt</th>
-            <th class="type">Type</th>
-            <th class="multiplicity">Multiplicity</th>
-            <th class="description">Beskrivelse</th>
-          </tr>
-        </thead>
-        <tbody *ngFor="let attribute of classification.ownedAttribute" [attr.id]="attribute.id">
-          <tr [ngClass]="{hasDetailsBody: attribute.documentationBody.length > 0, hasDetails: attribute.documentationHeader.length > 0, isOpen: attribute.isOpen}">
-            <td class="dropdown" (click)="openAttribute(attribute)">
-              <fint-fa *ngIf="attribute.documentationHeader.length > 0" class="toggleMobileDetails" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
-              <fint-fa *ngIf="attribute.documentationBody.length > 0" class="toggleDetailBody" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
-            </td>
-            <td class="name" [innerHTML]="attribute.name | highlight:searchStr" (click)="openAttribute(attribute)"></td>
-            <td class="type">
-              <span *ngIf="attribute.isPrimitive" [innerHTML]="attribute.typeName | highlight:searchStr"></span>
-              <a *ngIf="!attribute.isPrimitive && attribute.typeRef" [routerLink]="['/docs', attribute.typeRef.id]" [queryParams]="attribute.queryParams" [innerHTML]="attribute.typeName | highlight:searchStr"></a>
-            </td>
-            <td class="multiplicity" (click)="openAttribute(attribute)">{{ attribute.multiplicity }}</td>
-            <td class="description" (click)="openAttribute(attribute)">
-              <i>{{ attribute.documentationHeader }}</i>
-            </td>
-          </tr>
-          <tr class="dropdown-row" *ngIf="attribute.isOpen && attribute.documentationHeader.length > 0">
-            <td colspan="5" class="details"><i>{{ attribute.documentationHeader }}</i></td>
-          </tr>
-          <tr *ngIf="attribute.isOpen && attribute.documentationBody.length > 0">
-            <td colspan="5" [innerHTML]="attribute.documentationBody" class="details"></td>
-          </tr>
-        </tbody>
-      </table>
+      <section *ngIf="classification.ownedAttribute">
+        <h3>Felter</h3>
+        <table>
+          <thead>
+            <tr>
+              <th class="dropdown"></th>
+              <th class="name">Felt</th>
+              <th class="type">Type</th>
+              <th class="multiplicity">Multiplicity</th>
+              <th class="description">Beskrivelse</th>
+            </tr>
+          </thead>
+          <tbody *ngFor="let attribute of classification.ownedAttribute" [attr.id]="attribute.id">
+            <tr [ngClass]="{hasDetailsBody: attribute.documentationBody.length > 0, hasDetails: attribute.documentationHeader.length > 0, isOpen: attribute.isOpen}">
+              <td class="dropdown" (click)="openAttribute(attribute)">
+                <fint-fa *ngIf="attribute.documentationHeader.length > 0" class="toggleMobileDetails" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
+                <fint-fa *ngIf="attribute.documentationBody.length > 0" class="toggleDetailBody" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
+              </td>
+              <td class="name" [innerHTML]="attribute.name | highlight:searchStr" (click)="openAttribute(attribute)"></td>
+              <td class="type">
+                <span *ngIf="attribute.isPrimitive" [innerHTML]="attribute.typeName | highlight:searchStr"></span>
+                <a *ngIf="!attribute.isPrimitive && attribute.typeRef" [routerLink]="['/docs', attribute.typeRef.id]" [queryParams]="attribute.queryParams" [innerHTML]="attribute.typeName | highlight:searchStr"></a>
+              </td>
+              <td class="multiplicity" (click)="openAttribute(attribute)">{{ attribute.multiplicity }}</td>
+              <td class="description" (click)="openAttribute(attribute)">
+                <i>{{ attribute.documentationHeader }}</i>
+              </td>
+            </tr>
+            <tr class="dropdown-row" *ngIf="attribute.isOpen && attribute.documentationHeader.length > 0">
+              <td colspan="5" class="details"><i>{{ attribute.documentationHeader }}</i></td>
+            </tr>
+            <tr *ngIf="attribute.isOpen && attribute.documentationBody.length > 0">
+              <td colspan="5" [innerHTML]="attribute.documentationBody" class="details"></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section *ngIf="associations && associations.length">
+        <h3>Assosiasjoner</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Assosiasjon</th>
+              <th>Target</th>
+              <th>Beskrivelse</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let association of associations">
+              <td>
+                <a *ngIf="association.source.type" [routerLink]="['/docs', association.source.id]" [queryParams]="association.queryParams" [innerHTML]="association.source.name | highlight"></a>
+                <span *ngIf="!association.source.type" [innerHTML]="association.source.name | highlight"></span>
+              </td>
+              <td>
+                <a *ngIf="association.target.type" [routerLink]="['/docs', association.target.id]" [queryParams]="association.queryParams" [innerHTML]="association.target.name | highlight"></a>
+                <span *ngIf="!association.target.type" [innerHTML]="association.target.name | highlight"></span>
+              </td>
+              <td>{{ association.target.documentationHeader }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
     </md-card-content>
   </md-card>
 </div>

@@ -72,7 +72,9 @@ md-card-header {
   }
 }
 
-
+section h3 {
+  margin-bottom: 0;
+}
 table {
   .toggleDetailBody {
     display: none;
@@ -123,7 +125,7 @@ md-card-content /deep/ {
 /deep/ .details {
   border-radius: $extra-rounded;
   padding: 0.5rem;
-  background: $details-background;
+  background: rgba(255, 255, 255, 0.5);
   summary, header {
     cursor: pointer;
     &:focus, &:active {

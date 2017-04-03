@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 
 import { Classification } from 'app/EA/model/Classification';
+import { Association } from "app/EA/model/Association";
 
 @Component({
   selector: 'app-class',
@@ -26,6 +27,14 @@ export class ClassComponent implements OnInit, OnDestroy {
       case 'abstract': return 'puzzle-piece';
       default: return '';
     }
+  }
+
+  get associations() {
+    let assoc: Association[] = [];
+    if (this.classification && this.classification.referredBy) {
+      assoc = [].concat(this.classification.referredBy.filter(r => r instanceof Association && r.start));
+    }
+    return assoc;
   }
 
   get cssClass() {
