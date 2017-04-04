@@ -23,7 +23,10 @@ export class Association extends EALinkBase {
   }
 
   get multiplicity() {
-    return this.extension.labels[0].rb;
+    if (this.extension && this.extension.labels && this.extension.labels.length) {
+      return this.extension.labels[0].rb || '';
+     }
+     return '';
   }
 
   private _isVisible: boolean;
@@ -97,7 +100,12 @@ export class Association extends EALinkBase {
   }
 
   getLabel(clas: Classification) {
-    if (this.end === clas.xmiId && this.extension.labels[0].lt) { return this.extension.labels[0].lt; }
-    else { return this.extension.labels[0].rt; }
+    if (this.extension.labels && this.extension.labels.length) {
+      if (this.end === clas.xmiId && this.extension.labels[0].lt) {
+        return this.extension.labels[0].lt;
+      }
+      return this.extension.labels[0].rt;
+    }
+    return '';
   }
 }
