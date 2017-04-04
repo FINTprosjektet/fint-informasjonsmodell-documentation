@@ -70,8 +70,9 @@ export class ClassComponent implements OnInit, OnDestroy {
   }
 
   openAssociation(assoc) {
+    const flag = !assoc.isOpen;
     this.classification.associations.forEach(a => a.isOpen = false);
-    assoc.isOpen = !assoc.isOpen;
+    assoc.isOpen = flag;
     // if (assoc.isOpen) {
     //   setTimeout(() => this.router.navigate(['/docs', this.classification.id, assoc.id], { queryParams: this.classification.queryParams }));
     // } else {
