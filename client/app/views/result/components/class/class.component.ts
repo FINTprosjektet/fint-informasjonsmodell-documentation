@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 
 import { Classification } from 'app/EA/model/Classification';
+import { Association } from "app/EA/model/Association";
 
 @Component({
   selector: 'app-class',
@@ -28,6 +29,26 @@ export class ClassComponent implements OnInit, OnDestroy {
     }
   }
 
+  get associations() {
+    let assoc = [];
+    if (this.classification && this.classification.referredBy) {
+      this.classification.referredBy.filter(r => r instanceof Association && r.start === this.classification.xmiId).forEach(a => {
+        assoc = assoc.concat(a.ownedEnd.filter(o => o.name != null));
+      });
+    }
+    return assoc;
+  }
+
+  get cssClass() {
+    const cls = [];
+    if (this.classification.isBaseClass) { cls.push('mainclass'); }
+    else {
+      cls.push(this.classification.type.toLowerCase())
+    }
+    if (this.isSelected) { cls.push('selected'); }
+    return cls.join(' ');
+  }
+
   constructor(private elm: ElementRef, private renderer: Renderer, private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit() {
@@ -38,8 +59,8 @@ export class ClassComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.searchSubscription.unsubscribe();
-    this.routeParamSubscription.unsubscribe();
+    // if (this.searchSubscription) { this.searchSubscription.unsubscribe(); }
+    if (this.routeParamSubscription) { this.routeParamSubscription.unsubscribe(); }
   }
 
   openAttribute(attr) {

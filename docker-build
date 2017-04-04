@@ -3,6 +3,8 @@
 # Remove previously built image
 # docker-compose down --rmi all
 
+echo ${DOCKER_CONTAINER}:${DOCKER_PORT}
+
 # Build new image from compose
 docker-compose build
 

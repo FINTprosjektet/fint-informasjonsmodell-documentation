@@ -1,9 +1,22 @@
 @import 'variables';
+
+$line-color: rgba(0,0,0,0.5);
+$source-color: green;
+$target-color: red;
+
 svg.diagram {
   width: 100%;
-  height: 100%;
+  height: calc(100vh - 54px);
   g > rect {
     stroke-width: 1;
+  }
+
+  path.hull {
+    fill-opacity: 0.5;
+    &:hover, &.spotlight {
+      stroke-width: 2;
+      stroke: black;
+    }
   }
 
   g.stereotype, g.package {
@@ -44,11 +57,11 @@ svg.diagram {
       stroke: $border-color;
     }
     &:hover > rect {
-      stroke-width: 2;
-      stroke: darken($border-color, 10%);
+      stroke-width: 1;
+      stroke: black !important;
     }
     &.class > rect {
-      fill: $table-color;
+      fill: $class-color;
     }
     &.datatype > rect {
       fill: $datatype-color;
@@ -62,45 +75,35 @@ svg.diagram {
     &.mainclass {
       > text {
         font-weight: bold;
-        font-size: 110%;
       }
       > rect {
-        stroke: darken($border-color, 30%);
+        fill: $table-color;
+        stroke: $line-color;
       }
     }
   }
 
-  $source-color: #00ff00;
-  $target-color: #ff0000;
-
   defs {
-    .neutral > path { fill: $border-color; }
+    .neutral > path { fill: $line-color; }
     .source > path { fill: $source-color; }
     .target > path { fill: $target-color; }
   }
-  g.association, g.generalization {
-    > path {
-      fill-opacity: 0;
-      stroke: $border-color;
-      stroke-width: 1;
+  .association, .generalization {
+    fill-opacity: 0;
+    stroke: rgba(0,0,0,0.5);
+    stroke-width: 1;
+    &.over  {
+      stroke-width: 2;
     }
-    &.over > path {
-      stroke-width: 1.5;
-    }
-    &.source > path {
+    &.source  {
       stroke: $source-color;
     }
-    &.target > path {
+    &.target  {
       stroke: $target-color;
-    }
-    > text {
-      background: white;
     }
   }
 
-  g.generalization {
-    > path {
-      stroke-dasharray: 5 5;
-    }
+  .association {
+    stroke-dasharray: 5 5;
   }
 }

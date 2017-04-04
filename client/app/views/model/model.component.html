@@ -1,11 +1,35 @@
 <section>
-  <aside class="legend pull-right">
-    <header>Tegnforklaring:</header>
-    <ul class="unstyled horisontal pull-right">
-      <li *ngFor="let cls of types">
-        <div [className]="'box ' + cls.type">{{ cls.name }}</div>
-      </li>
-    </ul>
+  <aside [class]="'legend' + (legendVisible ? ' open' : '')">
+    <header>
+      <span (click)="legendVisible = !legendVisible">Tegnforklaring:
+        <fint-fa [name]="legendVisible ? 'caret-down' : 'caret-right'"></fint-fa>
+      </span>
+      <label [ngClass]="{'stick': isSticky, 'pull-right': true, 'pin': true}">
+        <input type="checkbox" name="isSticky" [(ngModel)]="isSticky">
+        <fint-fa name="thumb-tack"></fint-fa>
+      </label>
+    </header>
+    <div [ngClass]="{'visible': legendVisible}">
+      <div class="pull-right">
+        <ul class="unstyled">
+          <li *ngFor="let cls of types">
+            <div [className]="'box ' + cls.type">{{ cls.name }}</div>
+          </li>
+        </ul>
+        <ul class="unstyled">
+          <li *ngFor="let cls of lines">
+            <div [className]="'box ' + cls.type">{{ cls.name }}</div>
+          </li>
+        </ul>
+      </div>
+      <div class="pull-right colors">
+        <ul class="unstyled">
+          <li *ngFor="let col of colors">
+            <div [class]="'box ' + col.name.toLowerCase().replace(' ', '_')" [style]="col.fill" (mouseenter)="findHull(col.name)" (mouseleave)="clearHull()">{{ col.name }}</div>
+          </li>
+        </ul>
+      </div>
+    </div>
   </aside>
   <div #container class="container"></div>
 </section>

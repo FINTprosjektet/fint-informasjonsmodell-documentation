@@ -4,8 +4,11 @@ md-card {
   transition-duration: 0.5s;
   transition-timing-function: ease-in-out;
   transition-property: border-color, box-shadow;
-  &.class {
+  &.mainclass {
     background-color: $table-color;
+  }
+  &.class {
+    background-color: $class-color;
   }
   &.datatype {
     background-color: $datatype-color;
@@ -69,7 +72,9 @@ md-card-header {
   }
 }
 
-
+section h3 {
+  margin-bottom: 0;
+}
 table {
   .toggleDetailBody {
     display: none;
@@ -120,7 +125,7 @@ md-card-content /deep/ {
 /deep/ .details {
   border-radius: $extra-rounded;
   padding: 0.5rem;
-  background: $details-background;
+  background: rgba(255, 255, 255, 0.5);
   summary, header {
     cursor: pointer;
     &:focus, &:active {

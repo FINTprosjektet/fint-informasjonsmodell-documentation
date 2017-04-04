@@ -4,9 +4,9 @@ services:
   documentation:
     build: .
     image: fint/informasjonsmodell-documentation
-    container_name: fint-informasjonsmodell-documentation
+    container_name: ${DOCKER_CONTAINER}
     restart: unless-stopped
     ports:
-      - "8092:3000"
+      - "${DOCKER_PORT}:3000"
     volumes:
       - /usr/src/app/node_modules

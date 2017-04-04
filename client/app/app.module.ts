@@ -12,6 +12,7 @@ import { ModelService } from './EA/model.service';
 
 import { AppComponent } from './app.component';
 import { ModelComponent } from './views/model/model.component';
+import { ModelStateService } from './views/model/model-state.service';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,7 @@ import { ModelComponent } from './views/model/model.component';
     AppRoutingModule,
     ResultModule
   ],
-  providers: [ModelService],
+  providers: [ModelService, ModelStateService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
