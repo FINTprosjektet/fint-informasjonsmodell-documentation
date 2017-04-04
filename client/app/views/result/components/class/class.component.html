@@ -89,7 +89,7 @@
                 <fint-fa *ngIf="association.getDocumentationHeader(classification).length > 0" class="toggleMobileDetails" [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
                 <fint-fa *ngIf="association.getDocumentationBody(classification).length > 0" class="toggleDetailBody" [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
               </td>
-              <td class="name" [innerHTML]="association.label | highlight:searchStr" (click)="openAssociation(association)"></td>
+              <td class="name" [innerHTML]="association.getLabel(classification) | highlight:searchStr" (click)="openAssociation(association)"></td>
               <td class="type">
                 <a [routerLink]="['/docs', association.getRouteTo(classification)]"
                    [queryParams]="association.queryParams" [innerHTML]="association.getRouteLabel(classification) | highlight:searchStr">
