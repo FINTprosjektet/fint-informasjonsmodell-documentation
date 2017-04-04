@@ -18,23 +18,31 @@ export class ClassComponent implements OnInit, OnDestroy {
   isSelected: boolean = false;
   searchStr: string;
 
+  _classType;
   get classType() {
-    switch (this.classification.type.toLowerCase()) {
-      case 'mainclass': return 'table';
-      case 'class': return 'table';
-      case 'codelist': return 'list-alt';
-      case 'datatype': return 'id-card-o';
-      case 'enumeration': return 'bars';
-      case 'abstract': return 'puzzle-piece';
-      default: return '';
+    if (!this._classType) {
+      switch (this.classification.type.toLowerCase()) {
+        case 'mainclass':   this._classType = 'table'; break;
+        case 'class':       this._classType = 'table'; break;
+        case 'codelist':    this._classType = 'list-alt'; break;
+        case 'datatype':    this._classType = 'id-card-o'; break;
+        case 'enumeration': this._classType = 'bars'; break;
+        case 'abstract':    this._classType = 'puzzle-piece'; break;
+        default:            this._classType = '';
+      }
     }
+    return this._classType;
   }
 
+  _cssClass;
   get cssClass() {
-    const cls = [];
-    cls.push(this.classification.type.toLowerCase())
-    if (this.isSelected) { cls.push('selected'); }
-    return cls.join(' ');
+    if (!this._cssClass) {
+      const cls = [];
+      cls.push(this.classification.type.toLowerCase())
+      if (this.isSelected) { cls.push('selected'); }
+      this._cssClass = cls.join(' ');
+    }
+    return this._cssClass;
   }
 
   constructor(private elm: ElementRef, private renderer: Renderer, private route: ActivatedRoute, private router: Router) { }

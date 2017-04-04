@@ -65,16 +65,19 @@ export class Classification extends EANode {
     return this.ownedAttribute;
   }
 
+  _associations;
   get associations(): Association[] {
-    let assoc = [];
-    if (this.referredBy) {
-      this.referredBy.forEach(r => {
-        if (r instanceof Association && assoc.findIndex(a => a.xmiId === r.xmiId) < 0) {
-          assoc.push(r);
-        }
-      });
+    if (!this._associations) {
+      this._associations = [];
+      if (this.referredBy) {
+        this.referredBy.forEach(r => {
+          if (r instanceof Association && this._associations.findIndex(a => a.xmiId === r.xmiId) < 0) {
+            this._associations.push(r);
+          }
+        });
+      }
     }
-    return assoc;
+    return this._associations;
   }
 
   findMember(id) {
@@ -86,24 +89,32 @@ export class Classification extends EANode {
     return null;
   }
 
+  _isBaseClass = null;
   get isBaseClass(): boolean {
-    if (this.extension && this.extension.project && this.extension.project.length) {
-      const meta = this.extension.project[0];
-      if (meta.keywords) {
-        return meta.keywords.indexOf('hovedklasse') > -1;
+    if (this._isBaseClass == null) {
+      if (this.extension && this.extension.project && this.extension.project.length) {
+        const meta = this.extension.project[0];
+        if (meta.keywords) {
+          this._isBaseClass = meta.keywords.indexOf('hovedklasse') > -1;
+        }
       }
+      this._isBaseClass = false;
     }
-    return false;
+    return this._isBaseClass;
   }
 
+  _type;
   get type(): string {
-    if (this.isAbstract === 'true') { return 'abstract'; }
-    if (this.isBaseClass) { return 'mainclass'; }
-    if (this.extension && this.extension.properties && this.extension.properties.length) {
-      const meta = this.extension.properties[0];
-      return meta.stereotype || meta.sType || meta.xmiType.substr('uml:'.length);
+    if (!this._type) {
+      if (this.isAbstract === 'true') { this._type = 'abstract'; }
+      else if (this.isBaseClass) { this._type = 'mainclass'; }
+      else if (this.extension && this.extension.properties && this.extension.properties.length) {
+        const meta = this.extension.properties[0];
+        this._type = meta.stereotype || meta.sType || meta.xmiType.substr('uml:'.length);
+      }
+      else { this._type = 'table'; }
     }
-    return 'table';
+    return this._type;
   }
 
   get typeDesc() {

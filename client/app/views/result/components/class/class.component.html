@@ -93,7 +93,6 @@
               <td class="type">
                 <a [routerLink]="['/docs', association.getRouteTo(classification)]"
                    [queryParams]="association.queryParams" [innerHTML]="association.getRouteLabel(classification) | highlight:searchStr">
-                  {{ association.getRouteLabel(classification) }}
                 </a>
               </td>
               <td class="multiplicity" (click)="openAssociation(association)">{{ association.multiplicity }}</td>
