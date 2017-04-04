@@ -14,7 +14,7 @@
               <a [routerLink]="[ '/docs', classification.superType.id]" [queryParams]="classification.queryParams" [innerHTML]="classification.superType.name | highlight:searchStr"></a>
             </md-chip>
           </span>
-          <small class="type" [innerHTML]="classification.type | highlight:searchStr"></small>
+          <small class="type" [innerHTML]="classification.typeDesc | highlight:searchStr"></small>
         </h3>
       </md-card-title>
     </md-card-header>
@@ -71,8 +71,8 @@
         </table>
       </section>
 
-      <section *ngIf="associations && associations.length">
-        <h3>Assosiasjoner</h3>
+      <section *ngIf="classification.associations && classification.associations.length">
+        <h3>Relasjoner</h3>
         <table>
           <thead>
             <tr>
@@ -83,27 +83,29 @@
               <th class="description">Beskrivelse</th>
             </tr>
           </thead>
-          <tbody *ngFor="let attribute of associations" [attr.id]="attribute.id">
-            <tr [ngClass]="{hasDetailsBody: attribute.documentationBody.length > 0, hasDetails: attribute.documentationHeader.length > 0, isOpen: attribute.isOpen}">
-              <td class="dropdown" (click)="openAttribute(attribute)">
-                <fint-fa *ngIf="attribute.documentationHeader.length > 0" class="toggleMobileDetails" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
-                <fint-fa *ngIf="attribute.documentationBody.length > 0" class="toggleDetailBody" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
+          <tbody *ngFor="let association of classification.associations" [attr.id]="association.id">
+            <tr [ngClass]="{hasDetailsBody: association.getDocumentationBody(classification).length > 0, hasDetails: association.getDocumentationHeader(classification).length > 0, isOpen: association.isOpen}">
+              <td class="dropdown" (click)="openAssociation(association)">
+                <fint-fa *ngIf="association.getDocumentationHeader(classification).length > 0" class="toggleMobileDetails" [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
+                <fint-fa *ngIf="association.getDocumentationBody(classification).length > 0" class="toggleDetailBody" [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
               </td>
-              <td class="name" [innerHTML]="attribute.name | highlight:searchStr" (click)="openAttribute(attribute)"></td>
+              <td class="name" [innerHTML]="association.label | highlight:searchStr" (click)="openAssociation(association)"></td>
               <td class="type">
-                <span *ngIf="attribute.isPrimitive" [innerHTML]="attribute.typeName | highlight:searchStr"></span>
-                <a *ngIf="!attribute.isPrimitive && attribute.typeRef" [routerLink]="['/docs', attribute.typeRef.id]" [queryParams]="attribute.queryParams" [innerHTML]="attribute.typeName | highlight:searchStr"></a>
+                <a [routerLink]="['/docs', association.getRouteTo(classification)]"
+                   [queryParams]="association.queryParams" [innerHTML]="association.getRouteLabel(classification) | highlight:searchStr">
+                  {{ association.getRouteLabel(classification) }}
+                </a>
               </td>
-              <td class="multiplicity" (click)="openAttribute(attribute)">{{ attribute.multiplicity }}</td>
-              <td class="description" (click)="openAttribute(attribute)">
-                <i>{{ attribute.documentationHeader }}</i>
+              <td class="multiplicity" (click)="openAssociation(association)">{{ association.multiplicity }}</td>
+              <td class="description" (click)="openAssociation(association)">
+                {{ association.getDocumentationHeader(classification) }}
               </td>
             </tr>
-            <tr class="dropdown-row" *ngIf="attribute.isOpen && attribute.documentationHeader.length > 0">
-              <td colspan="5" class="details"><i>{{ attribute.documentationHeader }}</i></td>
+            <tr class="dropdown-row" *ngIf="association.isOpen && association.getDocumentationHeader(classification).length > 0">
+              <td colspan="5" class="details"><i>{{ association.getDocumentationHeader(classification) }}</i></td>
             </tr>
-            <tr *ngIf="attribute.isOpen && attribute.documentationBody.length > 0">
-              <td colspan="5" [innerHTML]="attribute.documentationBody" class="details"></td>
+            <tr *ngIf="association.isOpen && association.getDocumentationBody(classification).length > 0">
+              <td colspan="5" [innerHTML]="association.getDocumentationBody(classification)" class="details"></td>
             </tr>
           </tbody>
         </table>

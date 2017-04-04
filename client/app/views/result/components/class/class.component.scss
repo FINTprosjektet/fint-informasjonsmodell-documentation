@@ -122,15 +122,20 @@ md-card-content /deep/ {
   h3 { font-size: 105%; }
 }
 
-/deep/ .details {
-  border-radius: $extra-rounded;
-  padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.5);
-  summary, header {
-    cursor: pointer;
-    &:focus, &:active {
-      outline: none;
+/deep/ {
+  .details {
+    border-radius: $extra-rounded;
+    padding: 0.5rem;
+    background: $details-background;
+    summary, header {
+      cursor: pointer;
+      &:focus, &:active {
+        outline: none;
+      }
     }
+  }
+  app-details .details {
+    background: rgba(white, 0.5);
   }
 }
 

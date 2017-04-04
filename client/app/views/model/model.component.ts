@@ -43,9 +43,11 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   private simulation: D3.Simulation<EANode, EALinkBase>;
 
   // Data arrays for D3 rendering
+  private fill = D3.scaleOrdinal(D3.schemeCategory20c);
   private links;
   private hull;
   private nodes;
+  private nodeElements;
 
   // Properties used by hull
   private hullOffset = 10;
@@ -108,8 +110,8 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.versionSubscription.unsubscribe();
-    this.simulation.stop();
+    if (this.versionSubscription) { this.versionSubscription.unsubscribe(); }
+    if (this.simulation) { this.simulation.stop(); }
   }
 
   loadData() {
@@ -122,6 +124,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       me.links = null;
       me.hull = null;
       me.nodes = null;
+      me.fill = D3.scaleOrdinal(D3.schemeCategory20c);
 
       me.model = model;
       me.render();
@@ -166,16 +169,21 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Extract data to present
     const allLinks = this.modelService.getLinkNodes();
-    const nodeElements = this.modelService.getNodes(this.model.modelBase);
-    const packageLinks = nodeElements.map(c => { return { source: c, target: c.parentPackage }; }).filter(c => typeof c.target !== 'undefined');
+    this.nodeElements = this.modelService.getNodes(this.model.modelBase);
+    const packageLinks = this.nodeElements.map(c => { return { source: c, target: c.parentPackage }; }).filter(c => typeof c.target !== 'undefined');
+
+    // Render data containers
+    this.svg.append('g').attr('class', 'hull');
+    this.svg.append('g').attr('class', 'links');
+    this.svg.append('g').attr('class', 'nodes');
 
     // Render data
-    this.hull = this.renderHulls(nodeElements);
+    this.hull = this.renderHulls(this.nodeElements);
     this.links = this.renderLinks(allLinks);
-    this.nodes = this.renderClasses(nodeElements);
+    this.nodes = this.renderClasses(this.nodeElements);
 
     // Setup force directed simulation
-    this.simulation = D3.forceSimulation<EANode>(nodeElements)
+    this.simulation = D3.forceSimulation<EANode>(this.nodeElements)
       // Apply link force
       .force('link', D3.forceLink(allLinks).id((l: EALinkBase) => l.xmiId).strength(0.3)
         .distance((l: EALinkBase) => { // larger distance for bigger groups:
@@ -211,9 +219,35 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       .on('tick', () => this.update());
   }
 
+  addToLegend(name) {
+    if (this.colors.findIndex(c => c.name === name) < 0) {
+      const me = this;
+      const col = {name: name, fill: this.sanitizer.bypassSecurityTrustStyle('background: ' + this.fill(name)), _active: true };
+      Object.defineProperty(col, 'active', {
+        get: function () { return this._active; },
+        set: function (value) {
+          if (this._active != value) {
+            this._active = value;
+
+            // Recalculate hull, links and nodes
+            const activePackages = me.colors.filter(c => c.active).map(c => c.name);
+            const allLinks = me.modelService.getLinkNodes().filter(l => activePackages.indexOf(l.source.parentPackage.name) > -1 && activePackages.indexOf(l.target.parentPackage.name) > -1);
+            me.nodeElements = me.modelService.getNodes(me.model.modelBase).filter(c => c.parentPackage && activePackages.indexOf(c.parentPackage.name) > -1);
+
+            me.hull = me.renderHulls(me.nodeElements);
+            me.links = me.renderLinks(allLinks);
+            me.nodes = me.renderClasses(me.nodeElements);
+
+            if (me.simulation) { me.simulation.restart(); }
+          }
+        }
+      });
+      this.colors.push(col)
+    }
+  }
+
   convexHulls(nodes: EANode[]) {
     const hulls = {};
-    const fill = D3.scaleOrdinal(D3.schemeCategory20c);
 
     // create point sets
     for (let k=0; k<nodes.length; ++k) {
@@ -227,11 +261,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
 
       let i = n.parentPackage.name;
       let l = hulls[i] || (hulls[i] = []);
-
-      // Add to legend
-      if (this.colors.findIndex(c => c.name === i) < 0) {
-        this.colors.push({name: i, fill: this.sanitizer.bypassSecurityTrustStyle('background: ' + fill(i)) })
-      }
+      this.addToLegend(i);
 
       // Create hull data
       l.push([n.x - this.hullOffset, n.y - this.hullOffset]);
@@ -264,25 +294,26 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param nodes A collection of `EANode` nodes to group
    */
   private renderHulls(nodes: EANode[]) {
-    const hullData = this.convexHulls(nodes);
-    const hullGroup = this.svg.append('g').attr('class', 'hull');
-    const fill = D3.scaleOrdinal(D3.schemeCategory20c);
+    const hull = this.svg.select('g.hull').selectAll('path.hull').data(this.convexHulls(nodes), d => d.xmiId);
 
-    const hull = hullGroup.selectAll('path.hull')
-      .data(hullData)
-      .enter().append('path')
-        .attr('class', d => 'hull ' + d.group.toLowerCase().replace(new RegExp(' ', 'g'), '_'))
-        .attr('d', d => this.hullCurve(d.path))
-        .style('fill', d => fill(d.group))
-        .on('mouseover', d => {
-          this.addClass(document.querySelector(`.legend .colors .box.${d.group.toLowerCase().replace(new RegExp(' ', 'g'), '_')}`), 'spotlight');
-        })
-        .on('mouseleave', d => {
-          [].forEach.call(document.querySelectorAll('.legend .colors .box'), elm => this.removeClass(elm, 'spotlight'));
-        });
+    // On new data, add hull path
+    const hullEnter = hull.enter();
+    hullEnter.append('path')
+      .attr('class', d => 'hull ' + d.group.toLowerCase().replace(new RegExp(' ', 'g'), '_'))
+      .attr('d', d => this.hullCurve(d.path))
+      .style('fill', d => this.fill(d.group))
+      .on('mouseover', d => {
+        this.addClass(document.querySelector(`.legend .colors .box.${d.group.toLowerCase().replace(new RegExp(' ', 'g'), '_')}`), 'spotlight');
+      })
+      .on('mouseleave', d => {
+        [].forEach.call(document.querySelectorAll('.legend .colors .box'), elm => this.removeClass(elm, 'spotlight'));
+      });
 
-      hull.append('title').text(d => d.group);
-      return hull;
+    hullEnter.append('title').text(d => d.group);
+
+    // On data removal, remove hull path;
+    hull.exit().remove();
+    return hull;
   }
 
   /**
@@ -291,23 +322,25 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param allLinks A collection of `EALinkBase` linknodes to render
    */
   private renderLinks(allLinks: EALinkBase[]) {
-    const linkGroup = this.svg.append('g').attr('class', 'links');
-    return linkGroup
-      .selectAll('g.links')
-      .data(allLinks)
-      .enter()
-        .append('line')
-          .attr('class', (l: EALinkBase) => {
-            if (l instanceof Generalization) {
-              return `generalization source_${l.source.xmiId} target_${l.target.xmiId}`;
-            }
-            if (l instanceof Association) {
-              return `association source_${l.source.xmiId} target_${l.target.xmiId}`;
-            }
-          })
-          .attr('marker-end', d => {
-            if (d instanceof Generalization) return 'url(#arrow_neutral)';
-          });
+    const links = this.svg.select('g.links').selectAll('line').data(allLinks, d => d.xmiId);
+
+    // On new data, add link line
+    const linkEnter = links.enter().append('line')
+      .attr('class', (l: EALinkBase) => {
+        if (l instanceof Generalization) {
+          return `generalization source_${l.source.xmiId} target_${l.target.xmiId}`;
+        }
+        if (l instanceof Association) {
+          return `association source_${l.source.xmiId} target_${l.target.xmiId}`;
+        }
+      })
+      .attr('marker-end', d => {
+        if (d instanceof Generalization) return 'url(#arrow_neutral)';
+      });
+
+    // On data removal, remove link line
+    links.exit().remove();
+    return links;
   }
 
   /**
@@ -316,41 +349,41 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param classes A Collection of `EANode` nodes to render
    */
   private renderClasses(classes: EANode[]) {
-    const nodeGroup = this.svg.append('g').attr('class', 'nodes');
-    const nodes = nodeGroup
-      .selectAll('g.element')
-      .data(classes)
-      .enter()
+    const nodes = this.svg.select('g.nodes').selectAll('g.element').data(classes, d => d.xmiId);
+
+    // On new data, create class elements
+    const nodeEnter = nodes.enter()
       .append('g')
       .attr('class', (c: EANode) => {
-        if (c instanceof Classification) {
-          return ['element', c.type.toLowerCase()].concat(c.isBaseClass ? ['mainclass'] : []).join(' ');
-        }
+        if (c instanceof Classification) { return ['element', c.type.toLowerCase()].join(' '); }
       })
       .attr('id', (c: EANode) => c.xmiId);
 
     // Add a mouseover tooltip
-    nodes.append('title').text((c: EANode) => (c instanceof Classification ? c.documentationHeader : ''));
+    nodeEnter.append('title').text((c: EANode) => (c instanceof Classification ? c.documentationHeader : ''));
 
     // Add a rectangle
-    nodes.append('rect').attrs({
+    nodeEnter.append('rect').attrs({
       x: 0, y: 0, rx: 5, ry: 5,
       width: (c: EANode) => { // Calculate the width of the rectangle based on the length of text it should display
         // Create a temp element using the text
         const el = <SVGGElement> D3.select('svg.model.diagram').append('text').text(c.name).node();
-        c.width = el.getBBox().width + 30;                        // Gets the calculated text size
-        el.remove ? el.remove() : el.parentNode.removeChild(el);  // Remove temp element, supporting IE
-        return c.width;                                           // Return the calculated width
+        if (el) {
+          c.width = el.getBBox().width + 30;                        // Gets the calculated text size
+          el.remove ? el.remove() : el.parentNode.removeChild(el);  // Remove temp element, supporting IE
+          return c.width;                                           // Return the calculated width
+        }
+        return 0;
       },
       height: (c: EANode) => c.height
     }).style('filter', c => c.isBaseClass ? 'url(#dropshadow)' : '');
 
     // Add the text
-    nodes.append('text').text((c: EANode) => c instanceof Classification ? c.name : ''/*`P:${c.name}`*/).attrs({ x: 10, y: 20 });
+    nodeEnter.append('text').text((c: EANode) => c instanceof Classification ? c.name : ''/*`P:${c.name}`*/).attrs({ x: 10, y: 20 });
 
     // Apply event handling
     // MouseOver
-    nodes.on('mouseover', (c: EANode) => {
+    nodeEnter.on('mouseover', (c: EANode) => {
       if (c instanceof Classification) {
         [].forEach.call(document.querySelectorAll('.source_' + c.xmiId), elm => {
           this.addClasses(elm, ['over', 'source']);
@@ -366,7 +399,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     // MouseOut
-    nodes.on('mouseout', (c: EANode) => {
+    nodeEnter.on('mouseout', (c: EANode) => {
       if (c instanceof Classification) {
         [].forEach.call(document.querySelectorAll('.source_' + c.xmiId + ', .target_' + c.xmiId), elm => {
           this.removeClasses(elm, ['over', 'source', 'target']);
@@ -377,12 +410,15 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     // Click event
-    nodes.on('click', d => this.clicked(d));
+    nodeEnter.on('click', d => this.clicked(d));
     // Drag handling
-    nodes.call(D3.drag()
+    nodeEnter.call(D3.drag()
       .on('start', d => this.dragStarted(d))
       .on('drag', d => this.dragged(d))
       .on('end', d => this.dragEnded(d)));
+
+    // On data removal, remove class elements
+    nodes.exit().remove();
 
     return nodes;
   }
@@ -391,12 +427,14 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
    * Called each simulation tick
    */
   update() {
-    this.nodes.attr('transform', (c: EANode) => `translate(${c.x}, ${c.y})`);
-    if (!this.hull.empty()) {
-      const classes = this.modelService.getNodes(this.model.modelBase);
-      this.hull.data(this.convexHulls(classes)).attr('d', d => this.hullCurve(d.path));
-    }
-    this.links
+    // Animate nodes
+    this.svg.select('g.nodes').selectAll('g.element').attr('transform', (c: EANode) => `translate(${c.x}, ${c.y})`);
+
+    // Animate hull
+    this.svg.select('g.hull').selectAll('path.hull').data(this.convexHulls(this.nodeElements)).attr('d', d => this.hullCurve(d.path));
+
+    // Animate links
+    this.svg.select('g.links').selectAll('line')
       .attr('x1', (l: EALinkBase) => this.calc(l)['x1']) // d.source.x)
       .attr('y1', (l: EALinkBase) => this.calc(l)['y1']) // d.source.y)
       .attr('x2', (l: EALinkBase) => this.calc(l)['x2']) // d.target.x)

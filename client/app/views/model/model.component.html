@@ -1,13 +1,8 @@
 <section>
   <aside [class]="'legend' + (legendVisible ? ' open' : '')">
-    <header>
-      <span (click)="legendVisible = !legendVisible">Tegnforklaring:
-        <fint-fa [name]="legendVisible ? 'caret-down' : 'caret-right'"></fint-fa>
-      </span>
-      <label [ngClass]="{'stick': isSticky, 'pull-right': true, 'pin': true}">
-        <input type="checkbox" name="isSticky" [(ngModel)]="isSticky">
-        <fint-fa name="thumb-tack"></fint-fa>
-      </label>
+    <header (click)="legendVisible = !legendVisible">
+      Tegnforklaring:
+      <fint-fa [name]="legendVisible ? 'caret-down' : 'caret-right'"></fint-fa>
     </header>
     <div [ngClass]="{'visible': legendVisible}">
       <div class="pull-right">
@@ -21,11 +16,21 @@
             <div [className]="'box ' + cls.type">{{ cls.name }}</div>
           </li>
         </ul>
+        <label [ngClass]="{'stick': isSticky, 'pull-right': true, 'pin': true}">
+          Sticky model
+          <input type="checkbox" name="isSticky" [(ngModel)]="isSticky">
+          <fint-fa name="thumb-tack"></fint-fa>
+        </label>
       </div>
       <div class="pull-right colors">
         <ul class="unstyled">
           <li *ngFor="let col of colors">
-            <div [class]="'box ' + col.name.toLowerCase().replace(' ', '_')" [style]="col.fill" (mouseenter)="findHull(col.name)" (mouseleave)="clearHull()">{{ col.name }}</div>
+            <div [class]="'box ' + col.name.toLowerCase().replace(' ', '_')" [style]="col.fill" (mouseenter)="findHull(col.name)" (mouseleave)="clearHull()">
+              <label>
+                <input type="checkbox" name="activePacakge" [(ngModel)]="col.active">
+                {{ col.name }}
+              </label>
+            </div>
           </li>
         </ul>
       </div>
