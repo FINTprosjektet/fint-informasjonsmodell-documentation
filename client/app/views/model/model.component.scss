@@ -33,32 +33,27 @@
     display: block;
     padding-right: 0.5rem;
     text-align: center;
-    > span {
-      cursor: pointer;
-      display: inline-block;
-      padding-top: 0.9rem;
-      padding-bottom: 0.9rem;
-      width: 70%;
-    }
-    .pin {
-      padding-top: 0.9rem;
-      fint-fa {
-        display: inline-block;
-        transition: transform 0.2s ease-in-out;
-        transform: rotate(-90deg);
-      }
-      &.stick {
-        fint-fa {
-          transform: rotate(0);
-        }
-      }
-    }
+    cursor: pointer;
+    padding-top: 0.9rem;
+    padding-bottom: 0.9rem;
     > i {
       transition: transform 0.2s ease-in-out;
       transform: rotate(0);
       display: inline-block;
       &.open {
         transform: rotate(-90deg);
+      }
+    }
+  }
+  .pin {
+    fint-fa {
+      display: inline-block;
+      transition: transform 0.2s ease-in-out;
+      transform: rotate(-90deg);
+    }
+    &.stick {
+      fint-fa {
+        transform: rotate(0);
       }
     }
   }
@@ -86,6 +81,12 @@
     &:hover, &.spotlight {
       border: 1px solid black;
       box-shadow: 0 0 4px black;
+    }
+    label {
+      display: block;
+    }
+    input {
+      float: left;
     }
   }
   .box {
