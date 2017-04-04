@@ -68,7 +68,11 @@ export class Classification extends EANode {
   get associations(): Association[] {
     let assoc = [];
     if (this.referredBy) {
-      assoc = this.referredBy.filter(r => r instanceof Association);
+      this.referredBy.forEach(r => {
+        if (r instanceof Association && assoc.findIndex(a => a.xmiId === r.xmiId) < 0) {
+          assoc.push(r);
+        }
+      });
     }
     return assoc;
   }
