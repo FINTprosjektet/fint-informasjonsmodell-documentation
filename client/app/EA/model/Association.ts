@@ -82,17 +82,21 @@ export class Association extends EALinkBase {
   }
 
   getDocumentationHeader(clas: Classification): string {
-    return this.start === clas.xmiId ? this.targetDocumentationHeader : this.sourceDocumentationHeader;
+    if (this.start === clas.xmiId) { return this.targetDocumentationHeader; }
+    if (this.end === clas.xmiId) { return this.sourceDocumentationHeader; }
   }
 
   getDocumentationBody(clas: Classification): string {
-    return this.start === clas.xmiId ? this.targetDocumentationBody : this.sourceDocumentationBody;
+    if (this.start === clas.xmiId) { return this.targetDocumentationBody; }
+    if (this.end === clas.xmiId) { return this.sourceDocumentationBody; }
   }
 
   getRouteTo(clas: Classification) {
-    return this.start === clas.xmiId ? this.extension.target[0].reference.id : this.extension.source[0].reference.id;
+    if (this.start === clas.xmiId) { return this.extension.target[0].reference.id; }
+    if (this.end === clas.xmiId) { return this.extension.source[0].reference.id; }
   }
   getRouteLabel(clas: Classification) {
-    return this.start === clas.xmiId ? this.extension.target[0].reference.name : this.extension.source[0].reference.name
+    if (this.start === clas.xmiId) { return this.extension.target[0].reference.name; }
+    if (this.end === clas.xmiId) { return this.extension.source[0].reference.name; }
   }
 }
