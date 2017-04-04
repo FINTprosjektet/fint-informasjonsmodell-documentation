@@ -22,10 +22,6 @@ export class Association extends EALinkBase {
     this._isOpen = flag;
   }
 
-  get label() {
-    return this.extension.labels[0].rt;
-  }
-
   get multiplicity() {
     return this.extension.labels[0].rb;
   }
@@ -38,7 +34,7 @@ export class Association extends EALinkBase {
       if (str == this._lastSearch) { return this._isVisible; }
       const meVisible = super.isVisible();
       const typeVisible = this.match(this.getRouteLabel(classification));
-      const labelVisible = this.match(this.label);
+      const labelVisible = this.match(this.getLabel(classification));
 
       this._lastSearch = str;
       this._isVisible = (meVisible || typeVisible || labelVisible);
@@ -98,5 +94,10 @@ export class Association extends EALinkBase {
   getRouteLabel(clas: Classification) {
     if (this.start === clas.xmiId) { return this.extension.target[0].reference.name; }
     if (this.end === clas.xmiId) { return this.extension.source[0].reference.name; }
+  }
+
+  getLabel(clas: Classification) {
+    if (this.end === clas.xmiId && this.extension.labels[0].lt) { return this.extension.labels[0].lt; }
+    else { return this.extension.labels[0].rt; }
   }
 }
