@@ -30,9 +30,11 @@ export class ClassComponent implements OnInit, OnDestroy {
   }
 
   get associations() {
-    let assoc: Association[] = [];
+    let assoc = [];
     if (this.classification && this.classification.referredBy) {
-      assoc = [].concat(this.classification.referredBy.filter(r => r instanceof Association && r.start));
+      this.classification.referredBy.filter(r => r instanceof Association && r.start === this.classification.xmiId).forEach(a => {
+        assoc = assoc.concat(a.ownedEnd.filter(o => o.name != null));
+      });
     }
     return assoc;
   }

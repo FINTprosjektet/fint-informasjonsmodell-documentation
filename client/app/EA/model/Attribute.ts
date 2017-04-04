@@ -106,6 +106,8 @@ export class Attribute extends EABaseClass {
   get multiplicity() {
     if (!this.isPrimitive && this.extension && this.extension.bounds) {
       return this.extension.bounds.map(b => `${b.lower}..${b.upper}`);
+    } else if (this.lowerValue && this.upperValue) {
+      return `${this.lowerValue[0].value}..${this.upperValue[0].value}`
     }
     return '';
   }
