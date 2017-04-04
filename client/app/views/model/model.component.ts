@@ -444,7 +444,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   calc(l: EALinkBase) {
     const source = this.createMatrix(l.source);
     const target = this.createMatrix(l.target);
-    const offset = 4;
+    const offset = l instanceof Generalization ? 4 : 0;
 
     let x;
     if (source.xLeft <= target.xRight && source.xRight >= target.xLeft) { x = l.target.width / 2.0 + l.target.x; }
