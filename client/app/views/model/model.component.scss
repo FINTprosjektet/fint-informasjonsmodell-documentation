@@ -128,10 +128,10 @@
       border-radius: 0;
     }
     &.generalization {
-      border-bottom-style: solid;
+      border-bottom-style: dashed;
     }
     &.association {
-      border-bottom-style: dashed;
+      border-bottom-style: solid;
     }
     &.target {
       border-color: red;
