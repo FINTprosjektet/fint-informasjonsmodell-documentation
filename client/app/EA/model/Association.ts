@@ -16,11 +16,7 @@ export class Association extends EALinkBase {
   parent: any;
   extension: any;
 
-  private _isOpen: boolean = false;
-  get isOpen() { return this._isOpen; }
-  set isOpen(flag) {
-    this._isOpen = flag;
-  }
+  isOpen = false;
 
   get multiplicity() {
     if (this.extension && this.extension.labels && this.extension.labels.length) {
