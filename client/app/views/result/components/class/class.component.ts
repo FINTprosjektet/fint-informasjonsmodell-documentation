@@ -20,6 +20,7 @@ export class ClassComponent implements OnInit, OnDestroy {
 
   get classType() {
     switch (this.classification.type.toLowerCase()) {
+      case 'mainclass': return 'table';
       case 'class': return 'table';
       case 'codelist': return 'list-alt';
       case 'datatype': return 'id-card-o';
@@ -29,22 +30,9 @@ export class ClassComponent implements OnInit, OnDestroy {
     }
   }
 
-  get associations() {
-    let assoc = [];
-    if (this.classification && this.classification.referredBy) {
-      this.classification.referredBy.filter(r => r instanceof Association && r.start === this.classification.xmiId).forEach(a => {
-        assoc = assoc.concat(a.ownedEnd.filter(o => o.name != null));
-      });
-    }
-    return assoc;
-  }
-
   get cssClass() {
     const cls = [];
-    if (this.classification.isBaseClass) { cls.push('mainclass'); }
-    else {
-      cls.push(this.classification.type.toLowerCase())
-    }
+    cls.push(this.classification.type.toLowerCase())
     if (this.isSelected) { cls.push('selected'); }
     return cls.join(' ');
   }

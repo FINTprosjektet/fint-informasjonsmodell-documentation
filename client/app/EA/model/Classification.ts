@@ -40,6 +40,7 @@ export class Classification extends EANode {
       if (str == this._lastSearch) { return this._isVisible; }
       const meVisible = super.isVisible();
       const typeVisible = this.match(this.type);
+      const typeDescVisible = this.match(this.typeDesc);
 
       const sub = this.subTypes;
       const subVisible = (sub ? sub.some(s => s.match(s.name)) : meVisible);
@@ -47,11 +48,11 @@ export class Classification extends EANode {
       const t = this.superType;
       const superVisible = (t ? t.match(t.name) : meVisible);
 
-      const m = this.members;
-      const membersVisible = (m && m.length ? m.some(member => member.isVisible()) : meVisible);
+      const m = [].concat(this.members, this.associations);
+      const membersVisible = (m && m.length ? m.some(member => member ? member.isVisible() : false) : meVisible);
 
       this._lastSearch = str;
-      this._isVisible = (meVisible || typeVisible || membersVisible || superVisible || subVisible);
+      this._isVisible = (meVisible || typeVisible || typeDescVisible || membersVisible || superVisible || subVisible);
       return this._isVisible;
     }
     return true;
@@ -59,6 +60,16 @@ export class Classification extends EANode {
 
   get members(): Attribute[] {
     return this.ownedAttribute;
+  }
+
+  get associations() {
+    let assoc = [];
+    if (this.referredBy) {
+      this.referredBy.filter(r => r instanceof Association && r.start === this.xmiId).forEach(a => {
+        assoc = assoc.concat(a.ownedEnd.filter(o => o.name != null));
+      });
+    }
+    return assoc;
   }
 
   findMember(id) {
@@ -82,11 +93,24 @@ export class Classification extends EANode {
 
   get type(): string {
     if (this.isAbstract === 'true') { return 'abstract'; }
+    if (this.isBaseClass) { return 'mainclass'; }
     if (this.extension && this.extension.properties && this.extension.properties.length) {
       const meta = this.extension.properties[0];
       return meta.stereotype || meta.sType || meta.xmiType.substr('uml:'.length);
     }
     return 'table';
+  }
+
+  get typeDesc() {
+    switch (this.type.toLowerCase()) {
+      case 'mainclass': return 'Hovedklasse';
+      case 'class': return 'Kompleks datatype';
+      case 'codelist': return 'Utlisting';
+      case 'datatype': return 'Datatype';
+      case 'enumeration': return 'Enumerering';
+      case 'abstract': return 'Abstrakt';
+      default: return '';
+    }
   }
 
   get documentation(): string {

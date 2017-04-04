@@ -14,7 +14,7 @@
               <a [routerLink]="[ '/docs', classification.superType.id]" [queryParams]="classification.queryParams" [innerHTML]="classification.superType.name | highlight:searchStr"></a>
             </md-chip>
           </span>
-          <small class="type" [innerHTML]="classification.type | highlight:searchStr"></small>
+          <small class="type" [innerHTML]="classification.typeDesc | highlight:searchStr"></small>
         </h3>
       </md-card-title>
     </md-card-header>
@@ -71,7 +71,7 @@
         </table>
       </section>
 
-      <section *ngIf="associations && associations.length">
+      <section *ngIf="classification.associations && classification.associations.length">
         <h3>Relasjoner</h3>
         <table>
           <thead>
@@ -83,7 +83,7 @@
               <th class="description">Beskrivelse</th>
             </tr>
           </thead>
-          <tbody *ngFor="let attribute of associations" [attr.id]="attribute.id">
+          <tbody *ngFor="let attribute of classification.associations" [attr.id]="attribute.id">
             <tr [ngClass]="{hasDetailsBody: attribute.documentationBody.length > 0, hasDetails: attribute.documentationHeader.length > 0, isOpen: attribute.isOpen}">
               <td class="dropdown" (click)="openAttribute(attribute)">
                 <fint-fa *ngIf="attribute.documentationHeader.length > 0" class="toggleMobileDetails" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
