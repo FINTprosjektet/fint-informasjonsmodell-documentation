@@ -52,11 +52,22 @@ export class ClassComponent implements OnInit, OnDestroy {
   }
 
   openAttribute(attr) {
+    this.classification.associations.forEach(a => a.isOpen = false);
     attr.isOpen = !attr.isOpen;
     if (attr.isOpen) {
       setTimeout(() => this.router.navigate(['/docs', this.classification.id, attr.id], { queryParams: this.classification.queryParams }));
     } else {
       setTimeout(() => this.router.navigate(['/docs', this.classification.id], { queryParams: this.classification.queryParams }));
     }
+  }
+
+  openAssociation(assoc) {
+    this.classification.associations.forEach(a => a.isOpen = false);
+    assoc.isOpen = !assoc.isOpen;
+    // if (assoc.isOpen) {
+    //   setTimeout(() => this.router.navigate(['/docs', this.classification.id, assoc.id], { queryParams: this.classification.queryParams }));
+    // } else {
+    //   setTimeout(() => this.router.navigate(['/docs', this.classification.id], { queryParams: this.classification.queryParams }));
+    // }
   }
 }

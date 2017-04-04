@@ -48,11 +48,14 @@ export class Classification extends EANode {
       const t = this.superType;
       const superVisible = (t ? t.match(t.name) : meVisible);
 
-      const m = [].concat(this.members, this.associations);
+      const m = this.members;
       const membersVisible = (m && m.length ? m.some(member => member ? member.isVisible() : false) : meVisible);
 
+      const a = this.associations;
+      const assocVisible = (a && a.length ? a.some(assoc => assoc ? assoc.isAssocVisible(this) : false) : meVisible);
+
       this._lastSearch = str;
-      this._isVisible = (meVisible || typeVisible || typeDescVisible || membersVisible || superVisible || subVisible);
+      this._isVisible = (meVisible || typeVisible || typeDescVisible || membersVisible || assocVisible || superVisible || subVisible);
       return this._isVisible;
     }
     return true;
@@ -62,12 +65,10 @@ export class Classification extends EANode {
     return this.ownedAttribute;
   }
 
-  get associations() {
+  get associations(): Association[] {
     let assoc = [];
     if (this.referredBy) {
-      this.referredBy.filter(r => r instanceof Association && r.start === this.xmiId).forEach(a => {
-        assoc = assoc.concat(a.ownedEnd.filter(o => o.name != null));
-      });
+      assoc = this.referredBy.filter(r => r instanceof Association);
     }
     return assoc;
   }
