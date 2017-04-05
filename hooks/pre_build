@@ -2,4 +2,4 @@
 
 echo "=> Building"
 
-npm install && npm run build
+docker run --rm -v $(pwd):/app:rw node:7.7.3-alpine npm install && npm run build
