@@ -45,7 +45,7 @@ nav {
   ul {
     list-style: none;
     padding-left: 0;
-    float: right;
+    // float: right;
     margin: 0;
   }
   li, div {
@@ -63,9 +63,9 @@ nav {
     }
   }
   .form {
-    float: right;
+    float: left;
     width: auto;
-    padding: 0 15px;
+    padding: 0 5px 0 0;
     margin: 8px 0;
     border: 0;
     input, select {

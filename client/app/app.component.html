@@ -24,14 +24,21 @@
     </a>
   </header>
 
-  <section class="pull-left">
+  <ul>
+    <li [ngClass]="{'active': isRoot}">
+      <a [routerLink]="['/']" [queryParams]="queryParams">Oversikt</a>
+    </li>
+    <li [routerLinkActive]="['active']">
+      <a [routerLink]="['/docs']" [queryParams]="queryParams">Dokumentasjon</a>
+    </li>
+  </ul>
+
+  <section class="pull-right">
     <form class="form">
       <select [(ngModel)]="selectedRepo" [ngModelOptions]="{standalone: true}">
         <option *ngFor="let rep of repos" [ngValue]="rep">{{ rep }}</option>
       </select>
     </form>
-  </section>
-  <section class="pull-right">
     <div class="form">
       <input type="text" placeholder="Search..." [(ngModel)]="searchValue">
     </div>

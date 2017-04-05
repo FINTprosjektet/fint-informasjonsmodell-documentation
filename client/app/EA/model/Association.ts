@@ -33,7 +33,12 @@ export class Association extends EALinkBase {
       if (str == this._lastSearch) { return this._isVisible; }
       const meVisible = super.isVisible();
       const typeVisible = this.match(this.getRouteLabel(classification));
-      const labelVisible = this.match(this.getLabel(classification));
+
+      let labelVisible = false;
+      if (this.start === this.end) {
+        labelVisible = this.match(this.getLabel(classification));
+      }
+      labelVisible = labelVisible || this.match(this.getLabel(classification));
 
       this._lastSearch = str;
       this._isVisible = (meVisible || typeVisible || labelVisible);
@@ -76,14 +81,29 @@ export class Association extends EALinkBase {
     super();
   }
 
+  _lastClassHead: Classification;
   getDocumentationHeader(clas: Classification): string {
-    if (this.start === clas.xmiId) { return this.targetDocumentationHeader; }
-    if (this.end === clas.xmiId) { return this.sourceDocumentationHeader; }
+    let start = this.start !== this.end, end = this.start !== this.end;
+    if (this.start === this.end) {
+      if (!this._lastClassHead) { start = true; this._lastClassHead = clas; }
+      else { end = true; this._lastClassHead = null; }
+    }
+
+    if (start && this.start === clas.xmiId) { return this.targetDocumentationHeader; }
+    if (end && this.end === clas.xmiId) { return this.sourceDocumentationHeader; }
+    return '';
   }
 
+  _lastClassBody: Classification;
   getDocumentationBody(clas: Classification): string {
-    if (this.start === clas.xmiId) { return this.targetDocumentationBody; }
-    if (this.end === clas.xmiId) { return this.sourceDocumentationBody; }
+    let start = this.start !== this.end, end = this.start !== this.end;
+    if (this.start === this.end) {
+      if (!this._lastClassBody) { start = true; this._lastClassBody = clas; }
+      else { end = true; this._lastClassBody = null; }
+    }
+    if (start && this.start === clas.xmiId) { return this.targetDocumentationBody; }
+    if (end && this.end === clas.xmiId) { return this.sourceDocumentationBody; }
+    return '';
   }
 
   getRouteTo(clas: Classification) {
@@ -95,12 +115,18 @@ export class Association extends EALinkBase {
     if (this.end === clas.xmiId) { return this.extension.source[0].reference.name; }
   }
 
+  _lastClassLabel: Classification;
   getLabel(clas: Classification) {
-    if (this.extension.labels && this.extension.labels.length) {
-      if (this.end === clas.xmiId && this.extension.labels[0].lt) {
-        return this.extension.labels[0].lt;
-      }
-      return this.extension.labels[0].rt;
+    let start = this.start !== this.end, end = this.start !== this.end;
+    if (this.start === this.end) {
+      if (!this._lastClassLabel) { start = true; this._lastClassLabel = clas; }
+      else { end = true; this._lastClassLabel = null; }
+    }
+    if (start && this.start === clas.xmiId && this.extension.target[0].role[0].name) {
+      return this.extension.target[0].role[0].name;
+    }
+    if (end && this.end === clas.xmiId && this.extension.source[0].role[0].name) {
+      return this.extension.source[0].role[0].name;
     }
     return '';
   }
