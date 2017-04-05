@@ -71,8 +71,18 @@ export class Classification extends EANode {
       this._associations = [];
       if (this.referredBy) {
         this.referredBy.forEach(r => {
-          if (r instanceof Association && this._associations.findIndex(a => a.xmiId === r.xmiId) < 0) {
-            this._associations.push(r);
+          if (r instanceof Association
+             && (r.start === this.xmiId && r.extension.target[0].role[0].name
+              || r.end === this.xmiId && r.extension.source[0].role[0].name)) {
+            this._associations.push({
+              label: r.getLabel(this),
+              route: r.getRouteTo(this),
+              routeLabel: r.getRouteLabel(this),
+              docHead: r.getDocumentationHeader(this),
+              docBody: r.getDocumentationBody(this),
+              multiplicity: r.multiplicity,
+              isOpen: false
+            });
           }
         });
       }
@@ -94,11 +104,11 @@ export class Classification extends EANode {
     if (this._isBaseClass == null) {
       if (this.extension && this.extension.project && this.extension.project.length) {
         const meta = this.extension.project[0];
-        if (meta.keywords) {
-          this._isBaseClass = meta.keywords.indexOf('hovedklasse') > -1;
-        }
+        this._isBaseClass = meta.keywords && meta.keywords.indexOf('hovedklasse') > -1;
       }
-      this._isBaseClass = false;
+      else {
+        this._isBaseClass = false;
+      }
     }
     return this._isBaseClass;
   }

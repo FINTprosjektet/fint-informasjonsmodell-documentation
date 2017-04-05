@@ -35,6 +35,10 @@ export class AppComponent {
     this.router.navigate(['/docs'], { queryParams: this.modelService.queryParams });
   }
 
+  get isRoot() {
+    return this.router.url == ('/') || this.router.url.substr(0, 2) == ('/?');
+  }
+
   constructor(private modelService: ModelService, private router: Router, private route: ActivatedRoute, private titleService: Title) {
     this.titleService.setTitle('FINT');
     this.modelService.versionChanged.subscribe(v => this.selectedRepo = v);
