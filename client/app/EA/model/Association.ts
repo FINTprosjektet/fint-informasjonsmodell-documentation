@@ -18,13 +18,6 @@ export class Association extends EALinkBase {
 
   isOpen = false;
 
-  get multiplicity() {
-    if (this.extension && this.extension.labels && this.extension.labels.length) {
-      return this.extension.labels[0].rb || '';
-     }
-     return '';
-  }
-
   private _isVisible: boolean;
   private _lastSearch: string;
   public isAssocVisible(classification: Classification): boolean {
@@ -127,6 +120,22 @@ export class Association extends EALinkBase {
     }
     if (end && this.end === clas.xmiId && this.extension.source[0].role[0].name) {
       return this.extension.source[0].role[0].name;
+    }
+    return '';
+  }
+
+  _lastClassMultiplicity;
+  getMultiplicity(clas: Classification) {
+    let start = this.start !== this.end, end = this.start !== this.end;
+    if (this.start === this.end) {
+      if (!this._lastClassMultiplicity) { start = true; this._lastClassMultiplicity = clas; }
+      else { end = true; this._lastClassMultiplicity = null; }
+    }
+    if (start && this.start === clas.xmiId && this.extension.target[0].type[0].multiplicity) {
+      return this.extension.target[0].type[0].multiplicity;
+    }
+    if (end && this.end === clas.xmiId && this.extension.source[0].type[0].multiplicity) {
+      return this.extension.source[0].type[0].multiplicity;
     }
     return '';
   }

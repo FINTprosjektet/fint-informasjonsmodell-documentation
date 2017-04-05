@@ -80,7 +80,7 @@ export class Classification extends EANode {
               routeLabel: r.getRouteLabel(this),
               docHead: r.getDocumentationHeader(this),
               docBody: r.getDocumentationBody(this),
-              multiplicity: r.multiplicity,
+              multiplicity: r.getMultiplicity(this),
               isOpen: false
             });
           }
