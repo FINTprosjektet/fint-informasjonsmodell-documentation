@@ -45,6 +45,14 @@ export class ClassComponent implements OnInit, OnDestroy {
     return this._cssClass;
   }
 
+  _assoc;
+  get associations() {
+    if (!this._assoc) {
+      this._assoc = this.classification.associations.map(r => r.getAssociationEnd(this.classification));
+    }
+    return this._assoc;
+  }
+
   constructor(private elm: ElementRef, private renderer: Renderer, private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit() {
