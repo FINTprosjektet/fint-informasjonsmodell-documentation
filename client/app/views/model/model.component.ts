@@ -19,6 +19,7 @@ import { Association } from 'app/EA/model/Association';
 import { Package } from 'app/EA/model/Package';
 import { EANodeContainer } from 'app/EA/model/EANodeContainer';
 import { ModelStateService } from 'app/views/model/model-state.service';
+import { Stereotype } from 'app/EA/model/Stereotype';
 
 @Component({
   selector: 'app-model',
@@ -173,7 +174,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     const packageLinks = this.nodeElements.map(c => { return { source: c, target: c.parentPackage }; }).filter(c => typeof c.target !== 'undefined');
 
     // Render data containers
-    this.svg.append('g').attr('class', 'hull');
+    this.svg.append('g').attr('class', 'hulls');
     this.svg.append('g').attr('class', 'links');
     this.svg.append('g').attr('class', 'nodes');
 
@@ -232,7 +233,10 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
             // Recalculate hull, links and nodes
             const activePackages = me.colors.filter(c => c.active).map(c => c.name);
             const allLinks = me.modelService.getLinkNodes().filter(l => activePackages.indexOf(l.source.parentPackage.name) > -1 && activePackages.indexOf(l.target.parentPackage.name) > -1);
-            me.nodeElements = me.modelService.getNodes(me.model.modelBase).filter(c => c.parentPackage && activePackages.indexOf(c.parentPackage.name) > -1);
+            me.nodeElements = me.modelService.getNodes(me.model.modelBase).filter(c => {
+              if (c instanceof Stereotype && activePackages.indexOf(c.name) > -1) { return false; }
+              return c.parentPackage && activePackages.indexOf(c.parentPackage.name) > -1;
+            });
 
             me.hull = me.renderHulls(me.nodeElements);
             me.links = me.renderLinks(allLinks);
@@ -254,7 +258,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       let n = nodes[k];
 
       let width = n.width, height = n.height;
-      if (!n.parentPackage || n.parentPackage.classes.length == 0) {
+      if (!n.parentPackage || n.parentPackage.classes.length == 0 && !(n.parentPackage instanceof Stereotype)) {
         // Skip if this node has no group, or if it is a package with no direct classes related to it
         continue;
       }
@@ -294,11 +298,12 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param nodes A collection of `EANode` nodes to group
    */
   private renderHulls(nodes: EANode[]) {
-    const hull = this.svg.select('g.hull').selectAll('path.hull').data(this.convexHulls(nodes), d => d.xmiId);
+    const hull = this.svg.select('g.hulls').selectAll('g.hull').data(this.convexHulls(nodes), d => d.xmiId);
 
     // On new data, add hull path
     const hullEnter = hull.enter();
-    hullEnter.append('path')
+    const hullGroup = hullEnter.append('g').attr('class', 'hull')
+    hullGroup.append('path')
       .attr('class', d => 'hull ' + d.group.toLowerCase().replace(new RegExp(' ', 'g'), '_'))
       .attr('d', d => this.hullCurve(d.path))
       .style('fill', d => this.fill(d.group))
@@ -309,7 +314,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         [].forEach.call(document.querySelectorAll('.legend .colors .box'), elm => this.removeClass(elm, 'spotlight'));
       });
 
-    hullEnter.append('title').text(d => d.group);
+    hullGroup.append('title').text(d => d.group);
 
     // On data removal, remove hull path;
     hull.exit().remove();
@@ -431,7 +436,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     this.svg.select('g.nodes').selectAll('g.element').attr('transform', (c: EANode) => `translate(${c.x}, ${c.y})`);
 
     // Animate hull
-    this.svg.select('g.hull').selectAll('path.hull').data(this.convexHulls(this.nodeElements)).attr('d', d => this.hullCurve(d.path));
+    this.svg.select('g.hulls').selectAll('path').data(this.convexHulls(this.nodeElements)).attr('d', d => this.hullCurve(d.path));
 
     // Animate links
     this.svg.select('g.links').selectAll('line')

@@ -6,8 +6,9 @@ import { Stereotype } from '../model/Stereotype';
 import { Package } from '../model/Package';
 import { Classification } from '../model/Classification';
 import { Attribute } from '../model/Attribute';
-import { Association } from '../model/Association';
 import { Generalization } from '../model/Generalization';
+import { Association } from '../model/Association';
+import { AssociationEnd } from '../model/AssociationEnd';
 import { Comment } from '../model/Comment';
 
 export class JSON_XMI21_Mapper implements IMapper {
@@ -98,7 +99,13 @@ export class JSON_XMI21_Mapper implements IMapper {
         if (host && (host.xmiType === node.xmiType || host.name === node.name)) {
           host.extension = node; // Just to keep a clean copy if it all
           if (node.properties && node.properties[0]['$'].stereotype === 'applicationSchema') {
+            // This is a stereotype, apply prototype
             Object.setPrototypeOf(host, new Stereotype());
+          }
+          if (host.extension.parent && host.extension.parent.connector) {
+            // This is an association, apply endpoint prototypes
+            Object.setPrototypeOf(host.extension.source[0], new AssociationEnd());
+            Object.setPrototypeOf(host.extension.target[0], new AssociationEnd());
           }
         }
       }
@@ -136,15 +143,15 @@ export class JSON_XMI21_Mapper implements IMapper {
       case 'uml:PrimitiveType': node.href = node['href']; break;
       case 'uml:EnumerationLiteral': break;
 
-      //
-      case 'uml:Comment': Object.setPrototypeOf(node, new Comment()); break;
-      case 'uml:Note': Object.setPrototypeOf(node, new Comment()); break;
-      case 'uml:Text': Object.setPrototypeOf(node, new Comment()); break;
-      //
-      case 'uml:Extension': break;
-      case 'uml:PackageImport': break;
-      case 'uml:Boundary': break;
-      case 'uml:Stereotype': break;
+      // //
+      // case 'uml:Comment': Object.setPrototypeOf(node, new Comment()); break;
+      // case 'uml:Note': Object.setPrototypeOf(node, new Comment()); break;
+      // case 'uml:Text': Object.setPrototypeOf(node, new Comment()); break;
+      // //
+      // case 'uml:Extension': break;
+      // case 'uml:PackageImport': break;
+      // case 'uml:Boundary': break;
+      // case 'uml:Stereotype': break;
     }
 
     // __lookupGetter__ because Object.getOwnPropertyDescriptor(node, 'id') always returns undefined

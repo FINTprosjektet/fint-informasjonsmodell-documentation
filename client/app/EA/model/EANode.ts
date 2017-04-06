@@ -30,16 +30,34 @@ export abstract class EANode extends EABaseClass {
   _stereotype;
   get stereotype(): Stereotype {
     if (!this._stereotype) {
-      let parent = this.parent;
-      while (parent) {
-        if (parent instanceof Stereotype) {
-          this._stereotype = parent;
-          break;
+      if (this instanceof Stereotype) {
+        this._stereotype = this;
+      }
+      else {
+        let parent = this.parent;
+        while (parent) {
+          if (parent instanceof Stereotype) {
+            this._stereotype = parent;
+            break;
+          }
+          parent = parent.parent;
         }
-        parent = parent.parent;
       }
     }
     return this._stereotype;
+  }
+
+  _level: number;
+  get levelFromStereotype(): number {
+    if (!this._level) {
+      this._level = 0;
+      let n: EANode = this;
+      while (!(n instanceof Stereotype) && n.parentPackage != null) {
+        this._level++;
+        n = n.parentPackage;
+      }
+    }
+    return this._level;
   }
 
   constructor() {

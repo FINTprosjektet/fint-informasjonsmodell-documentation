@@ -52,7 +52,7 @@ export class Classification extends EANode {
       const membersVisible = (m && m.length ? m.some(member => member ? member.isVisible() : false) : meVisible);
 
       const a = this.associations;
-      const assocVisible = (a && a.length ? a.some(assoc => assoc ? assoc.isAssocVisible(this) : false) : meVisible);
+      const assocVisible = (a && a.length ? a.some(assoc => assoc ? assoc.getAssociationEnd(this).isVisible : false) : meVisible);
 
       this._lastSearch = str;
       this._isVisible = (meVisible || typeVisible || typeDescVisible || membersVisible || assocVisible || superVisible || subVisible);
@@ -74,15 +74,7 @@ export class Classification extends EANode {
           if (r instanceof Association
              && (r.start === this.xmiId && r.extension.target[0].role[0].name
               || r.end === this.xmiId && r.extension.source[0].role[0].name)) {
-            this._associations.push({
-              label: r.getLabel(this),
-              route: r.getRouteTo(this),
-              routeLabel: r.getRouteLabel(this),
-              docHead: r.getDocumentationHeader(this),
-              docBody: r.getDocumentationBody(this),
-              multiplicity: r.getMultiplicity(this),
-              isOpen: false
-            });
+            this._associations.push(r);
           }
         });
       }
