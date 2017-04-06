@@ -15,6 +15,7 @@ import { JSON_XMI21_Mapper } from './mapper/JSON_XMI21_Mapper';
 
 import { EABaseClass } from './model/EABaseClass';
 import { EALinkBase } from './model/EALinkBase';
+import { EANodeContainer } from './model/EANodeContainer';
 import { EANode } from './model/EANode';
 
 import { Model } from './model/Model';
@@ -22,6 +23,7 @@ import { Package } from './model/Package';
 import { Classification } from './model/Classification';
 import { Association } from './model/Association';
 import { Generalization } from './model/Generalization';
+import { Stereotype } from './model/Stereotype';
 
 /**
  *
@@ -141,6 +143,7 @@ export class ModelService {
             default: me.mapper = new XMLMapper(res.text()); break;
           }
           try {
+            me._nodeCache = [];
             me.modelData = me.mapper.parse();
             me.modelObservable = Observable.of(me.modelData);
             console.log(me.modelData);
@@ -161,18 +164,56 @@ export class ModelService {
     return this.getAssociations(from).concat(this.getGeneralizations(from));
   }
 
+  _nodeCache: EANode[] = [];
   getNodes(from?: any): EANode[] {
-    let results: any[] = [];
-    Object.keys(this.mapper.flatModel).forEach(key => {
-      const model = this.mapper.flatModel[key];
-      const props = model.extension && model.extension.properties ? model.extension.properties[0] : {stereotype: '', sType: ''};
-      if (model instanceof EANode
-        && (!props.stereotype || props.stereotype.toLowerCase() !== "xsdsimpletype")
-        && (!props.sType || props.sType.toLowerCase() !== 'boundary')) {
-        results.push(model);
+    if (!this._nodeCache.length) {
+      // First pass filter
+      Object.keys(this.mapper.flatModel).forEach(key => {
+        const model = this.mapper.flatModel[key];
+        const props = model.extension && model.extension.properties ? model.extension.properties[0] : {stereotype: '', sType: ''};
+        if (model instanceof EANode
+          && (!props.stereotype || props.stereotype.toLowerCase() !== 'xsdsimpletype')
+          && (!props.sType || props.sType.toLowerCase() !== 'boundary')) {
+          this._nodeCache.push(model);
+        }
+      });
+
+      const stereotypeSort = function (a: Stereotype, b: Stereotype): number {
+          return (a.name > b.name) ? -1 : 1; // Sort by name alphabetically reversed
       }
-    });
+
+      // Sort (Stereotype, Packages in stereotype, Class in package)
+      this._nodeCache.sort((a, b) => { // Sort 'a' index according to 'b'
+        if (a instanceof Stereotype && b instanceof Stereotype) {
+          return stereotypeSort(a, b); // Both instances are Stereotypes
+        }
+        else {
+          if (!a.stereotype && b.stereotype) { return 1; } // 'a' does not belong to a stereotype. Move 'b' up.
+          if (a.stereotype && !b.stereotype) { return -1; } // 'b' does not belong to a stereotype. Move 'a' up.
+          if (a.stereotype != b.stereotype) { // 'a' and 'b' are from different stereotypes
+            return stereotypeSort(a.stereotype, b.stereotype);
+          }
+        }
+
+        // From here on out, we are sure that both 'a' and 'b' belong to the same stereotype
+        if (a instanceof Classification) {
+          // Move class below parent
+          if (b instanceof Package && a.parentPackage === b) { return 1; }
+          if (b instanceof Stereotype && a.parentPackage === b) { return 1; }
+        }
+
+        // Finally sort nodes according to their distance level from closest stereotype
+        if (a.levelFromStereotype != b.levelFromStereotype) {
+          return (a.levelFromStereotype < b.levelFromStereotype) ? -1 : 1;
+        }
+
+        return 0;
+      });
+    }
+
+    let results: EANode[] = this._nodeCache;
     if (from) {
+      // Filter by starting point
       results = results.filter(n => {
         let parent = n.parent;
         while (parent) {
