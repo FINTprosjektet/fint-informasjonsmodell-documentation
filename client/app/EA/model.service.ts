@@ -279,4 +279,19 @@ export class ModelService {
     this.fintDialog.displayHttpError(error);
     return Observable.throw(error);
   }
+
+  cleanDocumentation(docs): string {
+    const test = new RegExp(/\(Class:([a-zæøå ]*)\)/gi);
+    const queryParam = this.queryParamsString;
+    let value = docs || '';
+    let match;
+    while ((match = test.exec(value)) !== null) {
+      if (match.index === test.lastIndex) { test.lastIndex++; }
+      let cls = this.findByName(match[1]);
+      if (cls != null) {
+        value = value.replace(test, `(/docs/${cls.id}?${queryParam})`);
+      }
+    }
+    return value;
+  }
 }

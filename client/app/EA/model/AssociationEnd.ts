@@ -19,7 +19,7 @@ export class AssociationEnd extends EALinkBase {
   _headerClean: string;
   get documentationHeader(): string {
     if (!this._headerClean) {
-      const doc = this.documentation.map(e => e.value).join('');
+      const doc = this.getDocumentation();
       const idx = doc.indexOf('\n');
       this._headerClean = idx > 0 ? doc.substr(0, doc.indexOf('\n')) : doc;
     }
@@ -29,7 +29,7 @@ export class AssociationEnd extends EALinkBase {
   _docBody: string;
   get documentationBody(): string {
     if (!this._docBody) {
-      const doc = this.documentation.map(e => e.value).join('');
+      const doc = this.getDocumentation();
       const idx = doc.indexOf('\n');
       this._docBody = AssociationEnd.markPipe.transform(idx > 0 ? doc.substr(doc.indexOf('\n') + 1) : '');
     }
@@ -54,5 +54,13 @@ export class AssociationEnd extends EALinkBase {
       return this._isVisible;
     }
     return true;
+  }
+
+  _documentation;
+  getDocumentation(): string {
+    if (!this._documentation && this.documentation) {
+      this._documentation = EABaseClass.service.cleanDocumentation(this.documentation.map(e => e.value).join(''));
+    }
+    return this._documentation || '';
   }
 }
