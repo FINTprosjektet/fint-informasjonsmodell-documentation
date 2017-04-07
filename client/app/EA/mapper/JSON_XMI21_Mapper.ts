@@ -1,3 +1,5 @@
+import { DomSanitizer } from '@angular/platform-browser';
+
 import { EABaseClass } from '../model/EABaseClass';
 import { Model } from '../model/Model';
 import { IMapper } from './IMapper';
@@ -18,7 +20,7 @@ export class JSON_XMI21_Mapper implements IMapper {
   flatModel: { [key: string]: any } = {};
   refTypes: string[] = ['reference', 'start', 'end', 'general', 'association', 'subject', 'modelElement', 'package', 'package2'];
 
-  constructor(modelData: {}) {
+  constructor(modelData: {}, private sanitizer: DomSanitizer) {
     this.json = JSON.parse(JSON.stringify(modelData)); // Clean copy
   }
 
@@ -135,7 +137,7 @@ export class JSON_XMI21_Mapper implements IMapper {
       case Association.umlId: Object.setPrototypeOf(node, new Association()); break;
 
       //
-      case Attribute.umlId: Object.setPrototypeOf(node, new Attribute()); break;
+      case Attribute.umlId: Object.setPrototypeOf(node, new Attribute(this.sanitizer)); break;
 
       // Types
       case 'uml:LiteralUnlimitedNatural':

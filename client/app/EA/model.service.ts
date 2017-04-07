@@ -1,4 +1,5 @@
 import { EventEmitter, Injectable } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Http, Response } from '@angular/http';
 import { Observable, Observer, ReplaySubject } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
@@ -84,6 +85,16 @@ export class ModelService {
     return qParam;
   }
 
+  get queryParamsString(): string {
+    const str = [];
+    for (let q in this.queryParams) {
+      if (this.queryParams.hasOwnProperty(q)) {
+        str.push(`${encodeURIComponent(q)}=${encodeURIComponent(this.queryParams[q])}`);
+      }
+    }
+    return str.join('&');
+  }
+
   /**
    * Creates an instance of ModelService.
    *
@@ -91,7 +102,7 @@ export class ModelService {
    *
    * @memberOf ModelService
    */
-  constructor(private http: Http, private fintDialog: FintDialogService) {
+  constructor(private http: Http, private fintDialog: FintDialogService, private sanitizer: DomSanitizer) {
     EABaseClass.service = this;
   }
 
@@ -143,7 +154,7 @@ export class ModelService {
           let contentType = res.headers.get('content-type');
           contentType = contentType.substr(0, contentType.indexOf(';'));
           switch (contentType) {
-            case 'text/json': me.mapper = new JSON_XMI21_Mapper(res.json()); break;
+            case 'text/json': me.mapper = new JSON_XMI21_Mapper(res.json(), this.sanitizer); break;
             default: me.mapper = new XMLMapper(res.text()); break;
           }
           try {
@@ -256,6 +267,11 @@ export class ModelService {
         return model;
       }
     }
+  }
+
+  findByName(name) {
+    const clsId = Object.keys(this.mapper.flatModel).find(k => this.mapper.flatModel[k].name && this.mapper.flatModel[k].name === name);
+    return this.mapper.flatModel[clsId];
   }
 
   handleError(error: any) {
