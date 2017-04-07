@@ -60,6 +60,23 @@ export abstract class EANode extends EABaseClass {
     return this._level;
   }
 
+  _cssPackages: string[] = [];
+  get cssPackages() {
+    if (!this._cssPackages.length) {
+      let n: EANode = this;
+      while (n) {
+        if (n.parentPackage) {
+          this._cssPackages.push(this.cleanId(n.parentPackage.name));
+        }
+        n = n.parentPackage;
+        if (n instanceof Stereotype) {
+          break;
+        }
+      }
+    }
+    return this._cssPackages;
+  }
+
   constructor() {
     super();
   }

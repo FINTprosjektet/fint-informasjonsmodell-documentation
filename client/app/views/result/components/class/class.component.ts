@@ -53,6 +53,18 @@ export class ClassComponent implements OnInit, OnDestroy {
     return this._assoc;
   }
 
+  _attribs;
+  get attributes() {
+    if (!this._attribs) {
+      this._attribs = this.classification.ownedAttribute;
+      if (this.classification.superType) {
+        if (!this._attribs) { this._attribs = []; }
+        this._attribs = this._attribs.concat(this.classification.superType.ownedAttribute);
+      }
+    }
+    return this._attribs;
+  }
+
   constructor(private elm: ElementRef, private renderer: Renderer, private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit() {

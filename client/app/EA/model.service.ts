@@ -95,6 +95,10 @@ export class ModelService {
     EABaseClass.service = this;
   }
 
+  cleanId(str: string) {
+    return str.toLowerCase().replace(/æ/gi, 'a').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(' ', '_');
+  }
+
   fetchVersions(): Observable<any> {
     return this.http.request('/api/doc/versions')
       .map(res => {
