@@ -56,12 +56,6 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Properties used in D3 drag event
   private maxVelocity = 8;
-  private sx;
-  private sy;
-  private px;
-  private py;
-  private vx;
-  private vy;
   private offsetX;
   private offsetY;
 
@@ -134,6 +128,18 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  /**
+   * This renderes the svg canvas and definitions, and defines the simulation
+   * forces to be used.
+   *
+   * The actual rendering of elements is delegated to other methods:
+   * - renderHulls
+   * - renderLinks
+   * - renderClasses
+   *
+   * This method is called each time the application receives new data (i.e. each time
+   * the `loadData` method is called).
+   */
   private render() {
     const me = this;
 
@@ -297,17 +303,18 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       let l = hulls[i] || (hulls[i] = []);
       this.addToLegend(i);
 
-      // Create hull data
+      // Create hull data, an array list of x,y coords encapsulating the element
       l.push([n.x - this.hullOffset, n.y - this.hullOffset]);
       l.push([n.x - this.hullOffset, n.y + height + this.hullOffset]);
       l.push([n.x + width + this.hullOffset, n.y - this.hullOffset]);
       l.push([n.x + width + this.hullOffset, n.y + height + this.hullOffset]);
-      concatParent(n.parentPackage, l);
+      concatParent(n.parentPackage, l); // Include this hull in parent packages hull, so parent package also encapsulates this package
     }
 
     // create convex hulls
     const hullset = [];
     for (let h in hulls) {
+      // This creates the actual path for the hull based on our array list
       hullset.push({group: h, path: D3.polygonHull(hulls[h])});
     }
 
@@ -484,20 +491,22 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  /**
+   * Behaviour events when dragging a hull of nodes
+   */
   hullDragBehaviour() {
+    // d.fx & d.fy = fixed coords. If these are set, the element will not move from it's position
     return D3.drag()
       .on('start', (d: any) => {
         D3.event.sourceEvent.stopPropagation(); // silence other listeners
-        D3.selectAll(`g.nodes g.element.${this.modelService.cleanId(d.group)}`).each((d: any) => {
-          d.fx = null;
-          d.fy = null;
-        });
+        D3.selectAll(`g.nodes g.element.${this.modelService.cleanId(d.group)}`)
+          .each((d: any) => { d.fx = null; d.fy = null; }); // Unset fixed coords
         this.simulation.stop();
       })
       .on('drag', (d: any) => {
-        var nodeGroup = parseInt(d.key);
-        var dx = D3.event.dx;
-        var dy = D3.event.dy;
+        let nodeGroup = parseInt(d.key);
+        let dx = D3.event.dx; // change in x coordinates relative to the previous drag
+        let dy = D3.event.dy; // change in y coordinates relative to the previous drag
         D3.selectAll(`g.nodes g.element.${this.modelService.cleanId(d.group)}`)
           .attrs({
             'cx': (n: any) => {
@@ -511,14 +520,14 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
               return n.y;
             }
           });
-        this.simulation.restart();
+        this.simulation.restart(); // Allow simulation to run slowly while we drag
       })
       .on('end', (d: any) => {
         D3.selectAll(`g.nodes g.element.${this.modelService.cleanId(d.group)}`).each((d: any) => {
-          d.fx = this.isSticky ? d.x : null;
-          d.fy = this.isSticky ? d.y : null;
+          d.fx = this.isSticky ? d.x : null; // Set or unset fixed x coords
+          d.fy = this.isSticky ? d.y : null; // Set or unset fixed x coords
         });
-        this.simulation.alpha(0.2).restart();
+        this.simulation.alpha(0.2).restart(); // Start the simulation with a low alpha so it will not bounce so much
       });
   }
 
@@ -531,37 +540,42 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   clicked(d: EANode) {
-    console.log('clicked');
     if (D3.event.defaultPrevented) return;
     return d instanceof Classification ? this.router.navigate(['/docs', d.id], { queryParams: this.modelService.queryParams }) : null;
   }
 
+  /**
+   * Behaviour events when dragging one node
+   */
   nodeDragBehaviour() {
+    let sx, sy; // Mouse X/Y coords from original 'start' event
+    let vx, vy; // Delta movement (comparing current X/Y coords from original)
+    let px, py; // Current Mouse X/Y coords always
+    let offsetX, offsetY; // Offset between mouse X/Y coords and selected nodes X/Y coors
+
+    // d.fx & d.fy = fixed coords. If these are set, the element will not move from it's position
     return D3.drag()
       .on('start', (d: any) => {
-        this.vx = 0;
-        this.vy = 0;
-        this.sx = D3.event.x; this.sy = D3.event.y;
-        this.offsetX = (this.px = this.sx) - (d.fx = d.x);
-        this.offsetY = (this.py = this.sy) - (d.fy = d.y);
+        vx = 0; vy = 0;
+        sx = D3.event.x; sy = D3.event.y;
+        offsetX = (px = sx) - (d.fx = d.x);
+        offsetY = (py = sy) - (d.fy = d.y);
       })
       .on('drag', (d: any) => {
-        this.vx = D3.event.x - this.px;
-        this.vy = D3.event.y - this.py;
-        d.fx = Math.max(Math.min((this.px = D3.event.x) - this.offsetX, this.width - d.width), 0);
-        d.fy = Math.max(Math.min((this.py = D3.event.y) - this.offsetY, this.height - d.height), 0);
-        this.simulation.restart();
+        vx = D3.event.x - px; vy = D3.event.y - py;
+        d.fx = Math.max(Math.min((px = D3.event.x) - offsetX, this.width - d.width), 0);  // Fix x pos
+        d.fy = Math.max(Math.min((py = D3.event.y) - offsetY, this.height - d.height), 0);// Fix y pos
+        this.simulation.restart(); // Allow simulation to run slowly while we drag
       })
       .on('end', (d: any) => {
-        if (this.sx === D3.event.x && this.sy === D3.event.y) { return this.clicked(d); }
-        const vScalingFactor = this.maxVelocity / Math.max(Math.sqrt(this.vx * this.vx + this.vy * this.vy), this.maxVelocity);
+        if (sx === D3.event.x && sy === D3.event.y) { return this.clicked(d); } // Mouse hasn't moved. This should be a click event.
+        const vScalingFactor = this.maxVelocity / Math.max(Math.sqrt(vx * vx + vy * vy), this.maxVelocity);
         if (!this.isSticky) {
-          d.fx = null;
-          d.fy = null;
+          d.fx = null; d.fy = null; // Unset fixed coords
         }
-        d.vx = this.vx * vScalingFactor;
-        d.vy = this.vy * vScalingFactor;
-        this.simulation.alpha(0.2).restart();
+        d.vx = vx * vScalingFactor;
+        d.vy = vy * vScalingFactor;
+        this.simulation.alpha(0.2).restart(); // Start the simulation with a low alpha so it will not bounce so much
       });
   }
 
