@@ -33,7 +33,7 @@
         <span [innerHTML]="classification.documentationBody"></span>
       </app-details>
 
-      <section *ngIf="classification.ownedAttribute">
+      <section *ngIf="attributes">
         <h3>Felter</h3>
         <table>
           <thead>
@@ -45,7 +45,7 @@
               <th class="description">Beskrivelse</th>
             </tr>
           </thead>
-          <tbody *ngFor="let attribute of classification.ownedAttribute" [attr.id]="attribute.id">
+          <tbody *ngFor="let attribute of attributes" [attr.id]="attribute.id" [ngClass]="{'inherited': attribute.parent != classification}" [title]="attribute.parent != classification ? 'Arvet fra ' + attribute.parent.name : ''">
             <tr [ngClass]="{hasDetailsBody: attribute.documentationBody.length > 0, hasDetails: attribute.documentationHeader.length > 0, isOpen: attribute.isOpen}">
               <td class="dropdown" (click)="openAttribute(attribute)">
                 <fint-fa *ngIf="attribute.documentationHeader.length > 0" class="toggleMobileDetails" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>

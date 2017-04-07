@@ -75,6 +75,14 @@ md-card-header {
 section h3 {
   margin-bottom: 0;
 }
+
+md-card-content /deep/ {
+  h1 { font-size: 120%; }
+  h2 { font-size: 110%; }
+  h3 { font-size: 105%; }
+}
+
+// Table styling
 table {
   .toggleDetailBody {
     display: none;
@@ -114,14 +122,13 @@ table {
       display: none;
     }
   }
+  tbody.inherited {
+    color: rgba($text-color, 0.7);
+    font-style: italic;
+  }
 }
 
-md-card-content /deep/ {
-  h1 { font-size: 120%; }
-  h2 { font-size: 110%; }
-  h3 { font-size: 105%; }
-}
-
+// Details styling
 /deep/ {
   .details {
     border-radius: $extra-rounded;
