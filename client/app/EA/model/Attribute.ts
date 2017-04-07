@@ -44,21 +44,8 @@ export class Attribute extends EABaseClass {
   _documentation: string;
   get documentation(): string {
     if (!this._documentation) {
-      const test = new RegExp(/\(Class:([a-zæøå ]*)\)/gi);
-      const queryParam = EABaseClass.service.queryParamsString;
       if (this.extension && this.extension.documentation) {
-        this._documentation = this.extension.documentation.map(e => {
-          let value = e.value;
-          let match;
-          while ((match = test.exec(value)) !== null) {
-            if (match.index === test.lastIndex) { test.lastIndex++; }
-            let cls = EABaseClass.service.findByName(match[1]);
-            if (cls != null) {
-              value = value.replace(test, `(/docs/${cls.id}?${queryParam})`);
-            }
-          }
-          return value;
-        }).join('');
+        this._documentation = EABaseClass.service.cleanDocumentation(this.extension.documentation.map(e => e.value).join(''));
       }
     }
     return this._documentation || '';

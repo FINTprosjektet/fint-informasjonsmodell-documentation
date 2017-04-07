@@ -131,11 +131,14 @@ export class Classification extends EANode {
     }
   }
 
+  _documentation: string;
   get documentation(): string {
-    if (this.extension && this.extension.properties) {
-      return this.extension.properties.map(e => e.documentation).join('');
+    if (!this._documentation) {
+      if (this.extension && this.extension.properties) {
+        this._documentation = EABaseClass.service.cleanDocumentation(this.extension.properties.map(e => e.documentation).join(''));
+      }
     }
-    return '';
+    return this._documentation || '';
   }
 
   _headerClean: string;
