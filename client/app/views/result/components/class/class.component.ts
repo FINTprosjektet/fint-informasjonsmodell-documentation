@@ -1,8 +1,8 @@
-import { EABaseClass } from '../../../../EA/model/EABaseClass';
-import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, Renderer } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, Renderer, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 
+import { EABaseClass } from 'app/EA/model/EABaseClass';
 import { Classification } from 'app/EA/model/Classification';
 import { Association } from "app/EA/model/Association";
 

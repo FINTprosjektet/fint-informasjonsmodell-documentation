@@ -1,6 +1,8 @@
 import { MarkdownToHtmlPipe } from 'markdown-to-html-pipe';
+import { DomSanitizer } from '@angular/platform-browser';
 import { EABaseClass } from './EABaseClass';
 import { ExpandablePipe } from '../../views/result/pipes/expandable.pipe';
+import { Classification } from "app/EA/model/Classification";
 
 export class Attribute extends EABaseClass {
   static pipe = new ExpandablePipe();
@@ -42,8 +44,21 @@ export class Attribute extends EABaseClass {
   _documentation: string;
   get documentation(): string {
     if (!this._documentation) {
+      const test = new RegExp(/\(Class:([a-zæøå ]*)\)/gi);
+      const queryParam = EABaseClass.service.queryParamsString;
       if (this.extension && this.extension.documentation) {
-        this._documentation = this.extension.documentation.map(e => e.value).join('');
+        this._documentation = this.extension.documentation.map(e => {
+          let value = e.value;
+          let match;
+          while ((match = test.exec(value)) !== null) {
+            if (match.index === test.lastIndex) { test.lastIndex++; }
+            let cls = EABaseClass.service.findByName(match[1]);
+            if (cls != null) {
+              value = value.replace(test, `(/docs/${cls.id}?${queryParam})`);
+            }
+          }
+          return value;
+        }).join('');
       }
     }
     return this._documentation || '';
@@ -116,7 +131,7 @@ export class Attribute extends EABaseClass {
     return '';
   }
 
-  constructor() {
+  constructor(private sanitizer: DomSanitizer) {
     super();
   }
 }
