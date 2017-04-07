@@ -73,7 +73,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         d.fx = null;
         d.fy = null;
       });
-      this.simulation.restart();
+      this.simulation.alpha(0.5).restart();
     }
   }
 
