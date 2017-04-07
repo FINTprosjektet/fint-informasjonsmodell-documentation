@@ -26,7 +26,7 @@ export abstract class EABaseClass {
   constructor() { }
 
   cleanId(str: string) {
-    return str.toLowerCase().replace(/æ/gi, 'a').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(' ', '_');
+    return EABaseClass.service.cleanId(str);
   }
 
   public isVisible(): boolean {

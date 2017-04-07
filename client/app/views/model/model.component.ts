@@ -69,10 +69,11 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   set isSticky(value) {
     this.state.isSticky = value;
     if (this.nodes && this.simulation && value == false) {
-      this.nodes.each(d => {
+      this.nodeElements.forEach(d => {
         d.fx = null;
         d.fy = null;
       });
+      this.simulation.restart();
     }
   }
 
@@ -220,7 +221,37 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       .on('tick', () => this.update());
   }
 
-  addToLegend(name) {
+  /**
+   * Groups nodes in packages using D3 convexHulls
+   *
+   * @param nodes A collection of `EANode` nodes to group
+   */
+  private renderHulls(nodes: EANode[]) {
+    const hull = this.svg.select('g.hulls').selectAll('g.hull').data(this.convexHulls(nodes), d => d.xmiId);
+
+    // On new data, add hull path
+    const hullEnter = hull.enter();
+    const hullGroup = hullEnter.append('g').attr('class', 'hull')
+    hullGroup.append('path')
+      .attr('class', d => 'hull ' + this.modelService.cleanId(d.group))
+      .attr('d', d => this.hullCurve(d.path))
+      .style('fill', d => this.fill(d.group))
+      .on('mouseover', d => {
+        this.addClass(document.querySelector(`.legend .colors .box.${this.modelService.cleanId(d.group)}`), 'spotlight');
+      })
+      .on('mouseleave', d => {
+        [].forEach.call(document.querySelectorAll('.legend .colors .box'), elm => this.removeClass(elm, 'spotlight'));
+      })
+      .call(this.hullDragBehaviour());
+
+    hullGroup.append('title').text(d => d.group);
+
+    // On data removal, remove hull path;
+    hull.exit().remove();
+
+    return hull;
+  }
+  private addToLegend(name) {
     if (this.colors.findIndex(c => c.name === name) < 0) {
       const me = this;
       const col = {name: name, fill: this.sanitizer.bypassSecurityTrustStyle('background: ' + this.fill(name)), _active: true };
@@ -249,8 +280,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       this.colors.push(col)
     }
   }
-
-  convexHulls(nodes: EANode[]) {
+  private convexHulls(nodes: EANode[]) {
     const hulls = {};
 
     // create point sets
@@ -275,14 +305,6 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       concatParent(n.parentPackage, l);
     }
 
-    function concatParent(n, h) {
-      let p = n.parentPackage;
-      if (p && hulls[p.name]) {
-        hulls[p.name] = hulls[p.name].concat(h);
-        concatParent(p, hulls[p.name]);
-      }
-    }
-
     // create convex hulls
     const hullset = [];
     for (let h in hulls) {
@@ -290,35 +312,14 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     return hullset;
-  }
 
-  /**
-   * Groups nodes in packages using D3 convexHulls
-   *
-   * @param nodes A collection of `EANode` nodes to group
-   */
-  private renderHulls(nodes: EANode[]) {
-    const hull = this.svg.select('g.hulls').selectAll('g.hull').data(this.convexHulls(nodes), d => d.xmiId);
-
-    // On new data, add hull path
-    const hullEnter = hull.enter();
-    const hullGroup = hullEnter.append('g').attr('class', 'hull')
-    hullGroup.append('path')
-      .attr('class', d => 'hull ' + d.group.toLowerCase().replace(new RegExp(' ', 'g'), '_'))
-      .attr('d', d => this.hullCurve(d.path))
-      .style('fill', d => this.fill(d.group))
-      .on('mouseover', d => {
-        this.addClass(document.querySelector(`.legend .colors .box.${d.group.toLowerCase().replace(new RegExp(' ', 'g'), '_')}`), 'spotlight');
-      })
-      .on('mouseleave', d => {
-        [].forEach.call(document.querySelectorAll('.legend .colors .box'), elm => this.removeClass(elm, 'spotlight'));
-      });
-
-    hullGroup.append('title').text(d => d.group);
-
-    // On data removal, remove hull path;
-    hull.exit().remove();
-    return hull;
+    function concatParent(n, h) {
+      let p = n.parentPackage;
+      if (p && hulls[p.name]) {
+        hulls[p.name] = hulls[p.name].concat(h);
+        concatParent(p, hulls[p.name]);
+      }
+    }
   }
 
   /**
@@ -360,7 +361,8 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     const nodeEnter = nodes.enter()
       .append('g')
       .attr('class', (c: EANode) => {
-        if (c instanceof Classification) { return ['element', c.type.toLowerCase()].join(' '); }
+        if (c instanceof Classification) { return ['element', c.type.toLowerCase(), c.cleanId(c.name)].concat(c.cssPackages).join(' '); }
+        if (c instanceof Package) { return ['element package', c.cleanId(c.name)].concat(c.cssPackages).join(' '); }
       })
       .attr('id', (c: EANode) => c.xmiId);
 
@@ -387,40 +389,38 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     nodeEnter.append('text').text((c: EANode) => c instanceof Classification ? c.name : ''/*`P:${c.name}`*/).attrs({ x: 10, y: 20 });
 
     // Apply event handling
-    // MouseOver
-    nodeEnter.on('mouseover', (c: EANode) => {
-      if (c instanceof Classification) {
-        [].forEach.call(document.querySelectorAll('.source_' + c.xmiId), elm => {
-          this.addClasses(elm, ['over', 'source']);
-          D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) return 'url(#arrow_source)'; });
-        });
-        [].forEach.call(document.querySelectorAll('.target_' + c.xmiId), elm => {
-          this.addClasses(elm, ['over', 'target']);
-          D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) return 'url(#arrow_target)'; });
-        });
-        const p = c.parentPackage.name.toLowerCase().replace(new RegExp(' ', 'g'), '_');
-        this.addClass(document.querySelector(`.legend .colors .box.${p}`), 'spotlight');
-        this.findHull(p);
-      }
-    });
-    // MouseOut
-    nodeEnter.on('mouseout', (c: EANode) => {
-      if (c instanceof Classification) {
-        [].forEach.call(document.querySelectorAll('.source_' + c.xmiId + ', .target_' + c.xmiId), elm => {
-          this.removeClasses(elm, ['over', 'source', 'target']);
-          D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) return 'url(#arrow_neutral)'; });
-        });
-        [].forEach.call(document.querySelectorAll('.legend .colors .box'), elm => this.removeClass(elm, 'spotlight'));
-        this.clearHull();
-      }
-    });
-    // Click event
-    nodeEnter.on('click', d => this.clicked(d));
-    // Drag handling
-    nodeEnter.call(D3.drag()
-      .on('start', d => this.dragStarted(d))
-      .on('drag', d => this.dragged(d))
-      .on('end', d => this.dragEnded(d)));
+    nodeEnter
+      // MouseOver
+      .on('mouseover', (c: EANode) => {
+        if (c instanceof Classification) {
+          [].forEach.call(document.querySelectorAll('.source_' + c.xmiId), elm => {
+            this.addClasses(elm, ['over', 'source']);
+            D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) return 'url(#arrow_source)'; });
+          });
+          [].forEach.call(document.querySelectorAll('.target_' + c.xmiId), elm => {
+            this.addClasses(elm, ['over', 'target']);
+            D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) return 'url(#arrow_target)'; });
+          });
+          const p = c.cleanId(c.parentPackage.name);
+          this.addClass(document.querySelector(`.legend .colors .box.${p}`), 'spotlight');
+          this.findHull(p);
+        }
+      })
+      // MouseOut
+      .on('mouseout', (c: EANode) => {
+        if (c instanceof Classification) {
+          [].forEach.call(document.querySelectorAll('.source_' + c.xmiId + ', .target_' + c.xmiId), elm => {
+            this.removeClasses(elm, ['over', 'source', 'target']);
+            D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) return 'url(#arrow_neutral)'; });
+          });
+          [].forEach.call(document.querySelectorAll('.legend .colors .box'), elm => this.removeClass(elm, 'spotlight'));
+          this.clearHull();
+        }
+      })
+      // Click event
+      .on('click', d => this.clicked(d))
+      // Drag handling
+      .call(this.nodeDragBehaviour());
 
     // On data removal, remove class elements
     nodes.exit().remove();
@@ -432,6 +432,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
    * Called each simulation tick
    */
   update() {
+    const me = this;
     // Animate nodes
     this.svg.select('g.nodes').selectAll('g.element').attr('transform', (c: EANode) => `translate(${c.x}, ${c.y})`);
 
@@ -439,31 +440,25 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     this.svg.select('g.hulls').selectAll('path').data(this.convexHulls(this.nodeElements)).attr('d', d => this.hullCurve(d.path));
 
     // Animate links
-    this.svg.select('g.links').selectAll('line')
-      .attr('x1', (l: EALinkBase) => this.calc(l)['x1']) // d.source.x)
-      .attr('y1', (l: EALinkBase) => this.calc(l)['y1']) // d.source.y)
-      .attr('x2', (l: EALinkBase) => this.calc(l)['x2']) // d.target.x)
-      .attr('y2', (l: EALinkBase) => this.calc(l)['y2']) // d.target.y);
-  }
+    this.svg.select('g.links').selectAll('line').attrs((l: EALinkBase) => {
+      const source = this.createMatrix(l.source);
+      const target = this.createMatrix(l.target);
+      const offset = l instanceof Generalization ? 4 : 0;
 
-  calc(l: EALinkBase) {
-    const source = this.createMatrix(l.source);
-    const target = this.createMatrix(l.target);
-    const offset = l instanceof Generalization ? 4 : 0;
+      let x;
+      if (source.xLeft <= target.xRight && source.xRight >= target.xLeft) { x = l.target.width / 2.0 + l.target.x; }
+      else if (source.xLeft < target.xLeft) { x = target.xLeft - offset; }
+      else { x = target.xRight + offset; }
 
-    let x;
-    if (source.xLeft <= target.xRight && source.xRight >= target.xLeft) { x = l.target.width / 2.0 + l.target.x; }
-    else if (source.xLeft < target.xLeft) { x = target.xLeft - offset; }
-    else { x = target.xRight + offset; }
-
-    let y;
-    if (source.yTop <= target.yBottom && source.yBottom >= target.yTop) { y = l.target.height / 2.0 + l.target.y - offset; }
-    else if (source.yTop < target.yTop) { y = l.target.y - offset; }
-    else { y = target.yBottom + offset; }
-    return {
-      x1: source.xCenter, y1: source.yCenter,
-      x2: x, y2: y
-    }
+      let y;
+      if (source.yTop <= target.yBottom && source.yBottom >= target.yTop) { y = l.target.height / 2.0 + l.target.y - offset; }
+      else if (source.yTop < target.yTop) { y = l.target.y - offset; }
+      else { y = target.yBottom + offset; }
+      return {
+        x1: source.xCenter, y1: source.yCenter,
+        x2: x, y2: y
+      }
+    })
   }
 
   createMatrix(c: EANode) {
@@ -489,8 +484,46 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  hullDragBehaviour() {
+    return D3.drag()
+      .on('start', (d: any) => {
+        D3.event.sourceEvent.stopPropagation(); // silence other listeners
+        D3.selectAll(`g.nodes g.element.${this.modelService.cleanId(d.group)}`).each((d: any) => {
+          d.fx = null;
+          d.fy = null;
+        });
+        this.simulation.stop();
+      })
+      .on('drag', (d: any) => {
+        var nodeGroup = parseInt(d.key);
+        var dx = D3.event.dx;
+        var dy = D3.event.dy;
+        D3.selectAll(`g.nodes g.element.${this.modelService.cleanId(d.group)}`)
+          .attrs({
+            'cx': (n: any) => {
+              n.px = n.px + dx;
+              n.x = n.x + dx;
+              return n.x;
+            },
+            'cy': (n: any) => {
+              n.py = n.py + dy;
+              n.y = n.y + dy;
+              return n.y;
+            }
+          });
+        this.simulation.restart();
+      })
+      .on('end', (d: any) => {
+        D3.selectAll(`g.nodes g.element.${this.modelService.cleanId(d.group)}`).each((d: any) => {
+          d.fx = this.isSticky ? d.x : null;
+          d.fy = this.isSticky ? d.y : null;
+        });
+        this.simulation.alpha(0.2).restart();
+      });
+  }
+
   findHull(name) {
-    this.addClass(document.querySelector(`svg path.hull.${name.toLowerCase().replace(new RegExp(' ', 'g'), '_')}`), 'spotlight');
+    this.addClass(document.querySelector(`svg path.hull.${this.modelService.cleanId(name)}`), 'spotlight');
   }
 
   clearHull() {
@@ -503,33 +536,33 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     return d instanceof Classification ? this.router.navigate(['/docs', d.id], { queryParams: this.modelService.queryParams }) : null;
   }
 
-  dragStarted(d) {
-    this.vx = 0;
-    this.vy = 0;
-    this.sx = D3.event.x; this.sy = D3.event.y;
-    this.offsetX = (this.px = this.sx) - (d.fx = d.x);
-    this.offsetY = (this.py = this.sy) - (d.fy = d.y);
-  }
-
-  dragged(d) {
-    console.log('dragged');
-    this.vx = D3.event.x - this.px;
-    this.vy = D3.event.y - this.py;
-    d.fx = Math.max(Math.min((this.px = D3.event.x) - this.offsetX, this.width - d.width), 0);
-    d.fy = Math.max(Math.min((this.py = D3.event.y) - this.offsetY, this.height - d.height), 0);
-    this.simulation.restart();
-  }
-
-  dragEnded(d) {
-    if (this.sx === D3.event.x && this.sy === D3.event.y) { return this.clicked(d); }
-    this.simulation.alpha(0.2).restart();
-    const vScalingFactor = this.maxVelocity / Math.max(Math.sqrt(this.vx * this.vx + this.vy * this.vy), this.maxVelocity);
-    if (!this.isSticky) {
-      d.fx = null;
-      d.fy = null;
-    }
-    d.vx = this.vx * vScalingFactor;
-    d.vy = this.vy * vScalingFactor;
+  nodeDragBehaviour() {
+    return D3.drag()
+      .on('start', (d: any) => {
+        this.vx = 0;
+        this.vy = 0;
+        this.sx = D3.event.x; this.sy = D3.event.y;
+        this.offsetX = (this.px = this.sx) - (d.fx = d.x);
+        this.offsetY = (this.py = this.sy) - (d.fy = d.y);
+      })
+      .on('drag', (d: any) => {
+        this.vx = D3.event.x - this.px;
+        this.vy = D3.event.y - this.py;
+        d.fx = Math.max(Math.min((this.px = D3.event.x) - this.offsetX, this.width - d.width), 0);
+        d.fy = Math.max(Math.min((this.py = D3.event.y) - this.offsetY, this.height - d.height), 0);
+        this.simulation.restart();
+      })
+      .on('end', (d: any) => {
+        if (this.sx === D3.event.x && this.sy === D3.event.y) { return this.clicked(d); }
+        const vScalingFactor = this.maxVelocity / Math.max(Math.sqrt(this.vx * this.vx + this.vy * this.vy), this.maxVelocity);
+        if (!this.isSticky) {
+          d.fx = null;
+          d.fy = null;
+        }
+        d.vx = this.vx * vScalingFactor;
+        d.vy = this.vy * vScalingFactor;
+        this.simulation.alpha(0.2).restart();
+      });
   }
 
   // DOM Manipulators --------------------
