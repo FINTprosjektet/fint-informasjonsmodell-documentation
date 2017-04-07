@@ -57,9 +57,11 @@ export class ClassComponent implements OnInit, OnDestroy {
   get attributes() {
     if (!this._attribs) {
       this._attribs = this.classification.ownedAttribute;
-      if (this.classification.superType) {
+      let c = this.classification;
+      while (c.superType) {
         if (!this._attribs) { this._attribs = []; }
-        this._attribs = this._attribs.concat(this.classification.superType.ownedAttribute);
+        this._attribs = this._attribs.concat(c.superType.ownedAttribute);
+        c = c.superType;
       }
     }
     return this._attribs;
