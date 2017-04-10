@@ -12,7 +12,11 @@ import { ModelService } from './EA/model.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  repos: any[];
+  repos: {[name: string]: string[]} = {
+    releases: [],
+    branches: []
+  };
+  get repoKeys() { return Object.keys(this.repos); }
   get selectedRepo(): string { return this.modelService.version; }
   set selectedRepo(value: string) {
     this.modelService.version = value;
@@ -46,6 +50,7 @@ export class AppComponent {
       if (params.s) { this.searchValue = params.s; }
       if (params.v) { this.modelService.version = params.v; }
     });
-    this.modelService.fetchVersions().subscribe(r => this.repos = r);
+    this.modelService.fetchVersions().subscribe(r => this.repos.releases =  r);
+    this.modelService.fetchBranches().subscribe(r => this.repos.branches = r);
   }
 }

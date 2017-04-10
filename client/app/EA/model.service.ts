@@ -118,7 +118,20 @@ export class ModelService {
           map = map.map(r => r.name);
           this.defaultVersion = map[0];
           if (!this.version) { this.version = this.defaultVersion; }
-          map.unshift('master'); // Add latest version to the top
+          return map;
+        }
+        else { console.error(map); }
+        return null;
+      })
+      .catch(error => this.handleError(error));
+  }
+
+  fetchBranches(): Observable<any> {
+    return this.http.request('/api/doc/branches')
+      .map(res => {
+        let map = res.json();
+        if (Array.isArray(map)) {
+          map = map.map(r => r.name);
           return map;
         }
         else { console.error(map); }
