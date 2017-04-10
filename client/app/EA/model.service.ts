@@ -131,7 +131,15 @@ export class ModelService {
       .map(res => {
         let map = res.json();
         if (Array.isArray(map)) {
-          map = map.map(r => r.name);
+          map = map.map(r => r.name).sort((a, b) => {
+            const isARelease = a.substring(0, 'release'.length) === 'release';
+            const isBRelease = b.substring(0, 'release'.length) === 'release';
+
+            if (a === 'master' || b === 'master') { return a === 'master' ? -1 : 1; }
+            if (isARelease && !isBRelease) { return b !== 'master' ? -1 : 1; }
+            if (!isARelease && isBRelease) { return a !== 'master' ? 1 : -1; }
+            return a < b ? -1 : 1;
+          });
           return map;
         }
         else { console.error(map); }
