@@ -87,7 +87,7 @@ ${chalk.green('**********************')}
 
         const json = JSON.parse(body);
         if (Array.isArray(json)) {
-          res.send(JSON.parse(body).map(r => r.name));
+          res.send(JSON.parse(body).map((r: any) => r.name));
         } else {
           Logger.log.error(err); res.send(500, json);
         }
@@ -106,8 +106,8 @@ ${chalk.green('**********************')}
         const json = JSON.parse(body);
         if (Array.isArray(json)) {
           res.send(JSON.parse(body)
-            .map(r => r.name)
-            .sort((a, b) => {
+            .map((r: any) => r.name)
+            .sort((a: string, b: string) => {
               const isARelease = a.substring(0, 'release'.length) === 'release';
               const isBRelease = b.substring(0, 'release'.length) === 'release';
 
@@ -116,7 +116,7 @@ ${chalk.green('**********************')}
               if (!isARelease && isBRelease) { return a !== 'master' ? 1 : -1; }
               return a < b ? -1 : 1;
             })
-            .filter(a => {
+            .filter((a: string) => {
               if (a === 'master') return true; // Include master branch
               if (a === 'develop') return true; // Include develop branch
               if (a.substring(0, 'release'.length) === 'release') return true; // Include release brances
