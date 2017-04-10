@@ -81,7 +81,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     { name: 'Arv', type: 'generalization' },
     { name: 'Assosiasjon', type: 'association' },
   ];
-  colors = [];
+  colorSchemes = ['Blue', 'Orange', 'Green', 'Purple', 'Grey'];
+  colorsFlat = [];
+  legend = [];
 
   private get width() { return this.htmlElement.clientWidth; }
   private get height() { return this.htmlElement.clientHeight; }
@@ -116,7 +118,8 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.simulation) { this.simulation.stop(); }
     this.modelService.fetchModel().subscribe(model => {
       // Reset
-      me.colors = [];
+      me.colorsFlat = [];
+      me.legend = [];
       me.links = null;
       me.hull = null;
       me.nodes = null;
@@ -257,21 +260,40 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
 
     return hull;
   }
-  private addToLegend(name) {
-    if (this.colors.findIndex(c => c.name === name) < 0) {
-      const me = this;
-      const col = {name: name, fill: this.sanitizer.bypassSecurityTrustStyle('background: ' + this.fill(name)), _active: true };
+  private addToLegend(pkg: EANodeContainer) {
+    const name = pkg.name;
+    const me = this;
+    if (pkg.stereotype != null && this.legend.findIndex(l => l.name === pkg.stereotype.name) < 0) {
+      // Make sure the stereotype exists
+      let col = defSetterGetters({name: pkg.stereotype.name, pkg: pkg.stereotype, fill: this.sanitizer.bypassSecurityTrustStyle(`background: ${this.fill(name)}`), _active: true, colors: [], parent: pkg.stereotype.name });
+      this.legend.push(col);
+      this.colorsFlat.push(col);
+    }
+    if (pkg.stereotype != pkg) {
+      // Add color to stereotype
+      let stereotype = this.legend.find(l => l.name === pkg.stereotype.name);
+      if (stereotype.colors.findIndex(c => c.name === name) < 0) {
+        let col = defSetterGetters({name: name, pkg: pkg, fill: this.sanitizer.bypassSecurityTrustStyle(`background: ${this.fill(name)}`), _active: true, parent: pkg.stereotype.name });
+        stereotype.colors.push(col);
+        this.colorsFlat.push(col);
+      }
+    }
+
+    function defSetterGetters(col) {
       Object.defineProperty(col, 'active', {
         get: function () { return this._active; },
         set: function (value) {
           if (this._active != value) {
             this._active = value;
+            if (this.colors) { this.colors.forEach(c => c.active = value); }
 
             // Recalculate hull, links and nodes
-            const activePackages = me.colors.filter(c => c.active).map(c => c.name);
-            const allLinks = me.modelService.getLinkNodes().filter(l => activePackages.indexOf(l.source.parentPackage.name) > -1 && activePackages.indexOf(l.target.parentPackage.name) > -1);
+            const activePackages = me.colorsFlat.filter(c => c.active).map(c => c.name);
+            const allLinks = me.modelService.getLinkNodes().filter(l => {
+              return activePackages.indexOf(l.source.parentPackage.name) > -1
+                  && activePackages.indexOf(l.target.parentPackage.name) > -1;
+            });
             me.nodeElements = me.modelService.getNodes(me.model.modelBase).filter(c => {
-              if (c instanceof Stereotype && activePackages.indexOf(c.name) > -1) { return false; }
               return c.parentPackage && activePackages.indexOf(c.parentPackage.name) > -1;
             });
 
@@ -283,32 +305,50 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }
       });
-      this.colors.push(col)
+      return col;
     }
   }
+
+  // private fillHull(name: string) {
+  //   return D3.scaleOrdinal(
+  //   return () => {
+  //     // Find package based on name
+  //     const c = this.colorsFlat.find(c => c.name === name);
+
+  //     // Chose color scheme based on stereotype index
+  //     const index = this.legend.findIndex(l => l.name === c.parent);
+  //     const scheme = this.colorSchemes[index];
+
+  //     // Find index of scheme
+  //     let childIndex = this.legend[index].colors.findIndex(l => l.name === name) + 1;
+  //     return D3[`shceme${scheme}s`](childIndex);
+  //   }
+  // }
+
   private convexHulls(nodes: EANode[]) {
     const hulls = {};
 
     // create point sets
     for (let k=0; k<nodes.length; ++k) {
       let n = nodes[k];
+      const pkg = n.parentPackage;
 
       let width = n.width, height = n.height;
-      if (!n.parentPackage || n.parentPackage.classes.length == 0 && !(n.parentPackage instanceof Stereotype)) {
+      if (!pkg || pkg.classes.length == 0 && !(pkg instanceof Stereotype)) {
         // Skip if this node has no group, or if it is a package with no direct classes related to it
         continue;
       }
 
-      let i = n.parentPackage.name;
+      let i = pkg.name;
       let l = hulls[i] || (hulls[i] = []);
-      this.addToLegend(i);
+      this.addToLegend(pkg);
 
       // Create hull data, an array list of x,y coords encapsulating the element
       l.push([n.x - this.hullOffset, n.y - this.hullOffset]);
       l.push([n.x - this.hullOffset, n.y + height + this.hullOffset]);
       l.push([n.x + width + this.hullOffset, n.y - this.hullOffset]);
       l.push([n.x + width + this.hullOffset, n.y + height + this.hullOffset]);
-      concatParent(n.parentPackage, l); // Include this hull in parent packages hull, so parent package also encapsulates this package
+      concatParent(pkg, l); // Include this hull in parent packages hull, so parent package also encapsulates this package
     }
 
     // create convex hulls
@@ -321,10 +361,10 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     return hullset;
 
     function concatParent(n, h) {
-      let p = n.parentPackage;
-      if (p && hulls[p.name]) {
-        hulls[p.name] = hulls[p.name].concat(h);
-        concatParent(p, hulls[p.name]);
+      let pkg = n.parentPackage;
+      if (pkg && hulls[pkg.name]) {
+        hulls[pkg.name] = hulls[pkg.name].concat(h);
+        concatParent(pkg, hulls[pkg.name]);
       }
     }
   }

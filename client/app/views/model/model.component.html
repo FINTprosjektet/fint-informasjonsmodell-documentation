@@ -24,13 +24,23 @@
       </div>
       <div class="pull-right colors">
         <ul class="unstyled">
-          <li *ngFor="let col of colors">
-            <div [class]="'box ' + col.name.toLowerCase().replace(' ', '_')" [style]="col.fill" (mouseenter)="findHull(col.name)" (mouseleave)="clearHull()">
+          <li *ngFor="let type of legend">
+            <div [class]="'box ' + type.name.toLowerCase().replace(' ', '_')" [style]="type.fill" (mouseenter)="findHull(type.name)" (mouseleave)="clearHull()">
               <label>
-                <input type="checkbox" name="activePacakge" [(ngModel)]="col.active">
-                {{ col.name }}
+                <input type="checkbox" name="activePacakge" [(ngModel)]="type.active">
+                {{ type.name }}
               </label>
             </div>
+            <ul class="unstyled" *ngIf="type.colors">
+              <li *ngFor="let col of type.colors">
+                <div [class]="'box ' + col.name.toLowerCase().replace(' ', '_')" [style]="col.fill" (mouseenter)="findHull(col.name)" (mouseleave)="clearHull()">
+                  <label>
+                    <input type="checkbox" name="activePacakge" [(ngModel)]="col.active">
+                    {{ col.name }}
+                  </label>
+                </div>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>
