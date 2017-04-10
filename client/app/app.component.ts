@@ -51,6 +51,12 @@ export class AppComponent {
       if (params.v) { this.modelService.version = params.v; }
     });
     this.modelService.fetchVersions().subscribe(r => this.repos.releases =  r);
-    this.modelService.fetchBranches().subscribe(r => this.repos.branches = r);
+    this.modelService.fetchBranches().subscribe(r => {
+      if (r.length) {
+        this.repos.branches = r;
+      } else {
+        delete this.repos.branches;
+      }
+    });
   }
 }

@@ -115,7 +115,6 @@ export class ModelService {
       .map(res => {
         let map = res.json();
         if (Array.isArray(map)) {
-          map = map.map(r => r.name);
           this.defaultVersion = map[0];
           if (!this.version) { this.version = this.defaultVersion; }
           return map;
@@ -128,23 +127,7 @@ export class ModelService {
 
   fetchBranches(): Observable<any> {
     return this.http.request('/api/doc/branches')
-      .map(res => {
-        let map = res.json();
-        if (Array.isArray(map)) {
-          map = map.map(r => r.name).sort((a, b) => {
-            const isARelease = a.substring(0, 'release'.length) === 'release';
-            const isBRelease = b.substring(0, 'release'.length) === 'release';
-
-            if (a === 'master' || b === 'master') { return a === 'master' ? -1 : 1; }
-            if (isARelease && !isBRelease) { return b !== 'master' ? -1 : 1; }
-            if (!isARelease && isBRelease) { return a !== 'master' ? 1 : -1; }
-            return a < b ? -1 : 1;
-          });
-          return map;
-        }
-        else { console.error(map); }
-        return null;
-      })
+      .map(res => res.json())
       .catch(error => this.handleError(error));
   }
 
@@ -296,7 +279,6 @@ export class ModelService {
   }
 
   handleError(error: any) {
-    console.error(error);
     this.fintDialog.displayHttpError(error);
     return Observable.throw(error);
   }

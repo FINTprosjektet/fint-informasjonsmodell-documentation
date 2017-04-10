@@ -84,7 +84,13 @@ ${chalk.green('**********************')}
       };
       request(options, function (err, response, body) {
         if (err) { Logger.log.error(err); res.send(500, err); }
-        res.send(body);
+
+        const json = JSON.parse(body);
+        if (Array.isArray(json)) {
+          res.send(JSON.parse(body).map(r => r.name));
+        } else {
+          Logger.log.error(err); res.send(500, json);
+        }
       });
     });
 
@@ -97,7 +103,30 @@ ${chalk.green('**********************')}
       };
       request(options, function (err, response, body) {
         if (err) { Logger.log.error(err); res.send(500, err); }
-        res.send(body);
+        const json = JSON.parse(body);
+        if (Array.isArray(json)) {
+          res.send(JSON.parse(body)
+            .map(r => r.name)
+            .sort((a, b) => {
+              const isARelease = a.substring(0, 'release'.length) === 'release';
+              const isBRelease = b.substring(0, 'release'.length) === 'release';
+
+              if (a === 'master' || b === 'master') { return a === 'master' ? -1 : 1; }
+              if (isARelease && !isBRelease) { return b !== 'master' ? -1 : 1; }
+              if (!isARelease && isBRelease) { return a !== 'master' ? 1 : -1; }
+              return a < b ? -1 : 1;
+            })
+            .filter(a => {
+              if (a === 'master') return true; // Include master branch
+              if (a === 'develop') return true; // Include develop branch
+              if (a.substring(0, 'release'.length) === 'release') return true; // Include release brances
+              if (a.substring(0, 'feature'.length) === 'feature') return true; // Include feature branches
+              return true; // For everything else
+            })
+          );
+        } else {
+          Logger.log.error(err); res.send(500, json);
+        }
       });
     });
 
