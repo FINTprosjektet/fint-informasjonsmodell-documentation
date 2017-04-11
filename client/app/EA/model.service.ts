@@ -102,7 +102,7 @@ export class ModelService {
    *
    * @memberOf ModelService
    */
-  constructor(private http: Http, private fintDialog: FintDialogService, private sanitizer: DomSanitizer) {
+  constructor(protected http: Http, protected fintDialog: FintDialogService, protected sanitizer: DomSanitizer) {
     EABaseClass.service = this;
   }
 
