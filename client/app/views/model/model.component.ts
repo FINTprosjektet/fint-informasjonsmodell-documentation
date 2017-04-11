@@ -44,7 +44,6 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   private simulation: D3.Simulation<EANode, EALinkBase>;
 
   // Data arrays for D3 rendering
-  private fill = D3.scaleOrdinal(D3.schemeCategory20c);
   private links;
   private hull;
   private nodes;
@@ -123,7 +122,6 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       me.links = null;
       me.hull = null;
       me.nodes = null;
-      me.fill = D3.scaleOrdinal(D3.schemeCategory20c);
 
       me.model = model;
       me.render();
@@ -236,7 +234,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param nodes A collection of `EANode` nodes to group
    */
   private renderHulls(nodes: EANode[]) {
-    const hull = this.svg.select('g.hulls').selectAll('g.hull').data(this.convexHulls(nodes), d => d.xmiId);
+    const hull = this.svg.select('g.hulls').selectAll('g.hull').data(this.convexHulls(nodes), d => d.group);
 
     // On new data, add hull path
     const hullEnter = hull.enter();
@@ -244,7 +242,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     hullGroup.append('path')
       .attr('class', d => 'hull ' + this.modelService.cleanId(d.group))
       .attr('d', d => this.hullCurve(d.path))
-      .style('fill', d => this.fill(d.group))
+      .style('fill', d => this.fillHull(d.group))
       .on('mouseover', d => {
         this.addClass(document.querySelector(`.legend .colors .box.${this.modelService.cleanId(d.group)}`), 'spotlight');
       })
@@ -260,20 +258,21 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
 
     return hull;
   }
+  setActiveTimeout;
   private addToLegend(pkg: EANodeContainer) {
     const name = pkg.name;
     const me = this;
     if (pkg.stereotype != null && this.legend.findIndex(l => l.name === pkg.stereotype.name) < 0) {
       // Make sure the stereotype exists
-      let col = defSetterGetters({name: pkg.stereotype.name, pkg: pkg.stereotype, fill: this.sanitizer.bypassSecurityTrustStyle(`background: ${this.fill(name)}`), _active: true, colors: [], parent: pkg.stereotype.name });
+      let col = defSetterGetters({name: pkg.stereotype.name, pkg: pkg.stereotype, fill: this.sanitizer.bypassSecurityTrustStyle(`background: ${this.fillHull(pkg.stereotype.name)}`), _active: true, colors: [], parent: pkg.stereotype.name });
       this.legend.push(col);
       this.colorsFlat.push(col);
     }
-    if (pkg.stereotype != pkg) {
+    if (pkg.stereotype != null && pkg.stereotype != pkg) {
       // Add color to stereotype
       let stereotype = this.legend.find(l => l.name === pkg.stereotype.name);
       if (stereotype.colors.findIndex(c => c.name === name) < 0) {
-        let col = defSetterGetters({name: name, pkg: pkg, fill: this.sanitizer.bypassSecurityTrustStyle(`background: ${this.fill(name)}`), _active: true, parent: pkg.stereotype.name });
+        let col = defSetterGetters({name: name, pkg: pkg, fill: this.sanitizer.bypassSecurityTrustStyle(`background: ${this.fillHull(pkg.name)}`), _active: true, parent: pkg.stereotype.name });
         stereotype.colors.push(col);
         this.colorsFlat.push(col);
       }
@@ -287,21 +286,25 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
             this._active = value;
             if (this.colors) { this.colors.forEach(c => c.active = value); }
 
-            // Recalculate hull, links and nodes
-            const activePackages = me.colorsFlat.filter(c => c.active).map(c => c.name);
-            const allLinks = me.modelService.getLinkNodes().filter(l => {
-              return activePackages.indexOf(l.source.parentPackage.name) > -1
-                  && activePackages.indexOf(l.target.parentPackage.name) > -1;
-            });
-            me.nodeElements = me.modelService.getNodes(me.model.modelBase).filter(c => {
-              return c.parentPackage && activePackages.indexOf(c.parentPackage.name) > -1;
-            });
+            if (me.setActiveTimeout) { clearTimeout(me.setActiveTimeout); }
+            me.setActiveTimeout = setTimeout(() => {
+              // Recalculate hull, links and nodes
+              const activePackages = me.colorsFlat.filter(c => c.active).map(c => c.name);
+              const allLinks = me.modelService.getLinkNodes().filter(l => {
+                return activePackages.indexOf(l.source.parentPackage.name) > -1
+                    && activePackages.indexOf(l.target.parentPackage.name) > -1;
+              });
+              me.nodeElements = me.modelService.getNodes(me.model.modelBase).filter(c => {
+                return c.parentPackage && (activePackages.indexOf(c.parentPackage.name) > -1 || activePackages.indexOf(c.name) > -1);
+              });
 
-            me.hull = me.renderHulls(me.nodeElements);
-            me.links = me.renderLinks(allLinks);
-            me.nodes = me.renderClasses(me.nodeElements);
+              me.hull = me.renderHulls(me.nodeElements);
+              me.links = me.renderLinks(allLinks);
+              me.nodes = me.renderClasses(me.nodeElements);
 
-            if (me.simulation) { me.simulation.restart(); }
+              if (me.simulation) { me.simulation.restart(); }
+              me.setActiveTimeout = null;
+            }, 100);
           }
         }
       });
@@ -309,21 +312,25 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // private fillHull(name: string) {
-  //   return D3.scaleOrdinal(
-  //   return () => {
-  //     // Find package based on name
-  //     const c = this.colorsFlat.find(c => c.name === name);
+  private fillHull(name: string) {
+    // Find package based on name
+    const pkg = <Package> this.modelService.findByName<Package>(name, Package);
 
-  //     // Chose color scheme based on stereotype index
-  //     const index = this.legend.findIndex(l => l.name === c.parent);
-  //     const scheme = this.colorSchemes[index];
+    if (pkg) {
+      // Chose color scheme based on stereotype index
+      const stereotype = pkg.stereotype;
+      if (stereotype) {
+        const index = this.model.modelBase.stereotypes.findIndex(s => s.xmiId === stereotype.xmiId);
+        const scheme = this.colorSchemes[index];
 
-  //     // Find index of scheme
-  //     let childIndex = this.legend[index].colors.findIndex(l => l.name === name) + 1;
-  //     return D3[`shceme${scheme}s`](childIndex);
-  //   }
-  // }
+        // Find index of scheme
+        const packages = stereotype.allPackages;
+        let childIndex = 0.7 - (packages.findIndex(p => p.xmiId === pkg.xmiId) + 1) / (packages.length + 1);
+        return D3[`interpolate${scheme}s`](childIndex);
+      }
+    }
+    return 0;
+  }
 
   private convexHulls(nodes: EANode[]) {
     const hulls = {};
@@ -334,7 +341,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       const pkg = n.parentPackage;
 
       let width = n.width, height = n.height;
-      if (!pkg || pkg.classes.length == 0 && !(pkg instanceof Stereotype)) {
+      if (!pkg || pkg.stereotype == null || pkg.classes.length == 0 && !(pkg instanceof Stereotype)) {
         // Skip if this node has no group, or if it is a package with no direct classes related to it
         continue;
       }

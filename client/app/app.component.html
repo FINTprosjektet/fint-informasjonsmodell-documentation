@@ -35,7 +35,7 @@
 
   <section class="pull-right">
     <form class="form">
-      <select [(ngModel)]="selectedRepo" [ngModelOptions]="{standalone: true}">
+      <select [(ngModel)]="selectedRepo" [ngModelOptions]="{standalone: true}" [disabled]="isLoading">
         <optgroup *ngFor="let ver of repoKeys" [label]="ver">
           <option *ngFor="let rep of repos[ver]" [ngValue]="rep">{{ rep }}</option>
         </optgroup>

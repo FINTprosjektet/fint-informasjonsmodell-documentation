@@ -92,3 +92,11 @@ ul.horisontal li {
   float: left;
 }
 
+input, select, textarea, button {
+  &[disabled] {
+    cursor: not-allowed;
+    background-color: #ddd !important;
+    color: #888 !important;
+  }
+}
+

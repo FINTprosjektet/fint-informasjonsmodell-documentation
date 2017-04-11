@@ -11,14 +11,14 @@ import * as D3 from 'app/d3.bundle';
  * @class Stereotype
  * @extends {Package}
  */
-export class Stereotype extends EANodeContainer {
+export class Stereotype extends Package {
   static umlId = 'uml:Package';
 
   width: number = 0;
   height: number = 0;
 
-  private _isVisible: boolean;
-  private _lastSearch: string;
+  protected _isVisible: boolean;
+  protected _lastSearch: string;
   public isVisible(): boolean {
     const str = EABaseClass.service.searchString;
     if (str && str.length > 0) {

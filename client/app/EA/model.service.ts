@@ -183,6 +183,37 @@ export class ModelService {
     return this.getAssociations(from).concat(this.getGeneralizations(from));
   }
 
+  sortNodes(a: any, b: any) { // Sort 'a' index according to 'b'
+    const stereotypeSort = function (a: Stereotype, b: Stereotype): number {
+      return (a.name > b.name) ? -1 : 1; // Sort by name alphabetically reversed
+    }
+
+    if (a instanceof Stereotype && b instanceof Stereotype) {
+      return stereotypeSort(a, b); // Both instances are Stereotypes
+    }
+    else {
+      if (!a.stereotype && b.stereotype) { return 1; } // 'a' does not belong to a stereotype. Move 'b' up.
+      if (a.stereotype && !b.stereotype) { return -1; } // 'b' does not belong to a stereotype. Move 'a' up.
+      if (a.stereotype != b.stereotype) { // 'a' and 'b' are from different stereotypes
+        return stereotypeSort(a.stereotype, b.stereotype);
+      }
+    }
+
+    // From here on out, we are sure that both 'a' and 'b' belong to the same stereotype
+    if (a instanceof Classification) {
+      // Move class below parent
+      if (b instanceof Package && a.parentPackage === b) { return 1; }
+      if (b instanceof Stereotype && a.parentPackage === b) { return 1; }
+    }
+
+    // Finally sort nodes according to their distance level from closest stereotype
+    if (a.levelFromStereotype != b.levelFromStereotype) {
+      return (a.levelFromStereotype < b.levelFromStereotype) ? -1 : 1;
+    }
+
+    return 0;
+  }
+
   _nodeCache: EANode[] = [];
   getNodes(from?: any): EANode[] {
     if (!this._nodeCache.length) {
@@ -197,37 +228,8 @@ export class ModelService {
         }
       });
 
-      const stereotypeSort = function (a: Stereotype, b: Stereotype): number {
-          return (a.name > b.name) ? -1 : 1; // Sort by name alphabetically reversed
-      }
-
       // Sort (Stereotype, Packages in stereotype, Class in package)
-      this._nodeCache.sort((a, b) => { // Sort 'a' index according to 'b'
-        if (a instanceof Stereotype && b instanceof Stereotype) {
-          return stereotypeSort(a, b); // Both instances are Stereotypes
-        }
-        else {
-          if (!a.stereotype && b.stereotype) { return 1; } // 'a' does not belong to a stereotype. Move 'b' up.
-          if (a.stereotype && !b.stereotype) { return -1; } // 'b' does not belong to a stereotype. Move 'a' up.
-          if (a.stereotype != b.stereotype) { // 'a' and 'b' are from different stereotypes
-            return stereotypeSort(a.stereotype, b.stereotype);
-          }
-        }
-
-        // From here on out, we are sure that both 'a' and 'b' belong to the same stereotype
-        if (a instanceof Classification) {
-          // Move class below parent
-          if (b instanceof Package && a.parentPackage === b) { return 1; }
-          if (b instanceof Stereotype && a.parentPackage === b) { return 1; }
-        }
-
-        // Finally sort nodes according to their distance level from closest stereotype
-        if (a.levelFromStereotype != b.levelFromStereotype) {
-          return (a.levelFromStereotype < b.levelFromStereotype) ? -1 : 1;
-        }
-
-        return 0;
-      });
+      this._nodeCache.sort(this.sortNodes);
     }
 
     let results: EANode[] = this._nodeCache;
@@ -260,6 +262,10 @@ export class ModelService {
     return this.mapper.allOfXmiType(Classification.umlId, from).filter((c: Classification) => c.type !== 'Boundary' && c.type.toLowerCase() !== 'xsdsimpletype');
   }
 
+  getPackages(from?: any): any[] {
+    return this.mapper.allOfXmiType(Package.umlId, from);
+  }
+
   getTopPackages(from?: any): any[] {
     return this.model.stereotypes;
   }
@@ -273,8 +279,15 @@ export class ModelService {
     }
   }
 
-  findByName(name) {
-    const clsId = Object.keys(this.mapper.flatModel).find(k => this.mapper.flatModel[k].name && this.mapper.flatModel[k].name === name);
+  findByName<T>(name, type?: {new (): T}) {
+    const clsId = Object.keys(this.mapper.flatModel).find(k => {
+      const obj = this.mapper.flatModel[k];
+      if (obj.name && obj.name === name) {
+        if (type && !(obj instanceof type)) { return false; }
+        return true;
+      }
+      return false;
+    });
     return this.mapper.flatModel[clsId];
   }
 

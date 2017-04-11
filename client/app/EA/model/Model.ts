@@ -44,7 +44,7 @@ export class Model extends EABaseClass {
           }
         });
       });
-      this._stereotypes = retArr;
+      this._stereotypes = retArr.sort(EABaseClass.service.sortNodes);
     }
     return this._stereotypes;
   }
@@ -61,7 +61,7 @@ export class Model extends EABaseClass {
           }
         });
       });
-      this._packages = retArr;
+      this._packages = retArr.sort(EABaseClass.service.sortNodes);
     }
     return this._packages;
   }

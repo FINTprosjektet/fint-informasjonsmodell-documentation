@@ -12,8 +12,8 @@ import * as D3 from 'app/d3.bundle';
 export class Package extends EANodeContainer {
   static umlId = 'uml:Package';
 
-  private _isVisible: boolean;
-  private _lastSearch: string;
+  protected _isVisible: boolean;
+  protected _lastSearch: string;
   public isVisible(): boolean {
     const str = EABaseClass.service.searchString;
     if (str && str.length > 0) {
