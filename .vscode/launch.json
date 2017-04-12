@@ -5,15 +5,27 @@
       "type": "node",
       "request": "launch",
       "name": "Server",
+      "preLaunchTask": "server:build",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "node_modules\\.bin\\nodemon",
+      "windows": {
+        "runtimeExecutable": "node_modules\\.bin\\nodemon.cmd"
+      },
+      "runtimeArgs": [
+        "--debug=5858"
+      ],
       "sourceMaps": true,
       "outFiles": [ "${workspaceRoot}/dist/**/*.js" ],
       "program": "${workspaceRoot}/server/index.ts",
-      "cwd": "${workspaceRoot}"
+      "restart": true,
+      "port": 5858,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Client",
       "type": "chrome",
       "request": "launch",
+      "name": "Client",
       "url": "http://localhost:4200/*",
       "sourceMaps": true,
       "webRoot": "${workspaceRoot}/client",
@@ -22,6 +34,12 @@
       "sourceMapPathOverrides": {
         "webpack:///./*": "${workspaceRoot}/*"
       }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Server/Client",
+      "configurations": [ "Server", "Client" ]
     }
   ]
 }

@@ -5,7 +5,7 @@
   "angular-cli": {},
   "scripts": {
     "ng": "ng",
-    "dev": "concurrently \"npm run server:build:watch\" \"npm run server:watch\"",
+    "dev": "concurrently --kill-others \"npm run server:build:watch\" \"npm run server:watch\"",
     "clean": "rm -rf dist",
     "start": "npm run server",
     "build": "npm run server:build && npm run client:build",
