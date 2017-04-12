@@ -27,6 +27,24 @@ export abstract class EANode extends EABaseClass {
     return this._package;
   }
 
+  _packagePath;
+  get packagePath(): string {
+    if (!this._packagePath) {
+      const path = [];
+      let pkg: EANode = this;
+      while (pkg != null) {
+        path.unshift(this.cleanId(pkg.name));
+        pkg = pkg.parentPackage;
+        if (pkg && pkg.name === 'FINT') {
+          pkg = null; // Hardcoded top package name
+        }
+      }
+      this._packagePath = path.join('.');
+    }
+    return this._packagePath;
+  }
+
+
   _stereotype;
   get stereotype(): Stereotype {
     if (!this._stereotype) {

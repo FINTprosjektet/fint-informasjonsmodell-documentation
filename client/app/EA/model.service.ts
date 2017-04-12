@@ -183,7 +183,7 @@ export class ModelService {
     return this.getAssociations(from).concat(this.getGeneralizations(from));
   }
 
-  sortNodes(a: any, b: any) { // Sort 'a' index according to 'b'
+  sortNodes(a: EANode, b: EANode) { // Sort 'a' index according to 'b'
     const stereotypeSort = function (a: Stereotype, b: Stereotype): number {
       return (a.name > b.name) ? -1 : 1; // Sort by name alphabetically reversed
     }
@@ -199,19 +199,9 @@ export class ModelService {
       }
     }
 
-    // From here on out, we are sure that both 'a' and 'b' belong to the same stereotype
-    if (a instanceof Classification) {
-      // Move class below parent
-      if (b instanceof Package && a.parentPackage === b) { return 1; }
-      if (b instanceof Stereotype && a.parentPackage === b) { return 1; }
-    }
-
-    // Finally sort nodes according to their distance level from closest stereotype
-    if (a.levelFromStereotype != b.levelFromStereotype) {
-      return (a.levelFromStereotype < b.levelFromStereotype) ? -1 : 1;
-    }
-
-    return 0;
+    // // From here on out, we are sure that both 'a' and 'b' belong to the same stereotype
+    if (a.packagePath === b.packagePath) { return 0; }
+    return (a.packagePath < b.packagePath) ? -1 : 1;
   }
 
   _nodeCache: EANode[] = [];

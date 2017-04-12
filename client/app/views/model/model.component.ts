@@ -325,8 +325,8 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
 
         // Find index of scheme
         const packages = stereotype.allPackages;
-        let childIndex = 0.7 - (packages.findIndex(p => p.xmiId === pkg.xmiId) + 1) / (packages.length + 1);
-        return D3[`interpolate${scheme}s`](childIndex);
+        let childIndex = packages.findIndex(p => p.xmiId === pkg.xmiId);
+        return D3[`interpolate${scheme}s`](0.7 - (childIndex + 1) / (packages.length + 1.5));
       }
     }
     return 0;

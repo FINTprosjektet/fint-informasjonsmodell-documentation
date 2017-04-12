@@ -13,19 +13,6 @@ export abstract class EANodeContainer extends EANode {
     return this._id;
   }
 
-  get packagePath(): string {
-    const path = [];
-    let pkg: EANodeContainer = this;
-    while (pkg != null) {
-      path.unshift(pkg.name.toLowerCase());
-      pkg = pkg.parentPackage;
-      if (pkg.name === 'FINT') {
-        pkg = null; // Hardcoded top package name
-      }
-    }
-    return path.join('.');
-  }
-
   _packages: EANodeContainer[];
   get packages() {
     if (!this._packages) { this._packages = this.packagedElement.filter(element => element instanceof EANodeContainer).sort(EABaseClass.service.sortNodes); }
