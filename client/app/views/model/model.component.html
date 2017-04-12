@@ -24,6 +24,14 @@
       </div>
       <div class="pull-right colors">
         <ul class="unstyled">
+          <li>
+            <div class="box unstyled">
+              <label>
+                <input type="checkbox" name="clearAll" [(ngModel)]="allActive">
+                Alle pakker
+              </label>
+            </div>
+          </li>
           <li *ngFor="let type of legend">
             <div [class]="'box ' + type.name.toLowerCase().replace(' ', '_')" [style]="type.fill" (mouseenter)="findHull(type.name)" (mouseleave)="clearHull()">
               <label>

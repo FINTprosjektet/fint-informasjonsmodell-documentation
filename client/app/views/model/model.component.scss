@@ -129,6 +129,14 @@
       border-color: darken($border-color, 30%);
       box-shadow: 0 1px 3px black;
     }
+    &.unstyled {
+      border: 1px solid transparent;
+      padding: 0.25rem 0rem;
+      &:hover {
+        border: 1px solid transparent !important;
+        box-shadow: none !important;
+      }
+    }
 
     // Line types
     &.generalization, &.association {

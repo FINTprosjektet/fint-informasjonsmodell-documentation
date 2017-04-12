@@ -84,6 +84,13 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   colorsFlat = [];
   legend = [];
 
+  get allActive() {
+    return !this.colorsFlat.some(c => !c.active);
+  }
+  set allActive(value) {
+    this.colorsFlat.forEach(c => c.active = value);
+  }
+
   private get width() { return this.htmlElement.clientWidth; }
   private get height() { return this.htmlElement.clientHeight; }
 
