@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs/Rx';
 import { EABaseClass } from 'app/EA/model/EABaseClass';
 import { Classification } from 'app/EA/model/Classification';
 import { Association } from "app/EA/model/Association";
+import { AssociationEnd } from "app/EA/model/AssociationEnd";
 
 @Component({
   selector: 'app-class',
@@ -48,7 +49,7 @@ export class ClassComponent implements OnInit, OnDestroy {
   _assoc;
   get associations() {
     if (!this._assoc) {
-      this._assoc = this.classification.associations.map(r => r.getAssociationEnd(this.classification));
+      this._assoc = this.classification.associations.map(r => r.getAssociationEnd(this.classification)).filter((a: AssociationEnd) => a.label != null);
     }
     return this._assoc;
   }
