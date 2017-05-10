@@ -7,6 +7,10 @@ import { Classification } from 'app/EA/model/Classification';
 import { Association } from "app/EA/model/Association";
 import { AssociationEnd } from "app/EA/model/AssociationEnd";
 
+type AssociationMapper = {
+  parent: Classification;
+  end: AssociationEnd;
+}
 @Component({
   selector: 'app-class',
   templateUrl: './class.component.html',
@@ -49,7 +53,23 @@ export class ClassComponent implements OnInit, OnDestroy {
   _assoc;
   get associations() {
     if (!this._assoc) {
-      this._assoc = this.classification.associations.map(r => r.getAssociationEnd(this.classification)).filter((a: AssociationEnd) => a.label != null);
+      this._assoc = this.classification.associations.map(r => {
+        return <AssociationMapper>{parent: this.classification, end: r.getAssociationEnd(this.classification)};
+      }).filter((a: AssociationMapper) => a.end.label != null);
+
+      let c = this.classification;
+      while (c.superType) {
+        if (!this._assoc) { this._assoc = []; }
+        this._assoc = this._assoc
+          .concat(c.superType.associations
+            .map(r => {
+              return <AssociationMapper>{parent: c.superType, end: r.getAssociationEnd(c.superType)};
+            })
+            .filter((a: AssociationMapper) => a.end.label != null)
+          );
+          // .filter((a: AssociationMapper) => a.end == undefined);
+        c = c.superType;
+      }
     }
     return this._assoc;
   }

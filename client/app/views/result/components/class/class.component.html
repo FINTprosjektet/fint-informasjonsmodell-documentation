@@ -83,28 +83,28 @@
               <th class="description">Beskrivelse</th>
             </tr>
           </thead>
-          <tbody *ngFor="let association of associations" [attr.id]="association.id">
-            <tr [ngClass]="{hasDetailsBody: association.documentationBody.length > 0, hasDetails: association.documentationHeader.length > 0, isOpen: association.isOpen}">
+          <tbody *ngFor="let association of associations" [attr.id]="association.id" [ngClass]="{'inherited': association.parent != classification}" [title]="association.parent != classification ? 'Arvet fra ' + association.parent.name : ''">
+            <tr [ngClass]="{hasDetailsBody: association.end.documentationBody.length > 0, hasDetails: association.end.documentationHeader.length > 0, isOpen: association.isOpen}">
               <td class="dropdown" (click)="openAssociation(association)">
-                <fint-fa *ngIf="association.documentationHeader.length > 0" class="toggleMobileDetails" [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
-                <fint-fa *ngIf="association.documentationBody.length > 0" class="toggleDetailBody" [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
+                <fint-fa *ngIf="association.end.documentationHeader.length > 0" class="toggleMobileDetails" [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
+                <fint-fa *ngIf="association.end.documentationBody.length > 0" class="toggleDetailBody" [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
               </td>
-              <td class="name" [innerHTML]="association.label | highlight:searchStr" (click)="openAssociation(association)"></td>
+              <td class="name" [innerHTML]="association.end.label | highlight:searchStr" (click)="openAssociation(association)"></td>
               <td class="type">
-                <a [routerLink]="['/docs', association.reference.id]"
-                   [queryParams]="classification.queryParams" [innerHTML]="association.reference.name | highlight:searchStr">
+                <a [routerLink]="['/docs', association.end.reference.id]"
+                   [queryParams]="classification.queryParams" [innerHTML]="association.end.reference.name | highlight:searchStr">
                 </a>
               </td>
-              <td class="multiplicity" (click)="openAssociation(association)">{{ association.multiplicity }}</td>
+              <td class="multiplicity" (click)="openAssociation(association)">{{ association.end.multiplicity }}</td>
               <td class="description" (click)="openAssociation(association)">
-                {{ association.documentationHeader }}
+                {{ association.end.documentationHeader }}
               </td>
             </tr>
-            <tr class="dropdown-row" *ngIf="association.isOpen && association.documentationHeader.length > 0">
-              <td colspan="5" class="details"><i>{{ association.documentationHeader }}</i></td>
+            <tr class="dropdown-row" *ngIf="association.isOpen && association.end.documentationHeader.length > 0">
+              <td colspan="5" class="details"><i>{{ association.end.documentationHeader }}</i></td>
             </tr>
-            <tr *ngIf="association.isOpen && association.documentationBody.length > 0">
-              <td colspan="5" [innerHTML]="association.documentationBody" class="details"></td>
+            <tr *ngIf="association.isOpen && association.end.documentationBody.length > 0">
+              <td colspan="5" [innerHTML]="association.end.documentationBody" class="details"></td>
             </tr>
           </tbody>
         </table>
