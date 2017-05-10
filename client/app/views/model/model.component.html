@@ -5,6 +5,7 @@
       <fint-fa [name]="legendVisible ? 'caret-down' : 'caret-right'"></fint-fa>
     </header>
     <div [ngClass]="{'visible': legendVisible}">
+
       <div class="pull-right">
         <ul class="unstyled">
           <li *ngFor="let cls of types">
@@ -22,6 +23,7 @@
           <fint-fa name="thumb-tack"></fint-fa>
         </label>
       </div>
+
       <div class="pull-right colors">
         <ul class="unstyled">
           <li>
@@ -52,6 +54,7 @@
           </li>
         </ul>
       </div>
+
     </div>
   </aside>
   <div #container class="container"></div>

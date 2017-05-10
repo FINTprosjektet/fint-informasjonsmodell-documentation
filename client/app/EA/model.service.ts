@@ -281,6 +281,18 @@ export class ModelService {
     return this.mapper.flatModel[clsId];
   }
 
+  findByXmiId<T>(xmiId, type?: {new (): T}) {
+    const clsId = Object.keys(this.mapper.flatModel).find(k => {
+      const obj = this.mapper.flatModel[k];
+      if (obj.xmiId && obj.xmiId === xmiId) {
+        if (type && !(obj instanceof type)) { return false; }
+        return true;
+      }
+      return false;
+    });
+    return this.mapper.flatModel[clsId];
+  }
+
   handleError(error: any) {
     this.fintDialog.displayHttpError(error);
     return Observable.throw(error);

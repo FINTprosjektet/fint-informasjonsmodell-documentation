@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { Title, DomSanitizer } from '@angular/platform-browser';
+import { Title, DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -21,20 +21,29 @@ import { EANodeContainer } from 'app/EA/model/EANodeContainer';
 import { ModelStateService } from 'app/views/model/model-state.service';
 import { Stereotype } from 'app/EA/model/Stereotype';
 
+export interface ILegendItem {
+  xmiId: string;
+  name: string;
+  pkg: EANodeContainer;
+  fill: SafeStyle,
+  active: boolean,
+  colors: string[],
+  parent: string
+}
+
 @Component({
   selector: 'app-model',
   templateUrl: './model.component.html',
   styleUrls: ['./model.component.scss']
 })
 export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
+
   // Elements
   @ViewChild('container') element: ElementRef;
   private htmlElement: HTMLElement;
   private host;
   private svg;
 
-  get legendVisible() { return this.state.legendVisible; }
-  set legendVisible(value) { this.state.legendVisible = value; }
 
   // Our datasource
   private model: IModelContainer;
@@ -70,28 +79,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // Properties used for displaying legend
-  types = [
-    { name: 'Hoved klasse', type: 'mainclass' },
-    { name: 'Kompleks datatype', type: 'class' },
-    { name: 'Abstrakt', type: 'abstract' },
-  ];
-  lines = [
-    { name: 'Arv', type: 'generalization' },
-    { name: 'Assosiasjon', type: 'association' },
-  ];
-  colorSchemes = ['Blue', 'Orange', 'Green', 'Purple', 'Grey'];
-  colorsFlat = [];
-  legend = [];
-
-  get allActive() {
-    return !this.colorsFlat.some(c => !c.active);
-  }
-  set allActive(value) {
-    this.colorsFlat.forEach(c => c.active = value);
-  }
-
-  private get width() { return this.htmlElement.clientWidth; }
+  private get width() { return this.htmlElement.clientWidth - 380; }
   private get height() { return this.htmlElement.clientHeight; }
 
   get isLoading() { return this.modelService.isLoading; }
@@ -124,8 +112,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.simulation) { this.simulation.stop(); }
     this.modelService.fetchModel().subscribe(model => {
       // Reset
-      me.colorsFlat = [];
-      me.legend = [];
+      me.resetLegend();
+      // me.colorsFlat = [];
+      // me.legend = [];
       me.links = null;
       me.hull = null;
       me.nodes = null;
@@ -136,6 +125,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  // ###########################################
+  // RENDERING FUNCTIONS
+  // ###########################################
   /**
    * This renderes the svg canvas and definitions, and defines the simulation
    * forces to be used.
@@ -241,7 +233,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param nodes A collection of `EANode` nodes to group
    */
   private renderHulls(nodes: EANode[]) {
-    const hull = this.svg.select('g.hulls').selectAll('g.hull').data(this.convexHulls(nodes), d => d.group);
+    const hull = this.svg.select('g.hulls').selectAll('g.hull').data(this.createHullData(nodes), d => d.group);
 
     // On new data, add hull path
     const hullEnter = hull.enter();
@@ -249,7 +241,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     hullGroup.append('path')
       .attr('class', d => 'hull ' + this.modelService.cleanId(d.group))
       .attr('d', d => this.hullCurve(d.path))
-      .style('fill', d => this.fillHull(d.group))
+      .style('fill', d => this.getColorFromPackageId(d.group))
       .on('mouseover', d => {
         this.addClass(document.querySelector(`.legend .colors .box.${this.modelService.cleanId(d.group)}`), 'spotlight');
       })
@@ -264,123 +256,6 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     hull.exit().remove();
 
     return hull;
-  }
-  setActiveTimeout;
-  private addToLegend(pkg: EANodeContainer) {
-    const name = pkg.name;
-    const me = this;
-    if (pkg.stereotype != null && this.legend.findIndex(l => l.name === pkg.stereotype.name) < 0) {
-      // Make sure the stereotype exists
-      let col = defSetterGetters({name: pkg.stereotype.name, pkg: pkg.stereotype, fill: this.sanitizer.bypassSecurityTrustStyle(`background: ${this.fillHull(pkg.stereotype.name)}`), _active: true, colors: [], parent: pkg.stereotype.name });
-      this.legend.push(col);
-      this.colorsFlat.push(col);
-    }
-    if (pkg.stereotype != null && pkg.stereotype != pkg) {
-      // Add color to stereotype
-      let stereotype = this.legend.find(l => l.name === pkg.stereotype.name);
-      if (stereotype.colors.findIndex(c => c.name === name) < 0) {
-        let col = defSetterGetters({name: name, pkg: pkg, fill: this.sanitizer.bypassSecurityTrustStyle(`background: ${this.fillHull(pkg.name)}`), _active: true, parent: pkg.stereotype.name });
-        stereotype.colors.push(col);
-        this.colorsFlat.push(col);
-      }
-    }
-
-    function defSetterGetters(col) {
-      Object.defineProperty(col, 'active', {
-        get: function () { return this._active; },
-        set: function (value) {
-          if (this._active != value) {
-            this._active = value;
-            if (this.colors) { this.colors.forEach(c => c.active = value); }
-
-            if (me.setActiveTimeout) { clearTimeout(me.setActiveTimeout); }
-            me.setActiveTimeout = setTimeout(() => {
-              // Recalculate hull, links and nodes
-              const activePackages = me.colorsFlat.filter(c => c.active).map(c => c.name);
-              const allLinks = me.modelService.getLinkNodes().filter(l => {
-                return activePackages.indexOf(l.source.parentPackage.name) > -1
-                    && activePackages.indexOf(l.target.parentPackage.name) > -1;
-              });
-              me.nodeElements = me.modelService.getNodes(me.model.modelBase).filter(c => {
-                return c.parentPackage && (activePackages.indexOf(c.parentPackage.name) > -1 || activePackages.indexOf(c.name) > -1);
-              });
-
-              me.hull = me.renderHulls(me.nodeElements);
-              me.links = me.renderLinks(allLinks);
-              me.nodes = me.renderClasses(me.nodeElements);
-
-              if (me.simulation) { me.simulation.restart(); }
-              me.setActiveTimeout = null;
-            }, 100);
-          }
-        }
-      });
-      return col;
-    }
-  }
-
-  private fillHull(name: string) {
-    // Find package based on name
-    const pkg = <Package> this.modelService.findByName<Package>(name, Package);
-
-    if (pkg) {
-      // Chose color scheme based on stereotype index
-      const stereotype = pkg.stereotype;
-      if (stereotype) {
-        const index = this.model.modelBase.stereotypes.findIndex(s => s.xmiId === stereotype.xmiId);
-        const scheme = this.colorSchemes[index];
-
-        // Find index of scheme
-        const packages = stereotype.allPackages;
-        let childIndex = packages.findIndex(p => p.xmiId === pkg.xmiId);
-        return D3[`interpolate${scheme}s`](0.7 - (childIndex + 1) / (packages.length + 1.5));
-      }
-    }
-    return 0;
-  }
-
-  private convexHulls(nodes: EANode[]) {
-    const hulls = {};
-
-    // create point sets
-    for (let k=0; k<nodes.length; ++k) {
-      let n = nodes[k];
-      const pkg = n.parentPackage;
-
-      let width = n.width, height = n.height;
-      if (!pkg || pkg.stereotype == null || pkg.classes.length == 0 && !(pkg instanceof Stereotype)) {
-        // Skip if this node has no group, or if it is a package with no direct classes related to it
-        continue;
-      }
-
-      let i = pkg.name;
-      let l = hulls[i] || (hulls[i] = []);
-      this.addToLegend(pkg);
-
-      // Create hull data, an array list of x,y coords encapsulating the element
-      l.push([n.x - this.hullOffset, n.y - this.hullOffset]);
-      l.push([n.x - this.hullOffset, n.y + height + this.hullOffset]);
-      l.push([n.x + width + this.hullOffset, n.y - this.hullOffset]);
-      l.push([n.x + width + this.hullOffset, n.y + height + this.hullOffset]);
-      concatParent(pkg, l); // Include this hull in parent packages hull, so parent package also encapsulates this package
-    }
-
-    // create convex hulls
-    const hullset = [];
-    for (let h in hulls) {
-      // This creates the actual path for the hull based on our array list
-      hullset.push({group: h, path: D3.polygonHull(hulls[h])});
-    }
-
-    return hullset;
-
-    function concatParent(n, h) {
-      let pkg = n.parentPackage;
-      if (pkg && hulls[pkg.name]) {
-        hulls[pkg.name] = hulls[pkg.name].concat(h);
-        concatParent(pkg, hulls[pkg.name]);
-      }
-    }
   }
 
   /**
@@ -498,7 +373,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     this.svg.select('g.nodes').selectAll('g.element').attr('transform', (c: EANode) => `translate(${c.x}, ${c.y})`);
 
     // Animate hull
-    this.svg.select('g.hulls').selectAll('path').data(this.convexHulls(this.nodeElements)).attr('d', d => this.hullCurve(d.path));
+    this.svg.select('g.hulls').selectAll('path').data(this.createHullData(this.nodeElements)).attr('d', d => this.hullCurve(d.path));
 
     // Animate links
     this.svg.select('g.links').selectAll('line').attrs((l: EALinkBase) => {
@@ -534,7 +409,165 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // EVENT HANDLERS ----------------------------
+  // ###########################################
+  // DATA CREATORS
+  // ###########################################
+  private createHullData(nodes: EANode[]) {
+    const hulls = {};
+    const concatParent = (thisPkg, hullData) => {
+      let pkg = thisPkg.parentPackage;
+      if (pkg && hulls[pkg.xmiId]) {
+        hulls[pkg.xmiId] = hulls[pkg.xmiId].concat(hullData);
+        concatParent(pkg, hulls[pkg.xmiId]);
+      }
+    }
+
+    // create point sets
+    for (let k=0; k<nodes.length; ++k) {
+      let n = nodes[k];
+      const pkg = n.parentPackage;
+
+      let width = n.width, height = n.height;
+      if (!pkg || pkg.stereotype == null || pkg.classes.length == 0 && !(pkg instanceof Stereotype)) {
+        // Skip if this node has no group, or if it is a package with no direct classes related to it
+        continue;
+      }
+
+      let i = pkg.xmiId;
+      let l = hulls[i] || (hulls[i] = []);
+      this.addToLegend(pkg);
+
+      // Create hull data, an array list of x,y coords encapsulating the element
+      l.push([n.x - this.hullOffset, n.y - this.hullOffset]);
+      l.push([n.x - this.hullOffset, n.y + height + this.hullOffset]);
+      l.push([n.x + width + this.hullOffset, n.y - this.hullOffset]);
+      l.push([n.x + width + this.hullOffset, n.y + height + this.hullOffset]);
+      concatParent(pkg, l); // Include this hull in parent packages hull, so parent package also encapsulates this package
+    }
+
+    // create convex hulls
+    const hullset = [];
+    for (let h in hulls) {
+      // This creates the actual path for the hull based on our array list
+      hullset.push({group: h, path: D3.polygonHull(hulls[h])});
+    }
+
+    return hullset;
+  }
+
+  // ###########################################
+  // LEGEND
+  // ###########################################
+  types = [
+    { name: 'Hoved klasse', type: 'mainclass' },
+    { name: 'Kompleks datatype', type: 'class' },
+    { name: 'Abstrakt', type: 'abstract' },
+  ];
+  lines = [
+    { name: 'Arv', type: 'generalization' },
+    { name: 'Assosiasjon', type: 'association' },
+  ];
+  colorSchemes = ['Blue', 'Orange', 'Green', 'Purple', 'Grey'];
+  get legendVisible() { return this.state.legendVisible; }
+  set legendVisible(value) { this.state.legendVisible = value; }
+
+  colorsFlat: ILegendItem[] = [];
+  legend = [];
+  setActiveTimeout;
+  get allActive() {
+    return !this.colorsFlat.some(c => !c.active);
+  }
+  set allActive(value) {
+    this.colorsFlat.forEach(c => c.active = value);
+  }
+
+  resetLegend() {
+    this.colorsFlat = [];
+    this.legend = [];
+  }
+
+  addToLegend(pkg: EANodeContainer) {
+    const xmiId = pkg.xmiId;
+    if (pkg.stereotype != null && this.legend.findIndex(l => l.xmiId === pkg.stereotype.xmiId) < 0) {
+      // Make sure the stereotype exists
+      let col = this.createLegendItem(pkg.stereotype.name, pkg.stereotype.xmiId, pkg.stereotype, pkg.stereotype.xmiId, pkg.stereotype.xmiId);
+      this.legend.push(col);
+      this.colorsFlat.push(col);
+    }
+    if (pkg.stereotype != null && pkg.stereotype != pkg) {
+      // Add color to stereotype
+      let stereotype = this.legend.find(l => l.xmiId === pkg.stereotype.xmiId);
+      if (stereotype.colors.findIndex(c => c.xmiId === xmiId) < 0) {
+        let col = this.createLegendItem(pkg.name, xmiId, pkg, pkg.xmiId, pkg.stereotype.xmiId);
+        stereotype.colors.push(col);
+        this.colorsFlat.push(col);
+      }
+    }
+  }
+
+  private createLegendItem(name: string, xmiId: string, pkg: EANodeContainer, pkgXmiId: string, parent: string): ILegendItem {
+    const me = this;
+    return <ILegendItem>{
+      name: name,
+      xmiId: xmiId,
+      pkg: pkg,
+      fill: this.sanitizer.bypassSecurityTrustStyle(`background: ${this.getColorFromPackageId(pkgXmiId)}`),
+      _active: true,
+      get active() { return this._active; },
+      set active(value) {
+        if (this._active != value) {
+          this._active = value;
+          if (this.colors) { this.colors.forEach(c => c.active = value); }
+
+          if (me.setActiveTimeout) { clearTimeout(me.setActiveTimeout); }
+          me.setActiveTimeout = setTimeout(() => {
+            // Recalculate hull, links and nodes
+            const activePackages = me.colorsFlat.filter(c => c.active).map(c => c.xmiId);
+            const allLinks = me.modelService.getLinkNodes().filter(l => {
+              return activePackages.indexOf(l.source.parentPackage.xmiId) > -1
+                  && activePackages.indexOf(l.target.parentPackage.xmiId) > -1;
+            });
+            me.nodeElements = me.modelService.getNodes(me.model.modelBase).filter(c => {
+              return c.parentPackage && (activePackages.indexOf(c.parentPackage.xmiId) > -1 || activePackages.indexOf(c.xmiId) > -1);
+            });
+
+            me.hull = me.renderHulls(me.nodeElements);
+            me.links = me.renderLinks(allLinks);
+            me.nodes = me.renderClasses(me.nodeElements);
+
+            if (me.simulation) { me.simulation.restart(); }
+            me.setActiveTimeout = null;
+          }, 100);
+        }
+      },
+      colors: <string[]>[],
+      parent: parent
+    }
+  }
+
+  private getColorFromPackageId(xmiId: string) {
+    // Find package based on name
+    const pkg = <Package> this.modelService.findByXmiId<Package>(xmiId, Package);
+
+    if (pkg) {
+      // Chose color scheme based on stereotype index
+      const stereotype = pkg.stereotype;
+      if (stereotype) {
+        const index = this.model.modelBase.stereotypes.findIndex(s => s.xmiId === stereotype.xmiId);
+        const scheme = this.colorSchemes[index];
+
+        // Find index of scheme
+        const packages = stereotype.allPackages;
+        let childIndex = packages.findIndex(p => p.xmiId === pkg.xmiId);
+        return D3[`interpolate${scheme}s`](0.7 - (childIndex + 1) / (packages.length + 1.5));
+      }
+    }
+    return 0;
+  }
+
+  // ###########################################
+  // EVENT HANDLERS
+  // ###########################################
   /**
    * Called each time the window is resized. This will kickstart the simulation again.
    */
@@ -633,7 +666,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  // DOM Manipulators --------------------
+  // ###########################################
+  // DOM Manipulators
+  // ###########################################
   addClass(elm: Element, className: string) {
     if (elm) {
       if (elm.classList) { elm.classList.add(className); }
