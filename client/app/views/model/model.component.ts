@@ -243,14 +243,14 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       .attr('d', d => this.hullCurve(d.path))
       .style('fill', d => this.getColorFromPackageId(d.group))
       .on('mouseover', d => {
-        this.addClass(document.querySelector(`.legend .colors .box.${this.modelService.cleanId(d.group)}`), 'spotlight');
+        this.addClass(document.querySelector(`.legend .colors .box.${d.group}`), 'spotlight');
       })
       .on('mouseleave', d => {
         [].forEach.call(document.querySelectorAll('.legend .colors .box'), elm => this.removeClass(elm, 'spotlight'));
       })
       .call(this.hullDragBehaviour());
 
-    hullGroup.append('title').text(d => d.group);
+    hullGroup.append('title').text(d => d.name);
 
     // On data removal, remove hull path;
     hull.exit().remove();
@@ -297,8 +297,8 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     const nodeEnter = nodes.enter()
       .append('g')
       .attr('class', (c: EANode) => {
-        if (c instanceof Classification) { return ['element', c.type.toLowerCase(), c.cleanId(c.name)].concat(c.cssPackages).join(' '); }
-        if (c instanceof Package) { return ['element package', c.cleanId(c.name)].concat(c.cssPackages).join(' '); }
+        if (c instanceof Classification) { return ['element', c.type.toLowerCase(), c.cleanId(c.name), c.parentPackage.xmiId].concat(c.cssPackages).join(' '); }
+        if (c instanceof Package) { return ['element package', c.cleanId(c.name), c.xmiId].concat(c.cssPackages).join(' '); }
       })
       .attr('id', (c: EANode) => c.xmiId);
 
@@ -337,7 +337,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
             this.addClasses(elm, ['over', 'target']);
             D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) return 'url(#arrow_target)'; });
           });
-          const p = c.cleanId(c.parentPackage.name);
+          const p = c.parentPackage.xmiId;
           this.addClass(document.querySelector(`.legend .colors .box.${p}`), 'spotlight');
           this.findHull(p);
         }
@@ -448,8 +448,10 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     // create convex hulls
     const hullset = [];
     for (let h in hulls) {
+      const obj = this.modelService.findByXmiId(h);
+      const name = obj ? obj.name : '';
       // This creates the actual path for the hull based on our array list
-      hullset.push({group: h, path: D3.polygonHull(hulls[h])});
+      hullset.push({group: h, name: name, path: D3.polygonHull(hulls[h])});
     }
 
     return hullset;
@@ -586,7 +588,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     return D3.drag()
       .on('start', (d: any) => {
         D3.event.sourceEvent.stopPropagation(); // silence other listeners
-        D3.selectAll(`g.nodes g.element.${this.modelService.cleanId(d.group)}`)
+        D3.selectAll(`g.nodes g.element.${d.group}`)
           .each((d: any) => { d.fx = null; d.fy = null; }); // Unset fixed coords
         this.simulation.stop();
       })
@@ -594,7 +596,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         let nodeGroup = parseInt(d.key);
         let dx = D3.event.dx; // change in x coordinates relative to the previous drag
         let dy = D3.event.dy; // change in y coordinates relative to the previous drag
-        D3.selectAll(`g.nodes g.element.${this.modelService.cleanId(d.group)}`)
+        D3.selectAll(`g.nodes g.element.${d.group}`)
           .attrs({
             'cx': (n: any) => {
               n.px = n.px + dx;
@@ -610,7 +612,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         this.simulation.restart(); // Allow simulation to run slowly while we drag
       })
       .on('end', (d: any) => {
-        D3.selectAll(`g.nodes g.element.${this.modelService.cleanId(d.group)}`).each((d: any) => {
+        D3.selectAll(`g.nodes g.element.${d.group}`).each((d: any) => {
           d.fx = this.isSticky ? d.x : null; // Set or unset fixed x coords
           d.fy = this.isSticky ? d.y : null; // Set or unset fixed x coords
         });
@@ -618,8 +620,8 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  findHull(name) {
-    this.addClass(document.querySelector(`svg path.hull.${this.modelService.cleanId(name)}`), 'spotlight');
+  findHull(xmiId: string) {
+    this.addClass(document.querySelector(`svg path.hull.${xmiId.toLowerCase()}`), 'spotlight');
   }
 
   clearHull() {

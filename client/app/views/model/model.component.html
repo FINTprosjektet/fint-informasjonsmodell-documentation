@@ -35,7 +35,7 @@
             </div>
           </li>
           <li *ngFor="let type of legend">
-            <div [class]="'box ' + type.name.toLowerCase().replace(' ', '_')" [style]="type.fill" (mouseenter)="findHull(type.name)" (mouseleave)="clearHull()">
+            <div [class]="'box ' + type.xmiId" [style]="type.fill" (mouseenter)="findHull(type.xmiId)" (mouseleave)="clearHull()">
               <label>
                 <input type="checkbox" name="activePacakge" [(ngModel)]="type.active">
                 {{ type.name }}
@@ -43,7 +43,7 @@
             </div>
             <ul class="unstyled" *ngIf="type.colors">
               <li *ngFor="let col of type.colors">
-                <div [class]="'box ' + col.name.toLowerCase().replace(' ', '_')" [style]="col.fill" (mouseenter)="findHull(col.name)" (mouseleave)="clearHull()">
+                <div [class]="'box ' + col.xmiId" [style]="col.fill" (mouseenter)="findHull(col.xmiId)" (mouseleave)="clearHull()">
                   <label>
                     <input type="checkbox" name="activePacakge" [(ngModel)]="col.active">
                     {{ col.name }}
