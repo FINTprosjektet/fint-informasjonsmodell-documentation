@@ -20,7 +20,6 @@ export class Classification extends EANode {
   ownedAttribute: Attribute[];
   isAbstract;
 
-  _id: string;
   get id(): string {
     if (!this._id) {
       const pkgName = (this.parentPackage ? this.parentPackage.name : '');

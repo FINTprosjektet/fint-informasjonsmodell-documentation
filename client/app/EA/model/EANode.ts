@@ -11,8 +11,16 @@ export abstract class EANode extends EABaseClass {
   yLine = 1;
   x: number = 0;
   y: number = 0;
+  protected _id: string;
+  get id(): string {
+    if (!this._id) {
+      const pkgName = (this.parentPackage ? this.parentPackage.name : '');
+      this._id = this.cleanId(pkgName + '_' + this.name);
+    }
+    return this._id;
+  }
 
-  _package: EANodeContainer;
+  private _package: EANodeContainer;
   get parentPackage(): EANodeContainer {
     if (!this._package) {
       let parent = this.parent;
@@ -27,7 +35,7 @@ export abstract class EANode extends EABaseClass {
     return this._package;
   }
 
-  _packagePath;
+  private _packagePath;
   get packagePath(): string {
     if (!this._packagePath) {
       const path = [];
@@ -45,7 +53,7 @@ export abstract class EANode extends EABaseClass {
   }
 
 
-  _stereotype;
+  private _stereotype;
   get stereotype(): Stereotype {
     if (!this._stereotype) {
       if (this instanceof Stereotype) {
@@ -65,7 +73,7 @@ export abstract class EANode extends EABaseClass {
     return this._stereotype;
   }
 
-  _level: number;
+  private _level: number;
   get levelFromStereotype(): number {
     if (!this._level) {
       this._level = 0;

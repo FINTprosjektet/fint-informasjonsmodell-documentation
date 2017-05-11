@@ -269,7 +269,7 @@ export class ModelService {
     }
   }
 
-  findByName<T>(name, type?: {new (): T}) {
+  findByName<T>(name, type?: {new (): T}): EANode {
     const clsId = Object.keys(this.mapper.flatModel).find(k => {
       const obj = this.mapper.flatModel[k];
       if (obj.name && obj.name === name) {
@@ -281,7 +281,7 @@ export class ModelService {
     return this.mapper.flatModel[clsId];
   }
 
-  findByXmiId<T>(xmiId, type?: {new (): T}) {
+  findByXmiId<T>(xmiId, type?: {new (): T}): EANode {
     const clsId = Object.keys(this.mapper.flatModel).find(k => {
       const obj = this.mapper.flatModel[k];
       if (obj.xmiId && obj.xmiId === xmiId) {

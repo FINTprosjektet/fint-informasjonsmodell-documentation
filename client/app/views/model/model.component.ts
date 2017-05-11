@@ -239,7 +239,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     const hullEnter = hull.enter();
     const hullGroup = hullEnter.append('g').attr('class', 'hull')
     hullGroup.append('path')
-      .attr('class', d => 'hull ' + this.modelService.cleanId(d.group))
+      .attr('class', d => `hull ${this.modelService.cleanId(d.group)} ${d.classPath}`)
       .attr('d', d => this.hullCurve(d.path))
       .style('fill', d => this.getColorFromPackageId(d.group))
       .on('mouseover', d => {
@@ -297,8 +297,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     const nodeEnter = nodes.enter()
       .append('g')
       .attr('class', (c: EANode) => {
-        if (c instanceof Classification) { return ['element', c.type.toLowerCase(), c.cleanId(c.name), c.parentPackage.xmiId].concat(c.cssPackages).join(' '); }
-        if (c instanceof Package) { return ['element package', c.cleanId(c.name), c.xmiId].concat(c.cssPackages).join(' '); }
+        let classes = ['element', c.cleanId(c.name), c.packagePath].concat(c.cssPackages);
+        if (c instanceof Classification) { return [c.type.toLowerCase(), c.parentPackage.xmiId].concat(classes).join(' '); }
+        if (c instanceof Package) { return ['package', c.xmiId].concat(classes).join(' '); }
       })
       .attr('id', (c: EANode) => c.xmiId);
 
@@ -450,8 +451,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     for (let h in hulls) {
       const obj = this.modelService.findByXmiId(h);
       const name = obj ? obj.name : '';
+      const classPath = obj ? obj.packagePath : '';
       // This creates the actual path for the hull based on our array list
-      hullset.push({group: h, name: name, path: D3.polygonHull(hulls[h])});
+      hullset.push({group: h, name: name, classPath: classPath, path: D3.polygonHull(hulls[h])});
     }
 
     return hullset;
@@ -588,7 +590,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     return D3.drag()
       .on('start', (d: any) => {
         D3.event.sourceEvent.stopPropagation(); // silence other listeners
-        D3.selectAll(`g.nodes g.element.${d.group}`)
+        D3.selectAll(`g.nodes g.element.${d.group}, g.nodes g.element[class*="${d.classPath}"]`)
           .each((d: any) => { d.fx = null; d.fy = null; }); // Unset fixed coords
         this.simulation.stop();
       })
@@ -596,7 +598,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         let nodeGroup = parseInt(d.key);
         let dx = D3.event.dx; // change in x coordinates relative to the previous drag
         let dy = D3.event.dy; // change in y coordinates relative to the previous drag
-        D3.selectAll(`g.nodes g.element.${d.group}`)
+        D3.selectAll(`g.nodes g.element.${d.group}, g.nodes g.element[class*="${d.classPath}"]`)
           .attrs({
             'cx': (n: any) => {
               n.px = n.px + dx;
@@ -612,7 +614,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         this.simulation.restart(); // Allow simulation to run slowly while we drag
       })
       .on('end', (d: any) => {
-        D3.selectAll(`g.nodes g.element.${d.group}`).each((d: any) => {
+        D3.selectAll(`g.nodes g.element.${d.group}, g.nodes g.element[class*="${d.classPath}"]`).each((d: any) => {
           d.fx = this.isSticky ? d.x : null; // Set or unset fixed x coords
           d.fy = this.isSticky ? d.y : null; // Set or unset fixed x coords
         });

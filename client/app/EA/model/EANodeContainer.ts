@@ -7,37 +7,37 @@ export abstract class EANodeContainer extends EANode {
   packagedElement: any;
   extension: any;
 
-  _id: string;
+  protected _id: string;
   get id(): string {
     if (!this._id) { this._id = this.cleanId('package_' + this.name); }
     return this._id;
   }
 
-  _packages: EANodeContainer[];
+  private _packages: EANodeContainer[];
   get packages() {
     if (!this._packages) { this._packages = this.packagedElement.filter(element => element instanceof EANodeContainer).sort(EABaseClass.service.sortNodes); }
     return this._packages;
   }
 
-  _allPackageCache: EANodeContainer[];
+  private _allPackageCache: EANodeContainer[];
   get allPackages() {
     if (!this._allPackageCache) { this._allPackageCache = EABaseClass.service.getPackages(this).sort(EABaseClass.service.sortNodes); }
     return this._allPackageCache;
   }
 
-  _classCache: Classification[];
+  private _classCache: Classification[];
   get classes(): Classification[] {
     if (!this._classCache) { this._classCache = this.packagedElement.filter(element => element instanceof Classification).sort(EABaseClass.service.sortNodes); }
     return this._classCache;
   }
 
-  _allClassCache: Classification[];
+  private _allClassCache: Classification[];
   get allClasses(): Classification[] {
     if (!this._allClassCache) { this._allClassCache = EABaseClass.service.getClasses(this).sort(EABaseClass.service.sortNodes); }
     return this._allClassCache;
   }
 
-  _depth: number;
+  private _depth: number;
   getInnerDepth(): number {
     if (!this._depth) {
       if (this.packages.length) {
