@@ -1,12 +1,14 @@
 <section>
-  <aside [class]="'legend' + (legendVisible ? ' open' : '')">
-    <header (click)="legendVisible = !legendVisible">
-      Tegnforklaring:
-      <fint-fa [name]="legendVisible ? 'caret-down' : 'caret-right'"></fint-fa>
-    </header>
-    <div [ngClass]="{'visible': legendVisible}">
+  <aside [class]="'legend open'">
+    <div class="visible">
+    <!--<div [ngClass]="{'visible': legendVisible}">-->
 
-      <div class="pull-right">
+      <div>
+        <label [ngClass]="{'stick': isSticky, 'pin': true}">
+          Sticky model
+          <input type="checkbox" name="isSticky" [(ngModel)]="isSticky">
+          <fint-fa name="thumb-tack"></fint-fa>
+        </label>
         <ul class="unstyled">
           <li *ngFor="let cls of types">
             <div [className]="'box ' + cls.type">{{ cls.name }}</div>
@@ -17,14 +19,9 @@
             <div [className]="'box ' + cls.type">{{ cls.name }}</div>
           </li>
         </ul>
-        <label [ngClass]="{'stick': isSticky, 'pull-right': true, 'pin': true}">
-          Sticky model
-          <input type="checkbox" name="isSticky" [(ngModel)]="isSticky">
-          <fint-fa name="thumb-tack"></fint-fa>
-        </label>
       </div>
 
-      <div class="pull-right colors">
+      <div class="colors">
         <ul class="unstyled">
           <li>
             <div class="box unstyled">

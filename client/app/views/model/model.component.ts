@@ -79,7 +79,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private get width() { return this.htmlElement.clientWidth - 380; }
+  private get width() { return this.htmlElement.clientWidth - 200; }
   private get height() { return this.htmlElement.clientHeight; }
 
   get isLoading() { return this.modelService.isLoading; }
