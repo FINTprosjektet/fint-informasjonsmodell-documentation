@@ -1,7 +1,2 @@
-# FintInformasjonsmodell
-
-This project was generated with [angular-cli](https://github.com/angular/angular-cli) version 1.0.0-beta.32.3.
-
-[![Build Status](https://jenkins.rogfk.no/buildStatus/icon?job=FINTprosjektet/fint-informasjonsmodell-documentation/master)](https://jenkins.rogfk.no/job/FINTprosjektet/job/fint-informasjonsmodell-documentation/job/master/)
-
-[Documentation](https://dokumentasjon.felleskomponent.no/) 
+# Fint Informasjonsmodell
+This project is a frontend for Enterprise Architect XMI files and is build to document the FINT information models. You can find the documentation portal [here](https://informasjonsmodell.felleskomponent.no/).
