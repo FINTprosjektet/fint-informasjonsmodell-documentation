@@ -20,7 +20,7 @@ export class AppComponent {
   get selectedRepo(): string { return this.modelService.version; }
   set selectedRepo(value: string) {
     this.modelService.version = value;
-    if (this.route.snapshot.queryParams['v'] != value) {
+    if (this.route.snapshot.queryParams['v'] !== value) {
       const urlTree = this.router.parseUrl(this.router.url);
       urlTree.queryParams = {};
       this.router.navigate([urlTree.toString()], { queryParams: this.modelService.queryParams });
@@ -28,7 +28,11 @@ export class AppComponent {
   }
 
   get isLoading() { return this.modelService.isLoading; }
-  set isLoading(flag) { this.modelService.isLoading = flag; }
+  set isLoading(flag) {
+    if (flag != null && flag !== this.modelService.isLoading) {
+      this.modelService.isLoading = flag;
+    }
+  }
 
   get model(): Model { return this.modelService.model; }
   get queryParams() { return this.modelService.queryParams; }
@@ -40,10 +44,15 @@ export class AppComponent {
   }
 
   get isRoot() {
-    return this.router.url == ('/') || this.router.url.substr(0, 2) == ('/?');
+    return this.router.url === ('/') || this.router.url.substr(0, 2) === ('/?');
   }
 
-  constructor(private modelService: ModelService, private router: Router, private route: ActivatedRoute, private titleService: Title) {
+  constructor(
+    private modelService: ModelService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private titleService: Title
+  ) {
     this.titleService.setTitle('FINT');
     this.modelService.versionChanged.subscribe(v => this.selectedRepo = v);
     this.route.queryParams.subscribe((params: any) => {

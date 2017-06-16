@@ -35,7 +35,7 @@ import { Stereotype } from './model/Stereotype';
 @Injectable()
 export class ModelService {
   mapper: IMapper;
-  isLoading: boolean = false;
+  isLoading = false;
 
   public defaultVersion: string;
   private _version: string;
@@ -70,7 +70,7 @@ export class ModelService {
   };
 
   // Filter
-  private _searchString: string = '';
+  private _searchString = '';
   get searchString(): string { return this._searchString; }
   set searchString(value: string) {
     if (this._searchString != value) {

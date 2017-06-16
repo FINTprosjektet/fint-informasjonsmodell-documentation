@@ -4,10 +4,10 @@ import { Subscription } from 'rxjs/Rx';
 
 import { EABaseClass } from 'app/EA/model/EABaseClass';
 import { Classification } from 'app/EA/model/Classification';
-import { Association } from "app/EA/model/Association";
-import { AssociationEnd } from "app/EA/model/AssociationEnd";
+import { Association } from 'app/EA/model/Association';
+import { AssociationEnd } from 'app/EA/model/AssociationEnd';
 
-type AssociationMapper = {
+interface AssociationMapper {
   parent: Classification;
   end: AssociationEnd;
 }
@@ -20,7 +20,7 @@ export class ClassComponent implements OnInit, OnDestroy {
   @Input() classification: Classification;
   searchSubscription: Subscription;
   routeParamSubscription: Subscription;
-  isSelected: boolean = false;
+  isSelected = false;
   searchStr: string;
 
   _classType;
@@ -77,11 +77,11 @@ export class ClassComponent implements OnInit, OnDestroy {
   _attribs;
   get attributes() {
     if (!this._attribs) {
-      this._attribs = this.classification.ownedAttribute;
+      this._attribs = (this.classification.ownedAttribute || []).filter(a => a && !a.hasOwnProperty('association'));
       let c = this.classification;
       while (c.superType) {
         if (!this._attribs) { this._attribs = []; }
-        this._attribs = this._attribs.concat(c.superType.ownedAttribute).filter(a => a.association == undefined);
+        this._attribs = this._attribs.concat(c.superType.ownedAttribute).filter(a => a && a.association === undefined);
         c = c.superType;
       }
     }

@@ -18,8 +18,8 @@ import { DetailsComponent } from '../../details/details.component';
 import { MarkdownToHtmlModule } from 'markdown-to-html-pipe';
 
 import { ClassComponent } from './class.component';
-import { Classification } from "app/EA/model/Classification";
-import { Package } from "app/EA/model/Package";
+import { Classification } from 'app/EA/model/Classification';
+import { Package } from 'app/EA/model/Package';
 
 describe('ClassComponent', () => {
   let component: ClassComponent;

@@ -33,32 +33,6 @@ export class Classification extends EANode {
    */
   private _isVisible: boolean;
   private _lastSearch: string;
-  public isVisible(noSuper?: boolean): boolean {
-    const str = EABaseClass.service.searchString;
-    if (str && str.length > 0) {
-      if (str == this._lastSearch) { return this._isVisible; }
-      const meVisible = super.isVisible();
-      const typeVisible = this.match(this.type);
-      const typeDescVisible = this.match(this.typeDesc);
-
-      const sub = this.subTypes;
-      const subVisible = (sub ? sub.some(s => s.match(s.name)) : meVisible);
-
-      const t = this.superType;
-      const superVisible = (t ? t.match(t.name) : meVisible);
-
-      const m = this.members;
-      const membersVisible = (m && m.length ? m.some(member => member ? member.isVisible() : false) : meVisible);
-
-      const a = this.associations;
-      const assocVisible = (a && a.length ? a.some(assoc => assoc ? assoc.getAssociationEnd(this).isVisible : false) : meVisible);
-
-      this._lastSearch = str;
-      this._isVisible = (meVisible || typeVisible || typeDescVisible || membersVisible || assocVisible || superVisible || subVisible);
-      return this._isVisible;
-    }
-    return true;
-  }
 
   get members(): Attribute[] {
     return this.ownedAttribute;
@@ -79,15 +53,6 @@ export class Classification extends EANode {
       }
     }
     return this._associations;
-  }
-
-  findMember(id) {
-    for (let j = 0; j < this.members.length; j++) {
-      if (this.members[j].id == id) {
-        return this.members[j];
-      }
-    }
-    return null;
   }
 
   _isBaseClass = null;
@@ -189,10 +154,46 @@ export class Classification extends EANode {
   }
 
   // Properties for rendering
-  width: number = 0;
-  height: number = 30;
+  width = 0;
+  height = 30;
 
   constructor() {
     super();
   }
+
+  public isVisible(noSuper?: boolean): boolean {
+    const str = EABaseClass.service.searchString;
+    if (str && str.length > 0) {
+      if (str === this._lastSearch) { return this._isVisible; }
+      const meVisible = super.isVisible();
+      const typeVisible = this.match(this.type);
+      const typeDescVisible = this.match(this.typeDesc);
+
+      const sub = this.subTypes;
+      const subVisible = (sub ? sub.some(s => s.match(s.name)) : meVisible);
+
+      const t = this.superType;
+      const superVisible = (t ? t.match(t.name) : meVisible);
+
+      const m = this.members;
+      const membersVisible = (m && m.length ? m.some(member => member ? member.isVisible() : false) : meVisible);
+
+      const a = this.associations;
+      const assocVisible = (a && a.length ? a.some(assoc => assoc ? assoc.getAssociationEnd(this).isVisible : false) : meVisible);
+
+      this._lastSearch = str;
+      this._isVisible = (meVisible || typeVisible || typeDescVisible || membersVisible || assocVisible || superVisible || subVisible);
+      return this._isVisible;
+    }
+    return true;
+  }
+  findMember(id) {
+    for (let j = 0; j < this.members.length; j++) {
+      if (this.members[j].id === id) {
+        return this.members[j];
+      }
+    }
+    return null;
+  }
+
 }
