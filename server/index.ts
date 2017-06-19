@@ -27,7 +27,7 @@ const parser = new xml2js.Parser();
  */
 export class Server {
   public app: Express.Express;
-  private port: number = 3000;
+  private port = 3000;
   private clientPath = path.join(__dirname, './public');
 
   /**
@@ -83,13 +83,13 @@ ${chalk.green('**********************')}
         headers: { 'User-Agent': 'NodeJS-Express', 'cache-control': 'no-cache' }
       };
       request(options, function (err, response, body) {
-        if (err) { Logger.log.error(err); res.send(500, err); }
+        if (err) { Logger.log.error(err); res.status(500).send(err); }
 
         const json = JSON.parse(body);
         if (Array.isArray(json)) {
           res.send(JSON.parse(body).map((r: any) => r.name));
         } else {
-          Logger.log.error(err); res.send(500, json);
+          Logger.log.error(err); res.status(500).send(json);
         }
       });
     });
@@ -102,7 +102,7 @@ ${chalk.green('**********************')}
         headers: { 'User-Agent': 'NodeJS-Express', 'cache-control': 'no-cache' }
       };
       request(options, function (err, response, body) {
-        if (err) { Logger.log.error(err); res.send(500, err); }
+        if (err) { Logger.log.error(err); res.status(500).send(err); }
         const json = JSON.parse(body);
         if (Array.isArray(json)) {
           res.send(JSON.parse(body)
@@ -117,15 +117,15 @@ ${chalk.green('**********************')}
               return a < b ? -1 : 1;
             })
             .filter((a: string) => {
-              if (a === 'master') return true; // Include master branch
-              if (a === 'develop') return true; // Include develop branch
-              if (a.substring(0, 'release'.length) === 'release') return true; // Include release brances
-              if (a.substring(0, 'feature'.length) === 'feature') return true; // Include feature branches
+              if (a === 'master') { return true; } // Include master branch
+              if (a === 'develop') { return true; } // Include develop branch
+              if (a.substring(0, 'release'.length) === 'release') { return true; } // Include release brances
+              if (a.substring(0, 'feature'.length) === 'feature') { return true; } // Include feature branches
               return true; // For everything else
             })
           );
         } else {
-          Logger.log.error(err); res.send(500, json);
+          Logger.log.error(err); res.status(500).send(json);
         }
       });
     });
@@ -133,16 +133,16 @@ ${chalk.green('**********************')}
     // Pipe traffic to fetch raw github content
     this.app.get('/api/doc/:version', function (req: Express.Request, res: Express.Response, next: Express.NextFunction) {
       const url = `https://rawgit.com/FINTprosjektet/fint-informasjonsmodell/${req.params.version}/FINT-informasjonsmodell.xml`;
-      //const url = `FINT-informasjonsmodell.xml`;
-      //const xml = fs.readFileSync(url, 'utf-8');
+      // const url = `FINT-informasjonsmodell.xml`;
+      // const xml = fs.readFileSync(url, 'utf-8');
       request({ url: url, encoding: null }, function (err, response, body) {
-        if (err) { Logger.log.error(err); res.send(500, err); }
-        if (!err && response.statusCode == 200) {
+        if (err) { Logger.log.error(err); res.status(500).send(err); }
+        if (!err && response.statusCode === 200) {
           const xml = Iconv.decode(body, 'win-1252');
 
           // Map to JSON and return
           parser.parseString(xml, function (parseError: any, result: any) {
-            if (parseError) { Logger.log.error(parseError); res.send(500, parseError); }
+            if (parseError) { Logger.log.error(parseError); res.status(500).send(parseError); }
             res.header({ 'content-type': 'text/json; charset=utf-8' });
             res.send(result);
           });
@@ -168,7 +168,7 @@ ${chalk.green('**********************')}
    * Server ready!
    */
   public $onReady() {
-    let url = chalk.blue.underline(`http://localhost:${this.port}/`);
+    const url = chalk.blue.underline(`http://localhost:${this.port}/`);
     Logger.log.info(`Serving on ${url}`);
   }
 
