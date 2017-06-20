@@ -2,5 +2,5 @@
 
 echo "=> Building"
 
-#docker run --rm -v ${PWD}:/app -w=/app node /bin/sh -c "apt-get update && apt-get install git && npm install && yarn build"
-docker run --rm -v $(pwd):/app -w=/app node /bin/sh -c "apt-get update && apt-get install git && npm install && yarn build"
+#docker run --rm -v ${PWD}:/app -w=/app node /bin/sh -c "apt-get update && apt-get install git && npm install && npm run build"
+docker run --rm -v $(pwd):/app -w=/app node /bin/sh -c "apt-get update && apt-get install git && npm install && npm run build"

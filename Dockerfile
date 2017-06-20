@@ -12,7 +12,7 @@ WORKDIR $HOME
 
 # Install app dependencies
 COPY package.json $HOME
-RUN npm i -g yarn && yarn install --production
+RUN npm install --production
 
 # Bundle pre-built app
 COPY ./dist $HOME/dist
@@ -21,4 +21,4 @@ RUN chown -R app:app $HOME/*
 # Set
 USER app
 
-ENTRYPOINT yarn start
+ENTRYPOINT npm start

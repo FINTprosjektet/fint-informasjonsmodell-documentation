@@ -1,7 +1,7 @@
 import * as winston from 'winston';
 import * as morgan from 'morgan';
 
-let mkdirp = require('mkdirp');
+const mkdirp = require('mkdirp');
 mkdirp('./log');
 
 /**
@@ -17,7 +17,7 @@ mkdirp('./log');
 export namespace Logger {
   function formatter(logEntry: any) {
     // Remove ansi coloring from log entries
-    let regexp = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
+    const regexp = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
     return JSON.stringify({
       level: logEntry.level,
       message: logEntry.message.replace(regexp, ''),
