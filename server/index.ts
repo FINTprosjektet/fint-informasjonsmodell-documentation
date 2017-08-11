@@ -75,11 +75,30 @@ ${chalk.green('**********************')}
       this.app.use(favicon(faviconPath)); // Serve favicon
     }
 
+    // Read github latest version
+    this.app.get('/api/doc/latest', function (req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+      const options = {
+        method: 'GET',
+        url: 'https://api.github.com/repos/FINTprosjektet/fint-informasjonsmodell/releases/latest',
+        headers: { 'User-Agent': 'NodeJS-Express', 'cache-control': 'no-cache' }
+      };
+      request(options, function (err, response, body) {
+        if (err) { Logger.log.error(err); res.status(500).send(err); }
+
+        const json = JSON.parse(body);
+        if (json.name) {
+          res.send(json.name);
+        } else {
+          Logger.log.error(err); res.status(500).send(json);
+        }
+      });
+    });
+
     // Read github version tags
     this.app.get('/api/doc/versions', function (req: Express.Request, res: Express.Response, next: Express.NextFunction) {
       const options = {
         method: 'GET',
-        url: 'https://api.github.com/repos/FINTprosjektet/fint-informasjonsmodell/tags',
+        url: 'https://api.github.com/repos/FINTprosjektet/fint-informasjonsmodell/releases',
         headers: { 'User-Agent': 'NodeJS-Express', 'cache-control': 'no-cache' }
       };
       request(options, function (err, response, body) {

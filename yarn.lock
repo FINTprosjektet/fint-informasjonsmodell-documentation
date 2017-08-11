@@ -2313,9 +2313,9 @@ findup-sync@~0.3.0:
   dependencies:
     glob "~5.0.0"
 
-"fint-shared-components@github:fintprosjektet/fint-shared-components#1.0.0":
+"fint-shared-components@github:FINTprosjektet/fint-shared-components#v1.0.0":
   version "1.0.0"
-  resolved "https://codeload.github.com/fintprosjektet/fint-shared-components/tar.gz/b2cffccf6d3a91d3136ecf1a226d023d9024ecd9"
+  resolved "https://codeload.github.com/FINTprosjektet/fint-shared-components/tar.gz/b2cffccf6d3a91d3136ecf1a226d023d9024ecd9"
   dependencies:
     "@angular/animations" "^4.1.2"
     "@angular/common" "^4.1.2"
@@ -6050,16 +6050,9 @@ write-file-atomic@^1.1.2:
     imurmurhash "^0.1.4"
     slide "^1.1.5"
 
-ws@1.1.2:
+ws@1.1.2, ws@^1.0.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/ws/-/ws-1.1.2.tgz#8a244fa052401e08c9886cf44a85189e1fd4067f"
-  dependencies:
-    options ">=0.0.5"
-    ultron "1.0.x"
-
-ws@^1.0.1:
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-1.1.4.tgz#57f40d036832e5f5055662a397c4de76ed66bf61"
   dependencies:
     options ">=0.0.5"
     ultron "1.0.x"

@@ -44,7 +44,7 @@ export class ModelService {
     return this._version;
   }
   set version(value) {
-    if (value != this._version) {
+    if (value !== this._version) {
       this._version = value;
       // Remove cache
       this.modelObservable = null;
@@ -73,7 +73,7 @@ export class ModelService {
   private _searchString = '';
   get searchString(): string { return this._searchString; }
   set searchString(value: string) {
-    if (this._searchString != value) {
+    if (this._searchString !== value) {
       this._searchString = value;
     }
   }
@@ -87,7 +87,7 @@ export class ModelService {
 
   get queryParamsString(): string {
     const str = [];
-    for (let q in this.queryParams) {
+    for (const q in this.queryParams) {
       if (this.queryParams.hasOwnProperty(q)) {
         str.push(`${encodeURIComponent(q)}=${encodeURIComponent(this.queryParams[q])}`);
       }
@@ -111,19 +111,23 @@ export class ModelService {
   }
 
   fetchVersions(): Observable<any> {
+    this.fetchLatest().subscribe(ver => {
+      this.defaultVersion = ver;
+      if (!this.version) { this.version = this.defaultVersion; }
+    });
     return this.http.request('/api/doc/versions')
       .map(res => {
-        let map = res.json();
-        if (Array.isArray(map)) {
-          this.defaultVersion = map[0];
-          if (!this.version) { this.version = this.defaultVersion; }
-          return map;
-        }
-        else { console.error(map); }
-        return null;
+        const map = res.json();
+        return (Array.isArray(map) ? map : console.error(map));
       })
       .catch(error => this.handleError(error));
   }
+
+  fetchLatest(): Observable<string> {
+    return this.http.request('/api/doc/latest')
+      .map(res => res.text())
+      .catch(error => this.handleError(error));
+}
 
   fetchBranches(): Observable<any> {
     return this.http.request('/api/doc/branches')
@@ -194,7 +198,7 @@ export class ModelService {
     else {
       if (!a.stereotype && b.stereotype) { return 1; } // 'a' does not belong to a stereotype. Move 'b' up.
       if (a.stereotype && !b.stereotype) { return -1; } // 'b' does not belong to a stereotype. Move 'a' up.
-      if (a.stereotype != b.stereotype) { // 'a' and 'b' are from different stereotypes
+      if (a.stereotype !== b.stereotype) { // 'a' and 'b' are from different stereotypes
         return stereotypeSort(a.stereotype, b.stereotype);
       }
     }
@@ -261,9 +265,9 @@ export class ModelService {
   }
 
   getObjectById(id) {
-    for (let key in this.mapper.flatModel) {
+    for (const key in this.mapper.flatModel) {
       const model = this.mapper.flatModel[key];
-      if (model && model.id == id) {
+      if (model && model.id === id) {
         return model;
       }
     }
@@ -305,7 +309,7 @@ export class ModelService {
     let match;
     while ((match = test.exec(value)) !== null) {
       if (match.index === test.lastIndex) { test.lastIndex++; }
-      let cls = this.findByName(match[1]);
+      const cls = this.findByName(match[1]);
       if (cls != null) {
         value = value.replace(test, `(/docs/${cls.id}?${queryParam})`);
       }
