@@ -86,11 +86,13 @@ export class Classification extends EANode {
   get typeDesc() {
     switch (this.type.toLowerCase()) {
       case 'mainclass': return 'Hovedklasse';
+      case 'hovedklasse': return 'Hovedklasse';
       case 'class': return 'Kompleks datatype';
       case 'codelist': return 'Utlisting';
       case 'datatype': return 'Datatype';
       case 'enumeration': return 'Enumerering';
       case 'abstract': return 'Abstrakt';
+      case 'referanse': return 'Referanse';
       default: return '';
     }
   }

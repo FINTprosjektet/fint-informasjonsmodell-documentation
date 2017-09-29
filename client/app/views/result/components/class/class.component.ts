@@ -28,6 +28,7 @@ export class ClassComponent implements OnInit, OnDestroy {
     if (!this._classType) {
       switch (this.classification.type.toLowerCase()) {
         case 'mainclass':   this._classType = 'table'; break;
+        case 'hovedklasse': this._classType = 'table'; break;
         case 'class':       this._classType = 'table'; break;
         case 'codelist':    this._classType = 'list-alt'; break;
         case 'datatype':    this._classType = 'id-card-o'; break;
