@@ -8,7 +8,7 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/observable/of';
 import 'rxjs/observable/empty';
 
-import { FintDialogService } from 'fint-shared-components';
+// import { FintDialogService } from 'fint-shared-components';
 
 import { IMapper } from './mapper/IMapper';
 import { XMLMapper } from './mapper/XMLMapper';
@@ -35,7 +35,11 @@ import { Stereotype } from './model/Stereotype';
 @Injectable()
 export class ModelService {
   mapper: IMapper;
-  isLoading = false;
+  _isLoading = false;
+  get isLoading() { return this._isLoading; }
+  set isLoading(v) {
+    setTimeout(() => this._isLoading = v);
+  }
 
   public defaultVersion: string;
   private _version: string;
@@ -60,6 +64,7 @@ export class ModelService {
   modelReject;
   hasModel: Promise<any> = this.createModelPromise();
 
+  _nodeCache: EANode[] = [];
   modelObservable: Observable<any>;
   modelData: any;
   get model(): Model {
@@ -102,7 +107,7 @@ export class ModelService {
    *
    * @memberOf ModelService
    */
-  constructor(protected http: Http, protected fintDialog: FintDialogService, protected sanitizer: DomSanitizer) {
+  constructor(protected http: Http, protected sanitizer: DomSanitizer) {
     EABaseClass.service = this;
   }
 
@@ -152,7 +157,7 @@ export class ModelService {
   fetchModel(): Observable<any> {
     const me = this;
 
-    me.isLoading = true;
+    // me.isLoading = true;
     if (!me.modelObservable) {
       if (!this.version) {
         return Observable.empty();
@@ -188,14 +193,13 @@ export class ModelService {
   }
 
   sortNodes(a: EANode, b: EANode) { // Sort 'a' index according to 'b'
-    const stereotypeSort = function (a: Stereotype, b: Stereotype): number {
-      return (a.name > b.name) ? -1 : 1; // Sort by name alphabetically reversed
+    const stereotypeSort = function (sa: Stereotype, sb: Stereotype): number {
+      return (sa.name > sb.name) ? -1 : 1; // Sort by name alphabetically reversed
     }
 
     if (a instanceof Stereotype && b instanceof Stereotype) {
       return stereotypeSort(a, b); // Both instances are Stereotypes
-    }
-    else {
+    } else {
       if (!a.stereotype && b.stereotype) { return 1; } // 'a' does not belong to a stereotype. Move 'b' up.
       if (a.stereotype && !b.stereotype) { return -1; } // 'b' does not belong to a stereotype. Move 'a' up.
       if (a.stereotype !== b.stereotype) { // 'a' and 'b' are from different stereotypes
@@ -208,7 +212,6 @@ export class ModelService {
     return (a.packagePath < b.packagePath) ? -1 : 1;
   }
 
-  _nodeCache: EANode[] = [];
   getNodes(from?: any): EANode[] {
     if (!this._nodeCache.length) {
       // First pass filter
@@ -244,7 +247,9 @@ export class ModelService {
 
   getGeneralizations(from?: any): any[] {
     return this.mapper.allOfXmiType(Generalization.umlId, from).filter((g: Generalization) => {
-      return g.source != null && g.target != null && g.source.type.toLowerCase() !== 'xsdsimpletype' && g.target.type.toLowerCase() !== 'xsdsimpletype';
+      return g.source != null && g.target != null
+          && g.source.type.toLowerCase() !== 'xsdsimpletype'
+          && g.target.type.toLowerCase() !== 'xsdsimpletype';
     });
   }
 
@@ -253,7 +258,9 @@ export class ModelService {
   }
 
   getClasses(from?: any): any[] {
-    return this.mapper.allOfXmiType(Classification.umlId, from).filter((c: Classification) => c.type !== 'Boundary' && c.type.toLowerCase() !== 'xsdsimpletype');
+    return this.mapper
+      .allOfXmiType(Classification.umlId, from)
+      .filter((c: Classification) => c.type !== 'Boundary' && c.type.toLowerCase() !== 'xsdsimpletype');
   }
 
   getPackages(from?: any): any[] {
@@ -266,9 +273,11 @@ export class ModelService {
 
   getObjectById(id) {
     for (const key in this.mapper.flatModel) {
-      const model = this.mapper.flatModel[key];
-      if (model && model.id === id) {
-        return model;
+      if (key) {
+        const model = this.mapper.flatModel[key];
+        if (model && model.id === id) {
+          return model;
+        }
       }
     }
   }
@@ -298,7 +307,7 @@ export class ModelService {
   }
 
   handleError(error: any) {
-    this.fintDialog.displayHttpError(error);
+    // this.fintDialog.displayHttpError(error);
     return Observable.throw(error);
   }
 

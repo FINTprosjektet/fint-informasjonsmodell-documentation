@@ -8,9 +8,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MaterialModule } from '@angular/material';
+// import { MaterialModule } from '@angular/material';
 
-import { LibSharedModule } from 'fint-shared-components';
+// import { LibSharedModule } from 'fint-shared-components';
 
 import { ModelComponent } from './model.component';
 import { ModelService } from 'app/EA/model.service';
@@ -27,8 +27,8 @@ describe('ModelComponent', () => {
         BrowserAnimationsModule,
         FormsModule,
         HttpModule,
-        MaterialModule,
-        LibSharedModule,
+        // MaterialModule,
+        // LibSharedModule,
         RouterTestingModule
       ],
       declarations: [ ModelComponent ],

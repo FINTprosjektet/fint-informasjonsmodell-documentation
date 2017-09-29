@@ -3,9 +3,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule, Request } from '@angular/http';
-import { MaterialModule } from '@angular/material';
+// import { MaterialModule } from '@angular/material';
+import { MatProgressSpinnerModule } from '@angular/material';
+import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
-import { LibSharedModule } from 'fint-shared-components';
+// import { LibSharedModule } from 'fint-shared-components';
 import { AppRoutingModule } from './app-routing.module';
 import { ResultModule } from './views/result/result.module';
 
@@ -25,8 +27,10 @@ import { ModelStateService } from './views/model/model-state.service';
     BrowserAnimationsModule,
     FormsModule,
     HttpModule,
-    MaterialModule,
-    LibSharedModule,
+    // MaterialModule,
+    // LibSharedModule,
+    AngularFontAwesomeModule,
+    MatProgressSpinnerModule,
     AppRoutingModule,
     ResultModule
   ],

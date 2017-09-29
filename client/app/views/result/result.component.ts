@@ -21,8 +21,13 @@ export class ResultComponent implements OnInit, AfterViewInit, OnDestroy {
   get isLoading() { return this.modelService.isLoading; }
   set isLoading(flag) { this.modelService.isLoading = flag; }
 
-  constructor(private modelService: ModelService, private route: ActivatedRoute, private router: Router, private titleService: Title,
-    private InView: InViewService) { }
+  constructor(
+    private modelService: ModelService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private titleService: Title,
+    private InView: InViewService
+  ) { }
 
   visiblePackages() {
     const packages = this.model.filter(pkg => pkg.isVisible());
@@ -59,6 +64,7 @@ export class ResultComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadData() {
     const me = this;
+    me.isLoading = true;
     this.modelService.fetchModel().subscribe(model => {
       me.model = me.modelService.getTopPackages();
       me.isLoading = false;

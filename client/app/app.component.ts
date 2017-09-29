@@ -28,11 +28,12 @@ export class AppComponent {
   }
 
   get isLoading() { return this.modelService.isLoading; }
-  set isLoading(flag) {
-    if (flag != null && flag !== this.modelService.isLoading) {
-      this.modelService.isLoading = flag;
-    }
-  }
+  // set isLoading(flag) {
+  //   if (flag != null && flag !== this.modelService.isLoading) {
+  //     this.modelService.isLoading = flag;
+  //     this.cdr.detectChanges();
+  //   }
+  // }
 
   get model(): Model { return this.modelService.model; }
   get queryParams() { return this.modelService.queryParams; }

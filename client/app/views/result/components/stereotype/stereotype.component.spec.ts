@@ -7,17 +7,17 @@ import { Http } from '@angular/http';
 import { CommonModule } from '@angular/common';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ActivatedRoute } from '@angular/router';
-import { MaterialModule } from '@angular/material';
+// import { MaterialModule } from '@angular/material';
 
 import { Observable } from 'rxjs/Rx';
 
-import { LibSharedModule, FintDialogService } from 'fint-shared-components';
+// import { LibSharedModule, FintDialogService } from 'fint-shared-components';
 
 import { StereotypeComponent } from './stereotype.component';
-import { Package } from "app/EA/model/Package";
-import { Classification } from "app/EA/model/Classification";
-import { ModelService } from "app/EA/model.service";
-import { JSON_XMI21_Mapper } from "app/EA/mapper/JSON_XMI21_Mapper";
+import { Package } from 'app/EA/model/Package';
+import { Classification } from 'app/EA/model/Classification';
+import { ModelService } from 'app/EA/model.service';
+import { JSON_XMI21_Mapper } from 'app/EA/mapper/JSON_XMI21_Mapper';
 
 describe('StereotypeComponent', () => {
   let component: StereotypeComponent;
@@ -27,9 +27,9 @@ describe('StereotypeComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         CommonModule,
-        LibSharedModule,
+        // MaterialModule
+        // LibSharedModule,
         RouterTestingModule,
-        MaterialModule
       ],
       declarations: [ TestComponentWrapper, StereotypeComponent ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]

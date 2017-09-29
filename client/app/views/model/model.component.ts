@@ -85,7 +85,13 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   get isLoading() { return this.modelService.isLoading; }
   set isLoading(flag) { this.modelService.isLoading = flag; }
 
-  constructor(private modelService: ModelService, private router: Router, private titleService: Title, private sanitizer: DomSanitizer, private state: ModelStateService) { }
+  constructor(
+    private modelService: ModelService,
+    private router: Router,
+    private titleService: Title,
+    private sanitizer: DomSanitizer,
+    private state: ModelStateService
+  ) { }
 
   ngOnInit() {
     this.titleService.setTitle('Model | Fint');
@@ -500,9 +506,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     if (pkg.stereotype != null && pkg.stereotype != pkg) {
       // Add color to stereotype
-      let stereotype = this.legend.find(l => l.xmiId === pkg.stereotype.xmiId);
+      const stereotype = this.legend.find(l => l.xmiId === pkg.stereotype.xmiId);
       if (stereotype.colors.findIndex(c => c.xmiId === xmiId) < 0) {
-        let col = this.createLegendItem(pkg.name, xmiId, pkg, pkg.xmiId, pkg.stereotype.xmiId);
+        const col = this.createLegendItem(pkg.name, xmiId, pkg, pkg.xmiId, pkg.stereotype.xmiId);
         stereotype.colors.push(col);
         this.colorsFlat.push(col);
       }
@@ -562,7 +568,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
 
         // Find index of scheme
         const packages = stereotype.allPackages;
-        let childIndex = packages.findIndex(p => p.xmiId === pkg.xmiId);
+        const childIndex = packages.findIndex(p => p.xmiId === pkg.xmiId);
         return D3[`interpolate${scheme}s`](0.7 - (childIndex + 1) / (packages.length + 1.5));
       }
     }
@@ -595,9 +601,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         this.simulation.stop();
       })
       .on('drag', (d: any) => {
-        let nodeGroup = parseInt(d.key);
-        let dx = D3.event.dx; // change in x coordinates relative to the previous drag
-        let dy = D3.event.dy; // change in y coordinates relative to the previous drag
+        const nodeGroup = parseInt(d.key);
+        const dx = D3.event.dx; // change in x coordinates relative to the previous drag
+        const dy = D3.event.dy; // change in y coordinates relative to the previous drag
         D3.selectAll(`g.nodes g.element.${d.group}, g.nodes g.element[class*="${d.classPath}"]`)
           .attrs({
             'cx': (n: any) => {
@@ -655,7 +661,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       .on('drag', (d: any) => {
         vx = D3.event.x - px; vy = D3.event.y - py;
         d.fx = Math.max(Math.min((px = D3.event.x) - offsetX, this.width - d.width), 0);  // Fix x pos
-        d.fy = Math.max(Math.min((py = D3.event.y) - offsetY, this.height - d.height), 0);// Fix y pos
+        d.fy = Math.max(Math.min((py = D3.event.y) - offsetY, this.height - d.height), 0); // Fix y pos
         this.simulation.restart(); // Allow simulation to run slowly while we drag
       })
       .on('end', (d: any) => {

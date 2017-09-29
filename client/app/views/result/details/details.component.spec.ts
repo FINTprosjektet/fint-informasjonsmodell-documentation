@@ -6,7 +6,7 @@ import { DebugElement } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterTestingModule } from '@angular/router/testing';
 
-import { LibSharedModule } from 'fint-shared-components';
+// import { LibSharedModule } from 'fint-shared-components';
 
 import { DetailsComponent } from './details.component';
 
@@ -18,7 +18,7 @@ describe('DetailsComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         CommonModule,
-        LibSharedModule,
+        // LibSharedModule,
         RouterTestingModule
       ],
       declarations: [ DetailsComponent ]

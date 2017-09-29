@@ -2,14 +2,14 @@
   <md-card [ngClass]="cssClass">
     <md-card-header>
       <a [routerLink]="['/docs', classification.id]" [queryParams]="classification.queryParams" md-card-avatar>
-        <fint-fa [name]="classType"></fint-fa>
+        <fa name="{{classType}}"></fa>
       </a>
       <md-card-subtitle>{{ classification.parentPackage.packagePath }}</md-card-subtitle>
       <md-card-title>
         <h3>
           <span [innerHTML]="classification.name | highlight:searchStr"></span>
           <span *ngIf="classification.superType" title="{{classification.name}} arver fra {{classification.superType.name}}">
-            <fint-fa name="arrow-right"></fint-fa>
+            <fa name="arrow-right"></fa>
             <md-chip *ngIf="classification.superType">
               <a [routerLink]="[ '/docs', classification.superType.id]" [queryParams]="classification.queryParams" [innerHTML]="classification.superType.name | highlight:searchStr"></a>
             </md-chip>
@@ -28,12 +28,13 @@
         </md-chip-list>
       </div>
 
-      <app-details *ngIf="classification.documentationBody.length> 0">
+      <app-details *ngIf="classification.documentationBody.length > 0">
         <header [innerHTML]="classification.documentationHeader"></header>
         <span [innerHTML]="classification.documentationBody"></span>
       </app-details>
+      <span [innerHTML]="classification.documentationHeader" *ngIf="classification.documentationBody.length <= 0"></span>
 
-      <section *ngIf="attributes">
+      <section *ngIf="attributes && attributes.length > 0">
         <h3>Felter</h3>
         <table>
           <thead>
@@ -48,8 +49,8 @@
           <tbody *ngFor="let attribute of attributes" [attr.id]="attribute.id" [ngClass]="{'inherited': attribute.parent != classification}" [title]="attribute.parent != classification ? 'Arvet fra ' + attribute.parent.name : ''">
             <tr [ngClass]="{hasDetailsBody: attribute.documentationBody.length > 0, hasDetails: attribute.documentationHeader.length > 0, isOpen: attribute.isOpen}">
               <td class="dropdown" (click)="openAttribute(attribute)">
-                <fint-fa *ngIf="attribute.documentationHeader.length > 0" class="toggleMobileDetails" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
-                <fint-fa *ngIf="attribute.documentationBody.length > 0" class="toggleDetailBody" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
+                <fa *ngIf="attribute.documentationHeader.length > 0" class="toggleMobileDetails" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fa>
+                <fa *ngIf="attribute.documentationBody.length > 0" class="toggleDetailBody" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fa>
               </td>
               <td class="name" [innerHTML]="attribute.name | highlight:searchStr" (click)="openAttribute(attribute)"></td>
               <td class="type">
@@ -71,7 +72,7 @@
         </table>
       </section>
 
-      <section *ngIf="associations && associations.length">
+      <section *ngIf="associations && associations.length > 0">
         <h3>Relasjoner</h3>
         <table>
           <thead>
@@ -86,8 +87,8 @@
           <tbody *ngFor="let association of associations" [attr.id]="association.id" [ngClass]="{'inherited': association.parent != classification}" [title]="association.parent != classification ? 'Arvet fra ' + association.parent.name : ''">
             <tr [ngClass]="{hasDetailsBody: association.end.documentationBody.length > 0, hasDetails: association.end.documentationHeader.length > 0, isOpen: association.isOpen}">
               <td class="dropdown" (click)="openAssociation(association)">
-                <fint-fa *ngIf="association.end.documentationHeader.length > 0" class="toggleMobileDetails" [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
-                <fint-fa *ngIf="association.end.documentationBody.length > 0" class="toggleDetailBody" [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fint-fa>
+                <fa *ngIf="association.end.documentationHeader.length > 0" class="toggleMobileDetails" [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fa>
+                <fa *ngIf="association.end.documentationBody.length > 0" class="toggleDetailBody" [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fa>
               </td>
               <td class="name" [innerHTML]="association.end.label | highlight:searchStr" (click)="openAssociation(association)"></td>
               <td class="type">

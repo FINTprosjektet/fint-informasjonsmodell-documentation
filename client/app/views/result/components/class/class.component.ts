@@ -33,6 +33,7 @@ export class ClassComponent implements OnInit, OnDestroy {
         case 'datatype':    this._classType = 'id-card-o'; break;
         case 'enumeration': this._classType = 'bars'; break;
         case 'abstract':    this._classType = 'puzzle-piece'; break;
+        case 'referanse':   this._classType = 'forward'; break;
         default:            this._classType = '';
       }
     }

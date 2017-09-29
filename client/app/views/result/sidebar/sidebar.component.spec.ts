@@ -6,10 +6,10 @@ import { DebugElement } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterTestingModule } from '@angular/router/testing';
 
-import { LibSharedModule } from 'fint-shared-components';
+// import { LibSharedModule } from 'fint-shared-components';
 
 import { SidebarComponent } from './sidebar.component';
-import { InViewService } from "app/views/result/in-view.service";
+import { InViewService } from 'app/views/result/in-view.service';
 
 describe('SidebarComponent', () => {
   let component: SidebarComponent;
@@ -19,7 +19,7 @@ describe('SidebarComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         CommonModule,
-        LibSharedModule,
+        // LibSharedModule,
         RouterTestingModule
       ],
       declarations: [ SidebarComponent ],

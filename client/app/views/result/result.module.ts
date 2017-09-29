@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MaterialModule } from '@angular/material';
+import { MatChipsModule, MatCardModule } from '@angular/material';
+// import { MaterialModule } from '@angular/material';
 
-import { LibSharedModule } from 'fint-shared-components';
+// import { LibSharedModule } from 'fint-shared-components';
+import { AngularFontAwesomeModule } from 'angular-font-awesome/angular-font-awesome';
 
 import { InViewService } from './in-view.service';
 
@@ -21,10 +23,13 @@ import { ClassComponent } from './components/class/class.component';
 @NgModule({
   imports: [
     CommonModule,
-    LibSharedModule,
+    // MaterialModule,
+    // LibSharedModule,
+    AngularFontAwesomeModule,
     RouterModule,
-    MaterialModule,
-    MarkdownToHtmlModule
+    MarkdownToHtmlModule,
+    MatCardModule,
+    MatChipsModule
   ],
   declarations: [
     ResultComponent,

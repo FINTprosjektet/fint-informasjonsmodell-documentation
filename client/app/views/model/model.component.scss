@@ -50,13 +50,13 @@
   .pin {
     text-align: right;
     display: block;
-    fint-fa {
+    fa {
       display: inline-block;
       transition: transform 0.2s ease-in-out;
       transform: rotate(-90deg);
     }
     &.stick {
-      fint-fa {
+      fa {
         transform: rotate(0);
       }
     }

@@ -6,11 +6,11 @@ import { DebugElement, Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ActivatedRoute } from '@angular/router';
-import { MaterialModule } from '@angular/material';
+// import { MaterialModule } from '@angular/material';
 
 import { Observable } from 'rxjs/Rx';
 
-import { LibSharedModule } from 'fint-shared-components';
+// import { LibSharedModule } from 'fint-shared-components';
 
 import { InViewService } from '../../in-view.service';
 
@@ -29,9 +29,9 @@ describe('ClassComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         CommonModule,
-        LibSharedModule,
+        // MaterialModule,
+        // LibSharedModule,
         RouterTestingModule,
-        MaterialModule,
         MarkdownToHtmlModule
       ],
       declarations: [ TestComponentWrapper, ClassComponent, DetailsComponent ],
