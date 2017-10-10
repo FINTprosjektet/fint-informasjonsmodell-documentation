@@ -2,7 +2,7 @@ import { MarkdownToHtmlPipe } from 'markdown-to-html-pipe';
 import { DomSanitizer } from '@angular/platform-browser';
 import { EABaseClass } from './EABaseClass';
 import { ExpandablePipe } from '../../views/result/pipes/expandable.pipe';
-import { Classification } from "app/EA/model/Classification";
+import { Classification } from 'app/EA/model/Classification';
 
 export class Attribute extends EABaseClass {
   static pipe = new ExpandablePipe();
@@ -20,21 +20,8 @@ export class Attribute extends EABaseClass {
 
   private _isVisible: boolean;
   private _lastSearch: string;
-  public isVisible(): boolean {
-    const str = EABaseClass.service.searchString;
-    if (str && str.length > 0) {
-      if (str == this._lastSearch) { return this._isVisible; }
-      const meVisible = super.isVisible();
-      const typeVisible = this.match(this.typeName);
 
-      this._lastSearch = str;
-      this._isVisible = (meVisible || typeVisible);
-      return this._isVisible;
-    }
-    return true;
-  }
-
-  private _isOpen: boolean = false;
+  private _isOpen = false;
   get isOpen() { return this._isOpen; }
   set isOpen(flag) {
     if (flag) { this.parent.members.forEach(m => m.isOpen = false); } // Close others
@@ -85,12 +72,23 @@ export class Attribute extends EABaseClass {
     return this._isPrimitive;
   }
 
-  get typeRef() {
-    if (this.type && this.type.length) {
-      if (this.type.length > 1) { throw new Error('Maximum number of types exceeded on attribute'); }
-      return this.type[0].reference;
+  _writable: boolean;
+  get writable() {
+    if (!this._writable) {
+      this._writable = this.extension.stereotype && this.extension.stereotype[0].stereotype === 'writable';
     }
-    return null;
+    return this._writable;
+  }
+
+  _typeRef;
+  get typeRef() {
+    if (!this._typeRef) {
+      if (this.type && this.type.length) {
+        if (this.type.length > 1) { throw new Error('Maximum number of types exceeded on attribute'); }
+        this._typeRef = this.type[0].reference;
+      }
+    }
+    return this._typeRef;
   }
 
   _typeName: string;
@@ -105,20 +103,40 @@ export class Attribute extends EABaseClass {
     return this._typeName;
   }
 
+  _multiplicity;
   get multiplicity() {
-    if (this.extension && this.extension.bounds) {
-      const bounds = this.extension.bounds[0];
-      if (bounds.lower === bounds.upper) {
-        return bounds.lower;
+    if (!this._multiplicity) {
+      if (this.extension && this.extension.bounds) {
+        const bounds = this.extension.bounds[0];
+        if (bounds.lower === bounds.upper) {
+          this._multiplicity = bounds.lower;
+        } else {
+          this._multiplicity = this.extension.bounds.map(b => `${b.lower}..${b.upper}`);
+        }
+      } else if (this.lowerValue && this.upperValue) {
+        this._multiplicity = `${this.lowerValue[0].value}..${this.upperValue[0].value}`
+      } else {
+        this._multiplicity = '';
       }
-      return this.extension.bounds.map(b => `${b.lower}..${b.upper}`);
-    } else if (this.lowerValue && this.upperValue) {
-      return `${this.lowerValue[0].value}..${this.upperValue[0].value}`
     }
-    return '';
+    return this._multiplicity;
   }
 
   constructor(private sanitizer: DomSanitizer) {
     super();
+  }
+
+  public isVisible(): boolean {
+    const str = EABaseClass.service.searchString;
+    if (str && str.length > 0) {
+      if (str === this._lastSearch) { return this._isVisible; }
+      const meVisible = super.isVisible();
+      const typeVisible = this.match(this.typeName);
+
+      this._lastSearch = str;
+      this._isVisible = (meVisible || typeVisible);
+      return this._isVisible;
+    }
+    return true;
   }
 }

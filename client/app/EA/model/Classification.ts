@@ -20,6 +20,7 @@ export class Classification extends EANode {
   ownedAttribute: Attribute[];
   isAbstract;
 
+  _id;
   get id(): string {
     if (!this._id) {
       const pkgName = (this.parentPackage ? this.parentPackage.name : '');
@@ -102,9 +103,11 @@ export class Classification extends EANode {
     if (!this._documentation) {
       if (this.extension && this.extension.properties) {
         this._documentation = EABaseClass.service.cleanDocumentation(this.extension.properties.map(e => e.documentation).join(''));
+      } else {
+        this._documentation = '';
       }
     }
-    return this._documentation || '';
+    return this._documentation;
   }
 
   _headerClean: string;
@@ -130,29 +133,36 @@ export class Classification extends EANode {
   _subTypes;
   get subTypes(): any[] {
     const me = this;
-    if (this._subTypes) { return this._subTypes; }
-    if (this.referredBy) {
-      this._subTypes = this.referredBy
-        .filter((c, idx, self) => {
-          const index = self.findIndex(x => x.start === c.start);
-          const isRelated = (c instanceof Generalization && (c.end === me.xmiId));
-          return index !== idx && isRelated;
-        })
-        .map(c => c.startRef);
-      return this._subTypes;
+    if (this._subTypes === undefined) {
+      if (this.referredBy) {
+        this._subTypes = this.referredBy
+          .filter((c, idx, self) => {
+            const index = self.findIndex(x => x.start === c.start);
+            const isRelated = (c instanceof Generalization && (c.end === me.xmiId));
+            return index !== idx && isRelated;
+          })
+          .map(c => c.startRef);
+      } else {
+        this._subTypes = null;
+      }
     }
-    return null;
+    return this._subTypes;
   }
 
+  _superType;
   get superType(): Classification {
-    const me = this;
-    if (this.generalization) {
-      if (this.generalization.length > 1) {
-        throw new Error('Class has more than one super type');
+    if (this._superType === undefined) {
+      const me = this;
+      if (this.generalization) {
+        if (this.generalization.length > 1) {
+          throw new Error('Class has more than one super type');
+        }
+        this._superType = (<Generalization>this.generalization[0]).generalRef;
+      } else {
+        this._superType = null;
       }
-      return (<Generalization>this.generalization[0]).generalRef;
     }
-    return null;
+    return this._superType;
   }
 
   // Properties for rendering
@@ -189,6 +199,7 @@ export class Classification extends EANode {
     }
     return true;
   }
+
   findMember(id) {
     for (let j = 0; j < this.members.length; j++) {
       if (this.members[j].id === id) {

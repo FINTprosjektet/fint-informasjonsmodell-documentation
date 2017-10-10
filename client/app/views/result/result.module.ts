@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MatChipsModule, MatCardModule } from '@angular/material';
-// import { MaterialModule } from '@angular/material';
+
+import { MatCardModule, MatChipsModule } from '@angular/material';
 
 // import { LibSharedModule } from 'fint-shared-components';
 import { AngularFontAwesomeModule } from 'angular-font-awesome/angular-font-awesome';

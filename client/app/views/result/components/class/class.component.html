@@ -1,31 +1,31 @@
 <div class="anchor" [attr.id]="classification.id">
-  <md-card [ngClass]="cssClass">
-    <md-card-header>
-      <a [routerLink]="['/docs', classification.id]" [queryParams]="classification.queryParams" md-card-avatar>
+  <mat-card [ngClass]="cssClass">
+    <mat-card-header>
+      <a [routerLink]="['/docs', classification.id]" [queryParams]="classification.queryParams" mat-card-avatar>
         <fa name="{{classType}}"></fa>
       </a>
-      <md-card-subtitle>{{ classification.parentPackage.packagePath }}</md-card-subtitle>
-      <md-card-title>
+      <mat-card-subtitle>{{ classification.parentPackage.packagePath }}</mat-card-subtitle>
+      <mat-card-title>
         <h3>
           <span [innerHTML]="classification.name | highlight:searchStr"></span>
           <span *ngIf="classification.superType" title="{{classification.name}} arver fra {{classification.superType.name}}">
             <fa name="arrow-right"></fa>
-            <md-chip *ngIf="classification.superType">
+            <mat-chip *ngIf="classification.superType">
               <a [routerLink]="[ '/docs', classification.superType.id]" [queryParams]="classification.queryParams" [innerHTML]="classification.superType.name | highlight:searchStr"></a>
-            </md-chip>
+            </mat-chip>
           </span>
           <small class="type" [innerHTML]="classification.typeDesc | highlight:searchStr"></small>
         </h3>
-      </md-card-title>
-    </md-card-header>
+      </mat-card-title>
+    </mat-card-header>
 
-    <md-card-content>
+    <mat-card-content>
       <div class="subtypes" *ngIf="classification.subTypes && classification.subTypes.length">
-        <md-chip-list selectable="false">
-          <md-chip *ngFor="let cls of classification.subTypes">
+        <mat-chip-list selectable="false">
+          <mat-chip *ngFor="let cls of classification.subTypes">
             <a [routerLink]="[ '/docs', cls.id]" [queryParams]="cls.queryParams" [innerHTML]="cls.name | highlight:searchStr"></a>
-          </md-chip>
-        </md-chip-list>
+          </mat-chip>
+        </mat-chip-list>
       </div>
 
       <app-details *ngIf="classification.documentationBody.length > 0">
@@ -43,6 +43,7 @@
               <th class="name">Felt</th>
               <th class="type">Type</th>
               <th class="multiplicity">Multiplicity</th>
+              <th class="writable">Writable</th>
               <th class="description">Beskrivelse</th>
             </tr>
           </thead>
@@ -58,15 +59,18 @@
                 <a *ngIf="!attribute.isPrimitive && attribute.typeRef" [routerLink]="['/docs', attribute.typeRef.id]" [queryParams]="attribute.queryParams" [innerHTML]="attribute.typeName | highlight:searchStr"></a>
               </td>
               <td class="multiplicity" (click)="openAttribute(attribute)">{{ attribute.multiplicity }}</td>
+              <td class="writable">
+                <fa name="check" fw="true" *ngIf="attribute.writable === true"></fa>
+              </td>
               <td class="description" (click)="openAttribute(attribute)">
                 <i>{{ attribute.documentationHeader }}</i>
               </td>
             </tr>
             <tr class="dropdown-row" *ngIf="attribute.isOpen && attribute.documentationHeader.length > 0">
-              <td colspan="5" class="details"><i>{{ attribute.documentationHeader }}</i></td>
+              <td colspan="6" class="details"><i>{{ attribute.documentationHeader }}</i></td>
             </tr>
             <tr *ngIf="attribute.isOpen && attribute.documentationBody.length > 0">
-              <td colspan="5" [innerHTML]="attribute.documentationBody" class="details"></td>
+              <td colspan="6" [innerHTML]="attribute.documentationBody" class="details"></td>
             </tr>
           </tbody>
         </table>
@@ -111,6 +115,6 @@
         </table>
       </section>
 
-    </md-card-content>
-  </md-card>
+    </mat-card-content>
+  </mat-card>
 </div>

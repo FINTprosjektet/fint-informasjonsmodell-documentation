@@ -13,11 +13,12 @@ export class Association extends EALinkBase {
 
   isOpen = false;
 
+  _lastClass: Classification;
+
   constructor() {
     super();
   }
 
-  _lastClass: Classification;
   getAssociationEnd(clas: Classification) {
     let start = this.start !== this.end, end = this.start !== this.end;
     if (this.start === this.end) {
