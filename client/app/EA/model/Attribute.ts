@@ -16,7 +16,13 @@ export class Attribute extends EABaseClass {
   upperValue: any;
   lowerValue: any;
 
-  get id(): string { return this.cleanId('~' + this.name); }
+  _id;
+  get id(): string {
+    if (!this._id) {
+      this._id = this.cleanId('~' + this.name);
+    }
+    return this._id;
+  }
 
   private _isVisible: boolean;
   private _lastSearch: string;
@@ -33,9 +39,11 @@ export class Attribute extends EABaseClass {
     if (!this._documentation) {
       if (this.extension && this.extension.documentation) {
         this._documentation = EABaseClass.service.cleanDocumentation(this.extension.documentation.map(e => e.value).join(''));
+      } else {
+        this._documentation = '';
       }
     }
-    return this._documentation || '';
+    return this._documentation;
   }
 
   _headerClean: string;

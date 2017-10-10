@@ -15,25 +15,33 @@ export abstract class EANodeContainer extends EANode {
 
   private _packages: EANodeContainer[];
   get packages() {
-    if (!this._packages) { this._packages = this.packagedElement.filter(element => element instanceof EANodeContainer).sort(EABaseClass.service.sortNodes); }
+    if (!this._packages) {
+      this._packages = this.packagedElement.filter(element => element instanceof EANodeContainer).sort(EABaseClass.service.sortNodes);
+    }
     return this._packages;
   }
 
   private _allPackageCache: EANodeContainer[];
   get allPackages() {
-    if (!this._allPackageCache) { this._allPackageCache = EABaseClass.service.getPackages(this).sort(EABaseClass.service.sortNodes); }
+    if (!this._allPackageCache) {
+      this._allPackageCache = EABaseClass.service.getPackages(this).sort(EABaseClass.service.sortNodes);
+    }
     return this._allPackageCache;
   }
 
   private _classCache: Classification[];
   get classes(): Classification[] {
-    if (!this._classCache) { this._classCache = this.packagedElement.filter(element => element instanceof Classification).sort(EABaseClass.service.sortNodes); }
+    if (!this._classCache) {
+      this._classCache = this.packagedElement.filter(element => element instanceof Classification).sort(EABaseClass.service.sortNodes);
+    }
     return this._classCache;
   }
 
   private _allClassCache: Classification[];
   get allClasses(): Classification[] {
-    if (!this._allClassCache) { this._allClassCache = EABaseClass.service.getClasses(this).sort(EABaseClass.service.sortNodes); }
+    if (!this._allClassCache) {
+      this._allClassCache = EABaseClass.service.getClasses(this).sort(EABaseClass.service.sortNodes);
+    }
     return this._allClassCache;
   }
 

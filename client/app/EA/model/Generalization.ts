@@ -7,7 +7,13 @@ export class Generalization extends EALinkBase {
   static umlId = 'uml:Generalization';
 
   general: string;
-  get generalRef(): any { return EABaseClass.service.mapper.flatModel[this.general]; }
+  _generalRef;
+  get generalRef(): any {
+    if (!this._generalRef) {
+      this._generalRef = EABaseClass.service.mapper.flatModel[this.general];
+    }
+    return this._generalRef;
+  }
 
   constructor() {
     super();

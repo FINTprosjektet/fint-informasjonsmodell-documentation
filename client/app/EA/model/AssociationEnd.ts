@@ -14,7 +14,13 @@ export class AssociationEnd extends EALinkBase {
   reference: Classification;
   documentation: [{ value: string }];
 
-  get id(): string { return this.cleanId('~' + this.name); }
+  _id;
+  get id(): string {
+    if (!this._id) {
+      this._id = this.cleanId('~' + this.name);
+    }
+    return this._id;
+  }
 
   _headerClean: string;
   get documentationHeader(): string {
@@ -44,7 +50,7 @@ export class AssociationEnd extends EALinkBase {
   public isVisible(): boolean {
     const str = EABaseClass.service.searchString;
     if (str && str.length > 0) {
-      if (str == this._lastSearch) { return this._isVisible; }
+      if (str === this._lastSearch) { return this._isVisible; }
       const meVisible = super.isVisible();
       const typeVisible = this.match(this.reference.name);
       const labelVisible = this.match(this.label);
