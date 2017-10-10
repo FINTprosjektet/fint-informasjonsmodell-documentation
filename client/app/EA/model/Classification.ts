@@ -59,9 +59,9 @@ export class Classification extends EANode {
   _isBaseClass = null;
   get isBaseClass(): boolean {
     if (this._isBaseClass == null) {
-      if (this.extension && this.extension.project && this.extension.project.length) {
-        const meta = this.extension.project[0];
-        this._isBaseClass = meta.keywords && meta.keywords.indexOf('hovedklasse') > -1;
+      if (this.extension && this.extension.properties && this.extension.properties.length) {
+        const meta = this.extension.properties[0];
+        this._isBaseClass = meta.stereotype === 'hovedklasse';
       }
       else {
         this._isBaseClass = false;

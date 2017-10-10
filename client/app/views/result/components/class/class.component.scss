@@ -13,10 +13,10 @@ mat-card {
   &.datatype {
     background-color: $datatype-color;
   }
-  &.enumeration {
+  &.referanse, &.enumeration { // Enumeration is deprecated
     background-color: $enumeration-color;
   }
-  &.codelist {
+  &.codelist {  // Codelist is deprecated
     background-color: $codelist-color;
   }
   &.selected {

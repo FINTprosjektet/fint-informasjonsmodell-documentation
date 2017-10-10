@@ -70,7 +70,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   get isSticky() { return this.state.isSticky; }
   set isSticky(value) {
     this.state.isSticky = value;
-    if (this.nodes && this.simulation && value == false) {
+    if (this.nodes && this.simulation && value === false) {
       this.nodeElements.forEach(d => {
         d.fx = null;
         d.fy = null;
@@ -184,7 +184,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     // Extract data to present
     const allLinks = this.modelService.getLinkNodes();
     this.nodeElements = this.modelService.getNodes(this.model.modelBase);
-    const packageLinks = this.nodeElements.map(c => { return { source: c, target: c.parentPackage }; }).filter(c => typeof c.target !== 'undefined');
+    const packageLinks = this.nodeElements
+      .map(c => { return { source: c, target: c.parentPackage }; })
+      .filter(c => typeof c.target !== 'undefined');
 
     // Render data containers
     this.svg.append('g').attr('class', 'hulls');
@@ -283,7 +285,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       })
       .attr('marker-end', d => {
-        if (d instanceof Generalization) return 'url(#arrow_neutral)';
+        if (d instanceof Generalization) { return 'url(#arrow_neutral)'; }
       });
 
     // On data removal, remove link line
@@ -303,9 +305,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     const nodeEnter = nodes.enter()
       .append('g')
       .attr('class', (c: EANode) => {
-        let classes = ['element', c.cleanId(c.name), c.packagePath].concat(c.cssPackages);
-        if (c instanceof Classification) { return [c.type.toLowerCase(), c.parentPackage.xmiId].concat(classes).join(' '); }
-        if (c instanceof Package) { return ['package', c.xmiId].concat(classes).join(' '); }
+        const cls = ['element', c.cleanId(c.name), c.packagePath].concat(c.cssPackages);
+        if (c instanceof Classification) { return [c.type.toLowerCase(), c.parentPackage.xmiId].concat(cls).join(' '); }
+        if (c instanceof Package) { return ['package', c.xmiId].concat(cls).join(' '); }
       })
       .attr('id', (c: EANode) => c.xmiId);
 
@@ -338,11 +340,11 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         if (c instanceof Classification) {
           [].forEach.call(document.querySelectorAll('.source_' + c.xmiId), elm => {
             this.addClasses(elm, ['over', 'source']);
-            D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) return 'url(#arrow_source)'; });
+            D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) { return 'url(#arrow_source)'; } });
           });
           [].forEach.call(document.querySelectorAll('.target_' + c.xmiId), elm => {
             this.addClasses(elm, ['over', 'target']);
-            D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) return 'url(#arrow_target)'; });
+            D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) { return 'url(#arrow_target)'; } });
           });
           const p = c.parentPackage.xmiId;
           this.addClass(document.querySelector(`.legend .colors .box.${p}`), 'spotlight');
@@ -354,7 +356,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         if (c instanceof Classification) {
           [].forEach.call(document.querySelectorAll('.source_' + c.xmiId + ', .target_' + c.xmiId), elm => {
             this.removeClasses(elm, ['over', 'source', 'target']);
-            D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) return 'url(#arrow_neutral)'; });
+            D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) { return 'url(#arrow_neutral)'; } });
           });
           [].forEach.call(document.querySelectorAll('.legend .colors .box'), elm => this.removeClass(elm, 'spotlight'));
           this.clearHull();
@@ -422,7 +424,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   private createHullData(nodes: EANode[]) {
     const hulls = {};
     const concatParent = (thisPkg, hullData) => {
-      let pkg = thisPkg.parentPackage;
+      const pkg = thisPkg.parentPackage;
       if (pkg && hulls[pkg.xmiId]) {
         hulls[pkg.xmiId] = hulls[pkg.xmiId].concat(hullData);
         concatParent(pkg, hulls[pkg.xmiId]);
@@ -430,18 +432,18 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // create point sets
-    for (let k=0; k<nodes.length; ++k) {
-      let n = nodes[k];
+    for (let k = 0; k < nodes.length; ++k) {
+      const n = nodes[k];
       const pkg = n.parentPackage;
 
-      let width = n.width, height = n.height;
-      if (!pkg || pkg.stereotype == null || pkg.classes.length == 0 && !(pkg instanceof Stereotype)) {
+      const width = n.width, height = n.height;
+      if (!pkg || pkg.stereotype == null || pkg.classes.length === 0 && !(pkg instanceof Stereotype)) {
         // Skip if this node has no group, or if it is a package with no direct classes related to it
         continue;
       }
 
-      let i = pkg.xmiId;
-      let l = hulls[i] || (hulls[i] = []);
+      const i = pkg.xmiId;
+      const l = hulls[i] || (hulls[i] = []);
       this.addToLegend(pkg);
 
       // Create hull data, an array list of x,y coords encapsulating the element
@@ -454,12 +456,14 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // create convex hulls
     const hullset = [];
-    for (let h in hulls) {
-      const obj = this.modelService.findByXmiId(h);
-      const name = obj ? obj.name : '';
-      const classPath = obj ? obj.packagePath : '';
-      // This creates the actual path for the hull based on our array list
-      hullset.push({group: h, name: name, classPath: classPath, path: D3.polygonHull(hulls[h])});
+    for (const h in hulls) {
+      if (h) {
+        const obj = this.modelService.findByXmiId(h);
+        const name = obj ? obj.name : '';
+        const classPath = obj ? obj.packagePath : '';
+        // This creates the actual path for the hull based on our array list
+        hullset.push({group: h, name: name, classPath: classPath, path: D3.polygonHull(hulls[h])});
+      }
     }
 
     return hullset;
@@ -472,6 +476,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     { name: 'Hoved klasse', type: 'mainclass' },
     { name: 'Kompleks datatype', type: 'class' },
     { name: 'Abstrakt', type: 'abstract' },
+    { name: 'Referanse', type: 'referanse' },
   ];
   lines = [
     { name: 'Arv', type: 'generalization' },
@@ -500,11 +505,11 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     const xmiId = pkg.xmiId;
     if (pkg.stereotype != null && this.legend.findIndex(l => l.xmiId === pkg.stereotype.xmiId) < 0) {
       // Make sure the stereotype exists
-      let col = this.createLegendItem(pkg.stereotype.name, pkg.stereotype.xmiId, pkg.stereotype, pkg.stereotype.xmiId, pkg.stereotype.xmiId);
+      const col = this.createLegendItem(pkg.stereotype.name, pkg.stereotype.xmiId, pkg.stereotype, pkg.stereotype.xmiId, pkg.stereotype.xmiId);
       this.legend.push(col);
       this.colorsFlat.push(col);
     }
-    if (pkg.stereotype != null && pkg.stereotype != pkg) {
+    if (pkg.stereotype != null && pkg.stereotype !== pkg) {
       // Add color to stereotype
       const stereotype = this.legend.find(l => l.xmiId === pkg.stereotype.xmiId);
       if (stereotype.colors.findIndex(c => c.xmiId === xmiId) < 0) {
@@ -525,7 +530,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       _active: true,
       get active() { return this._active; },
       set active(value) {
-        if (this._active != value) {
+        if (this._active !== value) {
           this._active = value;
           if (this.colors) { this.colors.forEach(c => c.active = value); }
 

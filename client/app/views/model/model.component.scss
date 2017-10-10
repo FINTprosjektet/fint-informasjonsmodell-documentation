@@ -121,13 +121,14 @@
     &.datatype {
       background-color: $datatype-color;
     }
-    &.enumeration {
+    &.referanse, &.enumeration { // Enumeration is deprecated
       background-color: $enumeration-color;
+      font-style: italic;
     }
-    &.codelist {
+    &.codelist {  // Codelist is deprecated
       background-color: $codelist-color;
     }
-    &.mainclass {
+    &.mainclass, &.hovedklasse {
       background-color: $table-color;
       font-weight: bold;
       border-color: darken($border-color, 30%);

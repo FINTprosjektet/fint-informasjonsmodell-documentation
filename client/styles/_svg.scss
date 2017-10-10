@@ -66,13 +66,18 @@ svg.diagram {
     &.datatype > rect {
       fill: $datatype-color;
     }
-    &.enumeration > rect {
-      fill: $enumeration-color;
+    &.referanse, &.enumeration { // Enumeration is deprecated
+      > text {
+        font-style: italic;
+      }
+      > rect {
+        fill: $enumeration-color;
+      }
     }
-    &.codelist > rect {
+    &.codelist > rect { // Codelist is deprecated
       fill: $codelist-color;
     }
-    &.mainclass {
+    &.mainclass, &.hovedklasse {
       > text {
         font-weight: bold;
       }
