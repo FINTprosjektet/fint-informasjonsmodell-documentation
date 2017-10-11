@@ -26,7 +26,7 @@ import { Association } from './model/Association';
 import { Generalization } from './model/Generalization';
 import { Stereotype } from './model/Stereotype';
 
-/**
+ /**
  *
  *
  * @export
@@ -112,7 +112,7 @@ export class ModelService {
   }
 
   cleanId(str: string) {
-    return str.toLowerCase().replace(/æ/gi, 'a').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(' ', '_');
+    return str.toLowerCase().replace(/æ/gi, 'a').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(' ', '');
   }
 
   fetchVersions(): Observable<any> {
