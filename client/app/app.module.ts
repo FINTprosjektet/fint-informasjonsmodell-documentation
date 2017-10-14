@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule, Request } from '@angular/http';
 // import { MaterialModule } from '@angular/material';
 import { MatProgressSpinnerModule } from '@angular/material';
-import { AngularFontAwesomeModule } from 'angular-font-awesome';
+import { AngularFontAwesomeModule } from 'angular-font-awesome/angular-font-awesome';
 
 // import { LibSharedModule } from 'fint-shared-components';
 import { AppRoutingModule } from './app-routing.module';
