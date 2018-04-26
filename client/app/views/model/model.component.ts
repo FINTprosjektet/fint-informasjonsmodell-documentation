@@ -480,7 +480,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   ];
   lines = [
     { name: 'Arv', type: 'generalization' },
-    { name: 'Assosiasjon', type: 'association' },
+    { name: 'Relasjon', type: 'association' },
   ];
   colorSchemes = ['Blue', 'Orange', 'Green', 'Purple', 'Grey'];
   get legendVisible() { return this.state.legendVisible; }

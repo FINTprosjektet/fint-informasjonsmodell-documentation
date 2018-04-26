@@ -569,9 +569,9 @@ amdefine@>=0.0.4:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
 
-angular-font-awesome@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/angular-font-awesome/-/angular-font-awesome-2.0.3.tgz#dfc73f2e98ac0ebbcd6fe25b27a52d470053569a"
+angular-font-awesome@^2.3.5:
+  version "2.3.7"
+  resolved "https://registry.yarnpkg.com/angular-font-awesome/-/angular-font-awesome-2.3.7.tgz#c02e82fd6307f86667bbf1780bd7849d0bde836e"
   dependencies:
     font-awesome "^4.7.0"
 

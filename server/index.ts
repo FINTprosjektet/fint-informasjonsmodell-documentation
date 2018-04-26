@@ -20,6 +20,10 @@ import * as Iconv from 'iconv-lite';
 const xml2js = require('xml2js');
 const parser = new xml2js.Parser();
 
+const GITHUB_ORGANISATION = process.env.GITHUB_ORGANISATION || 'FINTprosjektet';
+const GITHUB_REPOSITORY = process.env.GITHUB_REPO || 'fint-informasjonsmodell';
+const EA_XMI_FILENAME = process.env.EA_XMI_FILENAME || 'FINT-informasjonsmodell.xml';
+
 /**
  * The server.
  *
@@ -29,6 +33,7 @@ export class Server {
   public app: Express.Express;
   private port = 3000;
   private clientPath = path.join(__dirname, './public');
+
 
   /**
    * Bootstrap the application.
@@ -75,11 +80,12 @@ ${chalk.green('**********************')}
       this.app.use(favicon(faviconPath)); // Serve favicon
     }
 
+    Logger.log.info(`https://api.github.com/repos/${GITHUB_ORGANISATION}/${GITHUB_REPOSITORY}/releases/latest`);
     // Read github latest version
     this.app.get('/api/doc/latest', function (req: Express.Request, res: Express.Response, next: Express.NextFunction) {
       const options = {
         method: 'GET',
-        url: 'https://api.github.com/repos/FINTprosjektet/fint-informasjonsmodell/releases/latest',
+        url: `https://api.github.com/repos/${GITHUB_ORGANISATION}/${GITHUB_REPOSITORY}/releases/latest`,
         headers: { 'User-Agent': 'NodeJS-Express', 'cache-control': 'no-cache' }
       };
       request(options, function (err, response, body) {
@@ -98,7 +104,7 @@ ${chalk.green('**********************')}
     this.app.get('/api/doc/versions', function (req: Express.Request, res: Express.Response, next: Express.NextFunction) {
       const options = {
         method: 'GET',
-        url: 'https://api.github.com/repos/FINTprosjektet/fint-informasjonsmodell/releases',
+        url: `https://api.github.com/repos/${GITHUB_ORGANISATION}/${GITHUB_REPOSITORY}/releases`,
         headers: { 'User-Agent': 'NodeJS-Express', 'cache-control': 'no-cache' }
       };
       request(options, function (err, response, body) {
@@ -117,7 +123,7 @@ ${chalk.green('**********************')}
     this.app.get('/api/doc/branches', function (req: Express.Request, res: Express.Response, next: Express.NextFunction) {
       const options = {
         method: 'GET',
-        url: 'https://api.github.com/repos/FINTprosjektet/fint-informasjonsmodell/branches',
+        url: `https://api.github.com/repos/${GITHUB_ORGANISATION}/${GITHUB_REPOSITORY}/branches`,
         headers: { 'User-Agent': 'NodeJS-Express', 'cache-control': 'no-cache' }
       };
       request(options, function (err, response, body) {
@@ -151,9 +157,10 @@ ${chalk.green('**********************')}
 
     // Pipe traffic to fetch raw github content
     this.app.get('/api/doc/:version', function (req: Express.Request, res: Express.Response, next: Express.NextFunction) {
-      const url = `https://rawgit.com/FINTprosjektet/fint-informasjonsmodell/${req.params.version}/FINT-informasjonsmodell.xml`;
-      // const url = `FINT-informasjonsmodell.xml`;
-      // const xml = fs.readFileSync(url, 'utf-8');
+      const url = `https://rawgit.com/${GITHUB_ORGANISATION}/${GITHUB_REPOSITORY}/${req.params.version}/${EA_XMI_FILENAME}`;
+
+      Logger.log.info(url);
+
       request({ url: url, encoding: null }, function (err, response, body) {
         if (err) { Logger.log.error(err); res.status(500).send(err); }
         if (!err && response.statusCode === 200) {
@@ -189,6 +196,10 @@ ${chalk.green('**********************')}
   public $onReady() {
     const url = chalk.blue.underline(`http://localhost:${this.port}/`);
     Logger.log.info(`Serving on ${url}`);
+    Logger.log.info("Github org: " + GITHUB_ORGANISATION);
+    Logger.log.info("Gitrepo org: " + GITHUB_REPOSITORY);
+    Logger.log.info("XML file: " + EA_XMI_FILENAME);
+
   }
 
   /**
