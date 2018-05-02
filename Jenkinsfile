@@ -25,7 +25,7 @@ pipeline {
             }
             steps {
                 withDockerServer([credentialsId: "ucp-jenkins-bundle", uri: "tcp://ucp.rogfk.no:443"]) {
-                    sh "docker service update fint-informasjonsmodell-documentation_docs --image dtr.rogfk.no/fint-beta/information-model-documentation-portal:latest --detach=false"
+                    sh "docker service update informasjonsmodell-documentation_docs --image dtr.rogfk.no/fint-beta/information-model-documentation-portal:latest --detach=false"
                     sh "docker service update fint-metamodell-documentation_docs --image dtr.rogfk.no/fint-beta/information-model-documentation-portal:latest --detach=false"
                 }
             }
