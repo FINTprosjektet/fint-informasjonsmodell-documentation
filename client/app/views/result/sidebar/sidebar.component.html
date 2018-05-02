@@ -2,8 +2,21 @@
   <ul>
     <li *ngFor="let stereotype of stereotypes" [className]="stereotype.isActive ? 'active' : ''">
       <a [routerLink]="['/docs', stereotype.id]" [queryParams]="stereotype.queryParams">{{ stereotype.name }}</a>
+      <h5>Abstrakt</h5>
+      <ul *ngIf="stereotype.allClasses | classSort">
+        <li *ngFor="let clazz of stereotype.allClasses | classAbstract" [className]="clazz.isActive ? 'active' : ''">
+          <a [routerLink]="['/docs', clazz.id]" [queryParams]="clazz.queryParams">{{ clazz.name }}</a>
+        </li>
+      </ul>
+      <h5>Hovedklasse</h5>
       <ul *ngIf="stereotype.allClasses">
-        <li *ngFor="let clazz of stereotype.allClasses" [className]="clazz.isActive ? 'active' : ''">
+        <li *ngFor="let clazz of stereotype.allClasses | classMain" [className]="clazz.isActive ? 'active' : ''">
+          <a [routerLink]="['/docs', clazz.id]" [queryParams]="clazz.queryParams">{{ clazz.name }}</a>
+        </li>
+      </ul>
+      <h5>Kompleks datatype</h5>
+      <ul *ngIf="stereotype.allClasses">
+        <li *ngFor="let clazz of stereotype.allClasses | complexDatatype" [className]="clazz.isActive ? 'active' : ''">
           <a [routerLink]="['/docs', clazz.id]" [queryParams]="clazz.queryParams">{{ clazz.name }}</a>
         </li>
       </ul>

@@ -1,0 +1,18 @@
+import { Pipe, PipeTransform } from '@angular/core';
+import { Classification } from '../../../EA/model/Classification';
+
+@Pipe({name: 'classMain'})
+export class ClassMain implements PipeTransform {
+  transform(array: Array<Classification>): Array<Classification> {
+
+    let result: Classification[] = new Array();
+    array.forEach(clazz => {
+      console.log(clazz.extension.properties[0].stereotype);
+      if (clazz.extension.properties[0].stereotype === "hovedklasse") {
+        result.push(clazz);
+      }
+    });
+    return result;
+
+  }
+}

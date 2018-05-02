@@ -19,6 +19,10 @@ import { ResultComponent } from './result.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { StereotypeComponent } from './components/stereotype/stereotype.component';
 import { ClassComponent } from './components/class/class.component';
+import { ClassSort } from './pipes/class-sort.pipe';
+import { ClassAbstract } from './pipes/class-abstract-sort.pipe';
+import { ClassMain } from './pipes/class-main-sort.pipe';
+import { ComplexDatatype } from './pipes/class-complesdatatype-sort.pipe';
 
 @NgModule({
   imports: [
@@ -40,7 +44,11 @@ import { ClassComponent } from './components/class/class.component';
 
     HighlightPipe,
     ExpandablePipe,
-    DetailsComponent
+    DetailsComponent,
+    ClassSort,
+    ClassAbstract,
+    ClassMain,
+    ComplexDatatype
   ],
   providers: [InViewService]
 })

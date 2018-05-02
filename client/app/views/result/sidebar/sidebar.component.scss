@@ -12,6 +12,13 @@ ul {
   list-style: none;
   padding-left: 0;
   li {
+    h5 {
+      color: $text-color;
+      display: block;
+      padding: 10px 25px;
+      margin-top: 0px;
+      margin-bottom: 0;
+    }
     a {
       color: $text-color;
       display: block;

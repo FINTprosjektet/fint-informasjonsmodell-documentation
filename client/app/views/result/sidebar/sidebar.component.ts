@@ -14,6 +14,7 @@ export class SidebarComponent implements AfterViewInit, OnDestroy {
   onScrollSubscription: Subscription;
   constructor(private InView: InViewService) { }
 
+
   ngAfterViewInit() {
     this.onScrollSubscription = Observable.fromEvent(window, 'scroll')
       .throttleTime(200)
