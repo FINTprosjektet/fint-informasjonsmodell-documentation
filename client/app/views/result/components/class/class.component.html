@@ -8,14 +8,20 @@
       <mat-card-title>
         <h3>
           <span [innerHTML]="classification.name | highlight:searchStr"></span>
-          <span *ngIf="classification.superType" title="{{classification.name}} arver fra {{classification.superType.name}}">
+          <span *ngIf="classification.superType"
+                title="{{classification.name}} arver fra {{classification.superType.name}}">
             <fa name="arrow-right"></fa>
             <mat-chip *ngIf="classification.superType">
-              <a [routerLink]="[ '/docs', classification.superType.id]" [queryParams]="classification.queryParams" [innerHTML]="classification.superType.name | highlight:searchStr"></a>
+              <a [routerLink]="[ '/docs', classification.superType.id]" [queryParams]="classification.queryParams"
+                 [innerHTML]="classification.superType.name | highlight:searchStr"></a>
             </mat-chip>
           </span>
           <small class="type" [innerHTML]="classification.typeDesc | highlight:searchStr"></small>
         </h3>
+        <div class="deprecatedDescription" *ngIf="classification.deprecated">
+          <mat-chip class="deprecatedChip">UTGÅR</mat-chip>
+          {{classification.deprecatedDescription}}
+        </div>
       </mat-card-title>
     </mat-card-header>
 
@@ -23,7 +29,8 @@
       <div class="subtypes" *ngIf="classification.subTypes && classification.subTypes.length">
         <mat-chip-list selectable="false">
           <mat-chip *ngFor="let cls of classification.subTypes">
-            <a [routerLink]="[ '/docs', cls.id]" [queryParams]="cls.queryParams" [innerHTML]="cls.name | highlight:searchStr"></a>
+            <a [routerLink]="[ '/docs', cls.id]" [queryParams]="cls.queryParams"
+               [innerHTML]="cls.name | highlight:searchStr"></a>
           </mat-chip>
         </mat-chip-list>
       </div>
@@ -32,46 +39,57 @@
         <header [innerHTML]="classification.documentationHeader"></header>
         <span [innerHTML]="classification.documentationBody"></span>
       </app-details>
-      <span [innerHTML]="classification.documentationHeader" *ngIf="classification.documentationBody.length <= 0"></span>
+      <span [innerHTML]="classification.documentationHeader"
+            *ngIf="classification.documentationBody.length <= 0"></span>
 
       <section *ngIf="attributes && attributes.length > 0">
         <h3>Felter</h3>
         <table>
           <thead>
-            <tr>
-              <th class="dropdown"></th>
-              <th class="name">Felt</th>
-              <th class="type">Type</th>
-              <th class="multiplicity">Multiplisitet</th>
-              <th class="writable">Skrivbar</th>
-              <th class="description">Beskrivelse</th>
-            </tr>
+          <tr>
+            <th class="dropdown"></th>
+            <th class="name">Felt</th>
+            <th class="type">Type</th>
+            <th class="multiplicity">Multiplisitet</th>
+            <th class="writable">Skrivbar</th>
+            <th class="description">Beskrivelse</th>
+          </tr>
           </thead>
-          <tbody *ngFor="let attribute of attributes" [attr.id]="attribute.id" [ngClass]="{'inherited': attribute.parent != classification}" [title]="attribute.parent != classification ? 'Arvet fra ' + attribute.parent.name : ''">
-            <tr [ngClass]="{hasDetailsBody: attribute.documentationBody.length > 0, hasDetails: attribute.documentationHeader.length > 0, isOpen: attribute.isOpen}">
-              <td class="dropdown" (click)="openAttribute(attribute)">
-                <fa *ngIf="attribute.documentationHeader.length > 0" class="toggleMobileDetails" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fa>
-                <fa *ngIf="attribute.documentationBody.length > 0" class="toggleDetailBody" [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fa>
-              </td>
-              <td class="name" [innerHTML]="attribute.name | highlight:searchStr" (click)="openAttribute(attribute)"></td>
-              <td class="type">
-                <span *ngIf="attribute.isPrimitive" [innerHTML]="attribute.typeName | highlight:searchStr"></span>
-                <a *ngIf="!attribute.isPrimitive && attribute.typeRef" [routerLink]="['/docs', attribute.typeRef.id]" [queryParams]="attribute.queryParams" [innerHTML]="attribute.typeName | highlight:searchStr"></a>
-              </td>
-              <td class="multiplicity" (click)="openAttribute(attribute)">{{ attribute.multiplicity }}</td>
-              <td class="writable">
-                <fa name="check" fw="true" *ngIf="attribute.writable === true"></fa>
-              </td>
-              <td class="description" (click)="openAttribute(attribute)">
-                <i>{{ attribute.documentationHeader }}</i>
-              </td>
-            </tr>
-            <tr class="dropdown-row" *ngIf="attribute.isOpen && attribute.documentationHeader.length > 0">
-              <td colspan="6" class="details"><i>{{ attribute.documentationHeader }}</i></td>
-            </tr>
-            <tr *ngIf="attribute.isOpen && attribute.documentationBody.length > 0">
-              <td colspan="6" [innerHTML]="attribute.documentationBody" class="details"></td>
-            </tr>
+          <tbody *ngFor="let attribute of attributes" [attr.id]="attribute.id"
+                 [ngClass]="{'inherited': attribute.parent != classification}"
+                 [title]="attribute.parent != classification ? 'Arvet fra ' + attribute.parent.name : ''">
+          <tr
+            [ngClass]="{hasDetailsBody: attribute.documentationBody.length > 0, hasDetails: attribute.documentationHeader.length > 0, isOpen: attribute.isOpen}">
+            <td class="dropdown" (click)="openAttribute(attribute)">
+              <fa *ngIf="attribute.documentationHeader.length > 0" class="toggleMobileDetails"
+                  [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fa>
+              <fa *ngIf="attribute.documentationBody.length > 0" class="toggleDetailBody"
+                  [name]="attribute.isOpen ? 'caret-down' : 'caret-right'"></fa>
+            </td>
+            <td class="{{attribute.deprecated ? 'deprecated name' : 'name'}}"
+                [innerHTML]="attribute.name | highlight:searchStr" (click)="openAttribute(attribute)"></td>
+            <td class="{{attribute.deprecated ? 'deprecated type' : 'type'}}">
+              <span *ngIf="attribute.isPrimitive" [innerHTML]="attribute.typeName | highlight:searchStr"></span>
+              <a *ngIf="!attribute.isPrimitive && attribute.typeRef" [routerLink]="['/docs', attribute.typeRef.id]"
+                 [queryParams]="attribute.queryParams" [innerHTML]="attribute.typeName | highlight:searchStr"></a>
+            </td>
+            <td class="{{attribute.deprecated ? 'deprecated multiplicity' : 'multiplicity'}}"
+                (click)="openAttribute(attribute)">{{ attribute.multiplicity }}
+            </td>
+            <td class="{{attribute.deprecated ? 'deprecated writable' : 'writable'}}">
+              <fa name="check" fw="true" *ngIf="attribute.writable === true"></fa>
+            </td>
+            <td class="{{attribute.deprecated ? 'deprecated description' : 'description'}}"
+                (click)="openAttribute(attribute)">
+              <i>{{ attribute.documentationHeader }}</i>
+            </td>
+          </tr>
+          <tr class="dropdown-row" *ngIf="attribute.isOpen && attribute.documentationHeader.length > 0">
+            <td colspan="6" class="details"><i>{{ attribute.documentationHeader }}</i></td>
+          </tr>
+          <tr *ngIf="attribute.isOpen && attribute.documentationBody.length > 0">
+            <td colspan="6" [innerHTML]="attribute.documentationBody" class="details"></td>
+          </tr>
           </tbody>
         </table>
       </section>
@@ -80,37 +98,47 @@
         <h3>Relasjoner</h3>
         <table>
           <thead>
-            <tr>
-              <th class="dropdown"></th>
-              <th class="name">Felt</th>
-              <th class="type">Type</th>
-              <th class="multiplicity">Multiplisitet</th>
-              <th class="description">Beskrivelse</th>
-            </tr>
+          <tr>
+            <th class="dropdown"></th>
+            <th class="name">Felt</th>
+            <th class="type">Type</th>
+            <th class="multiplicity">Multiplisitet</th>
+            <th class="description">Beskrivelse</th>
+          </tr>
           </thead>
-          <tbody *ngFor="let association of associations" [attr.id]="association.id" [ngClass]="{'inherited': association.parent != classification}" [title]="association.parent != classification ? 'Arvet fra ' + association.parent.name : ''">
-            <tr [ngClass]="{hasDetailsBody: association.end.documentationBody.length > 0, hasDetails: association.end.documentationHeader.length > 0, isOpen: association.isOpen}">
-              <td class="dropdown" (click)="openAssociation(association)">
-                <fa *ngIf="association.end.documentationHeader.length > 0" class="toggleMobileDetails" [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fa>
-                <fa *ngIf="association.end.documentationBody.length > 0" class="toggleDetailBody" [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fa>
-              </td>
-              <td class="name" [innerHTML]="association.end.label | highlight:searchStr" (click)="openAssociation(association)"></td>
-              <td class="type">
-                <a [routerLink]="['/docs', association.end.reference.id]"
-                   [queryParams]="classification.queryParams" [innerHTML]="association.end.reference.name | highlight:searchStr">
-                </a>
-              </td>
-              <td class="multiplicity" (click)="openAssociation(association)">{{ association.end.multiplicity }}</td>
-              <td class="description" (click)="openAssociation(association)">
-                {{ association.end.documentationHeader }}
-              </td>
-            </tr>
-            <tr class="dropdown-row" *ngIf="association.isOpen && association.end.documentationHeader.length > 0">
-              <td colspan="5" class="details"><i>{{ association.end.documentationHeader }}</i></td>
-            </tr>
-            <tr *ngIf="association.isOpen && association.end.documentationBody.length > 0">
-              <td colspan="5" [innerHTML]="association.end.documentationBody" class="details"></td>
-            </tr>
+          <tbody *ngFor="let association of associations" [attr.id]="association.id"
+                 [ngClass]="{'inherited': association.parent != classification}"
+                 [title]="association.parent != classification ? 'Arvet fra ' + association.parent.name : ''">
+          <tr
+            [ngClass]="{hasDetailsBody: association.end.documentationBody.length > 0, hasDetails: association.end.documentationHeader.length > 0, isOpen: association.isOpen}">
+            <td class="dropdown" (click)="openAssociation(association)">
+              <fa *ngIf="association.end.documentationHeader.length > 0" class="toggleMobileDetails"
+                  [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fa>
+              <fa *ngIf="association.end.documentationBody.length > 0" class="toggleDetailBody"
+                  [name]="association.isOpen ? 'caret-down' : 'caret-right'"></fa>
+            </td>
+            <td class="{{associationDeprecated(association) ? 'deprecated name' : 'name'}}"
+                [innerHTML]="association.end.label | highlight:searchStr" (click)="openAssociation(association)"></td>
+            <td class="{{associationDeprecated(association) ? 'deprecated type' : 'type'}}">
+              <a [routerLink]="['/docs', association.end.reference.id]"
+                 [queryParams]="classification.queryParams"
+                 [innerHTML]="association.end.reference.name | highlight:searchStr">
+              </a>
+            </td>
+            <td class="{{associationDeprecated(association) ? 'deprecated multiplicity' : 'multiplicity'}}"
+                (click)="openAssociation(association)">{{ association.end.multiplicity }}
+            </td>
+            <td class="{{associationDeprecated(association) ? 'deprecated description' : 'description'}}"
+                (click)="openAssociation(association)">
+              {{ association.end.documentationHeader }}
+            </td>
+          </tr>
+          <tr class="dropdown-row" *ngIf="association.isOpen && association.end.documentationHeader.length > 0">
+            <td colspan="5" class="details"><i>{{ association.end.documentationHeader }}</i></td>
+          </tr>
+          <tr *ngIf="association.isOpen && association.end.documentationBody.length > 0">
+            <td colspan="5" [innerHTML]="association.end.documentationBody" class="details"></td>
+          </tr>
           </tbody>
         </table>
       </section>

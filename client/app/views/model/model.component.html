@@ -1,7 +1,7 @@
 <section>
   <aside [class]="'legend open'">
     <div class="visible">
-    <!--<div [ngClass]="{'visible': legendVisible}">-->
+      <!--<div [ngClass]="{'visible': legendVisible}">-->
 
       <div>
         <label [ngClass]="{'stick': isSticky, 'pin': true}">
@@ -32,7 +32,8 @@
             </div>
           </li>
           <li *ngFor="let type of legend">
-            <div [class]="'box ' + type.xmiId" [style]="type.fill" (mouseenter)="findHull(type.xmiId)" (mouseleave)="clearHull()">
+            <div [class]="'box ' + type.xmiId" [style]="type.fill" (mouseenter)="findHull(type.xmiId)"
+                 (mouseleave)="clearHull()">
               <label>
                 <input type="checkbox" name="activePacakge" [(ngModel)]="type.active">
                 {{ type.name }}
@@ -40,7 +41,8 @@
             </div>
             <ul class="unstyled" *ngIf="type.colors">
               <li *ngFor="let col of type.colors">
-                <div [class]="'box ' + col.xmiId" [style]="col.fill" (mouseenter)="findHull(col.xmiId)" (mouseleave)="clearHull()">
+                <div [class]="'box ' + col.xmiId" [style]="col.fill" (mouseenter)="findHull(col.xmiId)"
+                     (mouseleave)="clearHull()">
                   <label>
                     <input type="checkbox" name="activePacakge" [(ngModel)]="col.active">
                     {{ col.name }}

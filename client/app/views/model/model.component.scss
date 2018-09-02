@@ -75,8 +75,8 @@
     border-radius: 4px;
     padding: 5px;
     margin: 5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.35) inset;
-    background: rgba(white,0.6);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35) inset;
+    background: rgba(white, 0.6);
     li {
       text-align: left;
       text-indent: 0.5rem;
@@ -125,8 +125,11 @@
       background-color: $enumeration-color;
       font-style: italic;
     }
-    &.codelist {  // Codelist is deprecated
+    &.codelist { // Codelist is deprecated
       background-color: $codelist-color;
+    }
+    &.deprecated {
+      background-color: $deprecated-color;
     }
     &.mainclass, &.hovedklasse {
       background-color: $table-color;

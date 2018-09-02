@@ -7,6 +7,9 @@ mat-card {
   &.mainclass {
     background-color: $table-color;
   }
+  &.deprecated {
+    background-color: $deprecated-color;
+  }
   &.class {
     background-color: $class-color;
   }
@@ -16,12 +19,12 @@ mat-card {
   &.referanse, &.enumeration { // Enumeration is deprecated
     background-color: $enumeration-color;
   }
-  &.codelist {  // Codelist is deprecated
+  &.codelist { // Codelist is deprecated
     background-color: $codelist-color;
   }
   &.selected {
     border-color: darken($border-color, 20%);
-    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   }
   margin: 1rem 0;
 }
@@ -47,6 +50,14 @@ mat-card-header {
       font-size: 0.7em;
       text-transform: uppercase;
       float: right;
+    }
+    .deprecatedDescription {
+      font-style: italic;
+      font-size: 0.8em;
+      margin-top: 8px;
+    }
+    .deprecatedChip {
+      font-weight: bold;
     }
   }
 
@@ -77,9 +88,15 @@ section h3 {
 }
 
 mat-card-content /deep/ {
-  h1 { font-size: 120%; }
-  h2 { font-size: 110%; }
-  h3 { font-size: 105%; }
+  h1 {
+    font-size: 120%;
+  }
+  h2 {
+    font-size: 110%;
+  }
+  h3 {
+    font-size: 105%;
+  }
 }
 
 // Table styling
@@ -111,6 +128,9 @@ table {
     $width: 180px;
     width: $width;
     max-width: $width;
+  }
+  .deprecated {
+    text-decoration: line-through;
   }
   .multiplicity {
     $width: 80px;
@@ -149,6 +169,7 @@ table {
 td.details {
   border-radius: 5px 0 5px 5px;
 }
+
 .hasDetails {
   background: transparent;
   @media (max-width: 970px) {
@@ -159,6 +180,7 @@ td.details {
     }
   }
 }
+
 .hasDetailsBody {
   @media (min-width: 970px) {
     background: $details-background;

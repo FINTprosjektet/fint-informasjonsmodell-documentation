@@ -1,25 +1,25 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { Title, DomSanitizer, SafeStyle } from '@angular/platform-browser';
-import { Router } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
+import {AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {DomSanitizer, SafeStyle, Title} from '@angular/platform-browser';
+import {Router} from '@angular/router';
+import {Subscription} from 'rxjs/Subscription';
 
 import * as D3 from 'app/d3.bundle';
-import { forceRectCollide } from './util/ForceRectCollide';
-import { forceBoundedBox } from './util/BoundedBox';
-// import forceGravityGroup from './util/ForceGravityGroup';
-
-import { ModelService } from 'app/EA/model.service';
-import { IModelContainer, Model } from 'app/EA/model/Model';
-import { EALinkBase } from 'app/EA/model/EALinkBase';
-import { EANode } from 'app/EA/model/EANode';
+import {forceRectCollide} from './util/ForceRectCollide';
+import {forceBoundedBox} from './util/BoundedBox';
+import {ModelService} from 'app/EA/model.service';
+import {IModelContainer} from 'app/EA/model/Model';
+import {EALinkBase} from 'app/EA/model/EALinkBase';
+import {EANode} from 'app/EA/model/EANode';
 // import { Stereotype } from 'app/EA/model/Stereotype';
-import { Classification } from 'app/EA/model/Classification';
-import { Generalization } from 'app/EA/model/Generalization';
-import { Association } from 'app/EA/model/Association';
-import { Package } from 'app/EA/model/Package';
-import { EANodeContainer } from 'app/EA/model/EANodeContainer';
-import { ModelStateService } from 'app/views/model/model-state.service';
-import { Stereotype } from 'app/EA/model/Stereotype';
+import {Classification} from 'app/EA/model/Classification';
+import {Generalization} from 'app/EA/model/Generalization';
+import {Association} from 'app/EA/model/Association';
+import {Package} from 'app/EA/model/Package';
+import {EANodeContainer} from 'app/EA/model/EANodeContainer';
+import {ModelStateService} from 'app/views/model/model-state.service';
+import {Stereotype} from 'app/EA/model/Stereotype';
+
+// import forceGravityGroup from './util/ForceGravityGroup';
 
 export interface ILegendItem {
   xmiId: string;
@@ -67,7 +67,10 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   private offsetX;
   private offsetY;
 
-  get isSticky() { return this.state.isSticky; }
+  get isSticky() {
+    return this.state.isSticky;
+  }
+
   set isSticky(value) {
     this.state.isSticky = value;
     if (this.nodes && this.simulation && value === false) {
@@ -79,11 +82,21 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private get width() { return this.htmlElement.clientWidth - 200; }
-  private get height() { return this.htmlElement.clientHeight; }
+  private get width() {
+    return this.htmlElement.clientWidth - 200;
+  }
 
-  get isLoading() { return this.modelService.isLoading; }
-  set isLoading(flag) { this.modelService.isLoading = flag; }
+  private get height() {
+    return this.htmlElement.clientHeight;
+  }
+
+  get isLoading() {
+    return this.modelService.isLoading;
+  }
+
+  set isLoading(flag) {
+    this.modelService.isLoading = flag;
+  }
 
   constructor(
     private modelService: ModelService,
@@ -91,7 +104,8 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     private titleService: Title,
     private sanitizer: DomSanitizer,
     private state: ModelStateService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.titleService.setTitle('Model | Fint');
@@ -108,14 +122,20 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.versionSubscription) { this.versionSubscription.unsubscribe(); }
-    if (this.simulation) { this.simulation.stop(); }
+    if (this.versionSubscription) {
+      this.versionSubscription.unsubscribe();
+    }
+    if (this.simulation) {
+      this.simulation.stop();
+    }
   }
 
   loadData() {
     const me = this;
     this.isLoading = true;
-    if (this.simulation) { this.simulation.stop(); }
+    if (this.simulation) {
+      this.simulation.stop();
+    }
     this.modelService.fetchModel().subscribe(model => {
       // Reset
       me.resetLegend();
@@ -185,7 +205,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     const allLinks = this.modelService.getLinkNodes();
     this.nodeElements = this.modelService.getNodes(this.model.modelBase);
     const packageLinks = this.nodeElements
-      .map(c => { return { source: c, target: c.parentPackage }; })
+      .map(c => {
+        return {source: c, target: c.parentPackage};
+      })
       .filter(c => typeof c.target !== 'undefined');
 
     // Render data containers
@@ -200,7 +222,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Setup force directed simulation
     this.simulation = D3.forceSimulation<EANode>(this.nodeElements)
-      // Apply link force
+    // Apply link force
       .force('link', D3.forceLink(allLinks).id((l: EALinkBase) => l.xmiId).strength(0.3)
         .distance((l: EALinkBase) => { // larger distance for bigger groups:
           const n1: EANode = l.source, n2: EANode = l.target;
@@ -210,8 +232,12 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       // Group nodes/packages in same parent package together.
       // This is done by creating an invisible link between the node and the parent package
       .force('group', D3.forceLink(packageLinks).strength(1).distance((l) => {
-        if (l.source instanceof Classification && l.target instanceof Package) { return 0; }
-        if (l.source instanceof Package && l.target instanceof Package) { return 30; }
+        if (l.source instanceof Classification && l.target instanceof Package) {
+          return 0;
+        }
+        if (l.source instanceof Package && l.target instanceof Package) {
+          return 30;
+        }
         return 100;
       }))
 
@@ -229,7 +255,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       // Apply boundaries, avoid nodes being rendered off-canvas
       .force('box', forceBoundedBox<EANode>()
         .size(d => [d.width, d.height])
-        .bounds({ x0: 0, y0: this.hullOffset * 3, x1: d => this.width, y1: d => this.height - (this.hullOffset * 3) }))
+        .bounds({x0: 0, y0: this.hullOffset * 3, x1: d => this.width, y1: d => this.height - (this.hullOffset * 3)}))
 
       // Lastly, apply custom force logic for each tick.
       .on('tick', () => this.update());
@@ -285,7 +311,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       })
       .attr('marker-end', d => {
-        if (d instanceof Generalization) { return 'url(#arrow_neutral)'; }
+        if (d instanceof Generalization) {
+          return 'url(#arrow_neutral)';
+        }
       });
 
     // On data removal, remove link line
@@ -306,8 +334,12 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       .append('g')
       .attr('class', (c: EANode) => {
         const cls = ['element', c.cleanId(c.name), c.packagePath].concat(c.cssPackages);
-        if (c instanceof Classification) { return [c.type.toLowerCase(), c.parentPackage.xmiId].concat(cls).join(' '); }
-        if (c instanceof Package) { return ['package', c.xmiId].concat(cls).join(' '); }
+        if (c instanceof Classification) {
+          return [c.type.toLowerCase(), c.parentPackage.xmiId].concat(cls).join(' ');
+        }
+        if (c instanceof Package) {
+          return ['package', c.xmiId].concat(cls).join(' ');
+        }
       })
       .attr('id', (c: EANode) => c.xmiId);
 
@@ -328,23 +360,32 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         return 0;
       },
       height: (c: EANode) => c.height
-    }).style('filter', c => c.isBaseClass ? 'url(#dropshadow)' : '');
+    }).style('filter', c => c.isBaseClass ? 'url(#dropshadow)' : '')
+      .style('fill', c => this.isDeprecated(c) && '#fd9696'); // TODO: Can we get this color def from _variables.scss?
 
     // Add the text
-    nodeEnter.append('text').text((c: EANode) => c instanceof Classification ? c.name : ''/*`P:${c.name}`*/).attrs({ x: 10, y: 20 });
+    nodeEnter.append('text').text((c: EANode) => c instanceof Classification ? c.name : ''/*`P:${c.name}`*/).attrs({x: 10, y: 20});
 
     // Apply event handling
     nodeEnter
-      // MouseOver
+    // MouseOver
       .on('mouseover', (c: EANode) => {
         if (c instanceof Classification) {
           [].forEach.call(document.querySelectorAll('.source_' + c.xmiId), elm => {
             this.addClasses(elm, ['over', 'source']);
-            D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) { return 'url(#arrow_source)'; } });
+            D3.select(elm).attr('marker-end', d => {
+              if (d instanceof Generalization) {
+                return 'url(#arrow_source)';
+              }
+            });
           });
           [].forEach.call(document.querySelectorAll('.target_' + c.xmiId), elm => {
             this.addClasses(elm, ['over', 'target']);
-            D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) { return 'url(#arrow_target)'; } });
+            D3.select(elm).attr('marker-end', d => {
+              if (d instanceof Generalization) {
+                return 'url(#arrow_target)';
+              }
+            });
           });
           const p = c.parentPackage.xmiId;
           this.addClass(document.querySelector(`.legend .colors .box.${p}`), 'spotlight');
@@ -356,7 +397,11 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         if (c instanceof Classification) {
           [].forEach.call(document.querySelectorAll('.source_' + c.xmiId + ', .target_' + c.xmiId), elm => {
             this.removeClasses(elm, ['over', 'source', 'target']);
-            D3.select(elm).attr('marker-end', d => { if (d instanceof Generalization) { return 'url(#arrow_neutral)'; } });
+            D3.select(elm).attr('marker-end', d => {
+              if (d instanceof Generalization) {
+                return 'url(#arrow_neutral)';
+              }
+            });
           });
           [].forEach.call(document.querySelectorAll('.legend .colors .box'), elm => this.removeClass(elm, 'spotlight'));
           this.clearHull();
@@ -391,14 +436,26 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       const offset = l instanceof Generalization ? 4 : 0;
 
       let x;
-      if (source.xLeft <= target.xRight && source.xRight >= target.xLeft) { x = l.target.width / 2.0 + l.target.x; }
-      else if (source.xLeft < target.xLeft) { x = target.xLeft - offset; }
-      else { x = target.xRight + offset; }
+      if (source.xLeft <= target.xRight && source.xRight >= target.xLeft) {
+        x = l.target.width / 2.0 + l.target.x;
+      }
+      else if (source.xLeft < target.xLeft) {
+        x = target.xLeft - offset;
+      }
+      else {
+        x = target.xRight + offset;
+      }
 
       let y;
-      if (source.yTop <= target.yBottom && source.yBottom >= target.yTop) { y = l.target.height / 2.0 + l.target.y - offset; }
-      else if (source.yTop < target.yTop) { y = l.target.y - offset; }
-      else { y = target.yBottom + offset; }
+      if (source.yTop <= target.yBottom && source.yBottom >= target.yTop) {
+        y = l.target.height / 2.0 + l.target.y - offset;
+      }
+      else if (source.yTop < target.yTop) {
+        y = l.target.y - offset;
+      }
+      else {
+        y = target.yBottom + offset;
+      }
       return {
         x1: source.xCenter, y1: source.yCenter,
         x2: x, y2: y
@@ -473,25 +530,34 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   // LEGEND
   // ###########################################
   types = [
-    { name: 'Hoved klasse', type: 'mainclass' },
-    { name: 'Kompleks datatype', type: 'class' },
-    { name: 'Abstrakt', type: 'abstract' },
-    { name: 'Referanse', type: 'referanse' },
+    {name: 'Hoved klasse', type: 'mainclass'},
+    {name: 'Kompleks datatype', type: 'class'},
+    {name: 'Abstrakt', type: 'abstract'},
+    {name: 'Referanse', type: 'referanse'},
+    {name: 'Utgår', type: 'deprecated'},
   ];
   lines = [
-    { name: 'Arv', type: 'generalization' },
-    { name: 'Relasjon', type: 'association' },
+    {name: 'Arv', type: 'generalization'},
+    {name: 'Relasjon', type: 'association'},
   ];
   colorSchemes = ['Blue', 'Orange', 'Green', 'Purple', 'Grey'];
-  get legendVisible() { return this.state.legendVisible; }
-  set legendVisible(value) { this.state.legendVisible = value; }
+
+  get legendVisible() {
+    return this.state.legendVisible;
+  }
+
+  set legendVisible(value) {
+    this.state.legendVisible = value;
+  }
 
   colorsFlat: ILegendItem[] = [];
   legend = [];
   setActiveTimeout;
+
   get allActive() {
     return !this.colorsFlat.some(c => !c.active);
   }
+
   set allActive(value) {
     this.colorsFlat.forEach(c => c.active = value);
   }
@@ -528,19 +594,25 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       pkg: pkg,
       fill: this.sanitizer.bypassSecurityTrustStyle(`background: ${this.getColorFromPackageId(pkgXmiId)}`),
       _active: true,
-      get active() { return this._active; },
+      get active() {
+        return this._active;
+      },
       set active(value) {
         if (this._active !== value) {
           this._active = value;
-          if (this.colors) { this.colors.forEach(c => c.active = value); }
+          if (this.colors) {
+            this.colors.forEach(c => c.active = value);
+          }
 
-          if (me.setActiveTimeout) { clearTimeout(me.setActiveTimeout); }
+          if (me.setActiveTimeout) {
+            clearTimeout(me.setActiveTimeout);
+          }
           me.setActiveTimeout = setTimeout(() => {
             // Recalculate hull, links and nodes
             const activePackages = me.colorsFlat.filter(c => c.active).map(c => c.xmiId);
             const allLinks = me.modelService.getLinkNodes().filter(l => {
               return activePackages.indexOf(l.source.parentPackage.xmiId) > -1
-                  && activePackages.indexOf(l.target.parentPackage.xmiId) > -1;
+                && activePackages.indexOf(l.target.parentPackage.xmiId) > -1;
             });
             me.nodeElements = me.modelService.getNodes(me.model.modelBase).filter(c => {
               return c.parentPackage && (activePackages.indexOf(c.parentPackage.xmiId) > -1 || activePackages.indexOf(c.xmiId) > -1);
@@ -550,7 +622,9 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
             me.links = me.renderLinks(allLinks);
             me.nodes = me.renderClasses(me.nodeElements);
 
-            if (me.simulation) { me.simulation.restart(); }
+            if (me.simulation) {
+              me.simulation.restart();
+            }
             me.setActiveTimeout = null;
           }, 100);
         }
@@ -602,7 +676,10 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       .on('start', (d: any) => {
         D3.event.sourceEvent.stopPropagation(); // silence other listeners
         D3.selectAll(`g.nodes g.element.${d.group}, g.nodes g.element[class*="${d.classPath}"]`)
-          .each((d: any) => { d.fx = null; d.fy = null; }); // Unset fixed coords
+          .each((d: any) => {
+            d.fx = null;
+            d.fy = null;
+          }); // Unset fixed coords
         this.simulation.stop();
       })
       .on('drag', (d: any) => {
@@ -643,7 +720,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
 
   clicked(d: EANode) {
     if (D3.event.defaultPrevented) return;
-    return d instanceof Classification ? this.router.navigate(['/docs', d.id], { queryParams: this.modelService.queryParams }) : null;
+    return d instanceof Classification ? this.router.navigate(['/docs', d.id], {queryParams: this.modelService.queryParams}) : null;
   }
 
   /**
@@ -658,22 +735,28 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     // d.fx & d.fy = fixed coords. If these are set, the element will not move from it's position
     return D3.drag()
       .on('start', (d: any) => {
-        vx = 0; vy = 0;
-        sx = D3.event.x; sy = D3.event.y;
+        vx = 0;
+        vy = 0;
+        sx = D3.event.x;
+        sy = D3.event.y;
         offsetX = (px = sx) - (d.fx = d.x);
         offsetY = (py = sy) - (d.fy = d.y);
       })
       .on('drag', (d: any) => {
-        vx = D3.event.x - px; vy = D3.event.y - py;
+        vx = D3.event.x - px;
+        vy = D3.event.y - py;
         d.fx = Math.max(Math.min((px = D3.event.x) - offsetX, this.width - d.width), 0);  // Fix x pos
         d.fy = Math.max(Math.min((py = D3.event.y) - offsetY, this.height - d.height), 0); // Fix y pos
         this.simulation.restart(); // Allow simulation to run slowly while we drag
       })
       .on('end', (d: any) => {
-        if (sx === D3.event.x && sy === D3.event.y) { return this.clicked(d); } // Mouse hasn't moved. This should be a click event.
+        if (sx === D3.event.x && sy === D3.event.y) {
+          return this.clicked(d);
+        } // Mouse hasn't moved. This should be a click event.
         const vScalingFactor = this.maxVelocity / Math.max(Math.sqrt(vx * vx + vy * vy), this.maxVelocity);
         if (!this.isSticky) {
-          d.fx = null; d.fy = null; // Unset fixed coords
+          d.fx = null;
+          d.fy = null; // Unset fixed coords
         }
         d.vx = vx * vScalingFactor;
         d.vy = vy * vScalingFactor;
@@ -686,19 +769,24 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
   // ###########################################
   addClass(elm: Element, className: string) {
     if (elm) {
-      if (elm.classList) { elm.classList.add(className); }
+      if (elm.classList) {
+        elm.classList.add(className);
+      }
       else if (!(new RegExp('(\\s|^)' + className + '(\\s|$)').test(elm.getAttribute('class')))) {
         elm.setAttribute('class', elm.getAttribute('class') + ' ' + className);
       }
     }
   }
+
   addClasses(elm: Element, classNames: string[]) {
     classNames.forEach(n => this.addClass(elm, n));
   }
 
   removeClass(elm: Element, className: string) {
     if (elm) {
-      if (elm.classList) { elm.classList.remove(className); }
+      if (elm.classList) {
+        elm.classList.remove(className);
+      }
       else {
         const removedClass = elm.getAttribute('class').replace(new RegExp('(\\s|^)' + className + '(\\s|$)', 'g'), '$2');
         if (new RegExp('(\\s|^)' + className + '(\\s|$)').test(elm.getAttribute('class'))) {
@@ -707,7 +795,20 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
   }
+
   removeClasses(elm: Element, classNames: string[]) {
     classNames.forEach(n => this.removeClass(elm, n));
+  }
+
+  private isDeprecated(c) {
+    let deprecated = false;
+    if (c.extension.tags[0] && c.extension.tags[0].tag.length > 0) {
+      c.extension.tags[0].tag.forEach(t => {
+        if (t.name === 'DEPRECATED') {
+          deprecated = true;
+        }
+      });
+    }
+    return deprecated;
   }
 }

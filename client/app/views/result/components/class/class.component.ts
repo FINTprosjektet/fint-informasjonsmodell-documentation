@@ -1,16 +1,14 @@
-import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, Renderer, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs/Rx';
-
-import { EABaseClass } from 'app/EA/model/EABaseClass';
-import { Classification } from 'app/EA/model/Classification';
-import { Association } from 'app/EA/model/Association';
-import { AssociationEnd } from 'app/EA/model/AssociationEnd';
+import {Component, ElementRef, Input, OnDestroy, OnInit, Renderer} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Subscription} from 'rxjs/Rx';
+import {Classification} from 'app/EA/model/Classification';
+import {AssociationEnd} from 'app/EA/model/AssociationEnd';
 
 interface AssociationMapper {
   parent: Classification;
   end: AssociationEnd;
 }
+
 @Component({
   selector: 'app-class',
   templateUrl: './class.component.html',
@@ -27,15 +25,32 @@ export class ClassComponent implements OnInit, OnDestroy {
   get classType() {
     if (!this._classType) {
       switch (this.classification.type.toLowerCase()) {
-        case 'mainclass':   this._classType = 'table'; break;
-        case 'hovedklasse': this._classType = 'table'; break;
-        case 'class':       this._classType = 'table'; break;
-        case 'codelist':    this._classType = 'list-alt'; break;
-        case 'datatype':    this._classType = 'id-card-o'; break;
-        case 'enumeration': this._classType = 'bars'; break;
-        case 'abstract':    this._classType = 'puzzle-piece'; break;
-        case 'referanse':   this._classType = 'forward'; break;
-        default:            this._classType = '';
+        case 'mainclass':
+          this._classType = 'table';
+          break;
+        case 'hovedklasse':
+          this._classType = 'table';
+          break;
+        case 'class':
+          this._classType = 'table';
+          break;
+        case 'codelist':
+          this._classType = 'list-alt';
+          break;
+        case 'datatype':
+          this._classType = 'id-card-o';
+          break;
+        case 'enumeration':
+          this._classType = 'bars';
+          break;
+        case 'abstract':
+          this._classType = 'puzzle-piece';
+          break;
+        case 'referanse':
+          this._classType = 'forward';
+          break;
+        default:
+          this._classType = '';
       }
     }
     return this._classType;
@@ -45,14 +60,20 @@ export class ClassComponent implements OnInit, OnDestroy {
   get cssClass() {
     if (!this._cssClass) {
       const cls = [];
+      if (this.classification.deprecated) {
+        cls.push('deprecated');
+      }
       cls.push(this.classification.type.toLowerCase())
-      if (this.isSelected) { cls.push('selected'); }
+      if (this.isSelected) {
+        cls.push('selected');
+      }
       this._cssClass = cls.join(' ');
     }
     return this._cssClass;
   }
 
   _assoc;
+
   get associations() {
     if (!this._assoc) {
       this._assoc = this.classification.associations.map(r => {
@@ -61,7 +82,9 @@ export class ClassComponent implements OnInit, OnDestroy {
 
       let c = this.classification;
       while (c.superType) {
-        if (!this._assoc) { this._assoc = []; }
+        if (!this._assoc) {
+          this._assoc = [];
+        }
         this._assoc = this._assoc
           .concat(c.superType.associations
             .map(r => {
@@ -69,7 +92,7 @@ export class ClassComponent implements OnInit, OnDestroy {
             })
             .filter((a: AssociationMapper) => a.end.label != null)
           );
-          // .filter((a: AssociationMapper) => a.end == undefined);
+        // .filter((a: AssociationMapper) => a.end == undefined);
         c = c.superType;
       }
     }
@@ -77,12 +100,15 @@ export class ClassComponent implements OnInit, OnDestroy {
   }
 
   _attribs;
+
   get attributes() {
     if (!this._attribs) {
       this._attribs = (this.classification.ownedAttribute || []).filter(a => a && !a.hasOwnProperty('association'));
       let c = this.classification;
       while (c.superType) {
-        if (!this._attribs) { this._attribs = []; }
+        if (!this._attribs) {
+          this._attribs = [];
+        }
         this._attribs = this._attribs.concat(c.superType.ownedAttribute).filter(a => a && a.association === undefined);
         c = c.superType;
       }
@@ -90,7 +116,8 @@ export class ClassComponent implements OnInit, OnDestroy {
     return this._attribs;
   }
 
-  constructor(private elm: ElementRef, private renderer: Renderer, private route: ActivatedRoute, private router: Router) { }
+  constructor(private elm: ElementRef, private renderer: Renderer, private route: ActivatedRoute, private router: Router) {
+  }
 
   ngOnInit() {
     this.routeParamSubscription = this.route.params.subscribe((params: any) => this.isSelected = params.id === this.classification.id);
@@ -101,16 +128,18 @@ export class ClassComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // if (this.searchSubscription) { this.searchSubscription.unsubscribe(); }
-    if (this.routeParamSubscription) { this.routeParamSubscription.unsubscribe(); }
+    if (this.routeParamSubscription) {
+      this.routeParamSubscription.unsubscribe();
+    }
   }
 
   openAttribute(attr) {
     this.classification.associations.forEach(a => a.isOpen = false);
     attr.isOpen = !attr.isOpen;
     if (attr.isOpen) {
-      setTimeout(() => this.router.navigate(['/docs', this.classification.id, attr.id], { queryParams: this.classification.queryParams }));
+      setTimeout(() => this.router.navigate(['/docs', this.classification.id, attr.id], {queryParams: this.classification.queryParams}));
     } else {
-      setTimeout(() => this.router.navigate(['/docs', this.classification.id], { queryParams: this.classification.queryParams }));
+      setTimeout(() => this.router.navigate(['/docs', this.classification.id], {queryParams: this.classification.queryParams}));
     }
   }
 
@@ -118,10 +147,17 @@ export class ClassComponent implements OnInit, OnDestroy {
     const flag = !assoc.isOpen;
     this.classification.associations.forEach(a => a.isOpen = false);
     assoc.isOpen = flag;
-    // if (assoc.isOpen) {
-    //   setTimeout(() => this.router.navigate(['/docs', this.classification.id, assoc.id], { queryParams: this.classification.queryParams }));
-    // } else {
-    //   setTimeout(() => this.router.navigate(['/docs', this.classification.id], { queryParams: this.classification.queryParams }));
-    // }
+  }
+
+  associationDeprecated(assoc) {
+    let deprecated = false;
+    if (assoc.end.parent.tags[0] && assoc.end.parent.tags[0].tag.length > 0) {
+      assoc.end.parent.tags[0].tag.forEach(t => {
+        if (t.name === 'DEPRECATED') {
+          deprecated = true;
+        }
+      });
+    }
+    return deprecated;
   }
 }

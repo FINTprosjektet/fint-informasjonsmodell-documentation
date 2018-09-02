@@ -7,7 +7,6 @@ export class ClassMain implements PipeTransform {
 
     let result: Classification[] = new Array();
     array.forEach(clazz => {
-      console.log(clazz.extension.properties[0].stereotype);
       if (clazz.extension.properties[0].stereotype === "hovedklasse") {
         result.push(clazz);
       }

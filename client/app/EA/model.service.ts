@@ -174,7 +174,6 @@ export class ModelService {
             me._nodeCache = [];
             me.modelData = me.mapper.parse();
             me.modelObservable = Observable.of(me.modelData);
-            console.log(me.modelData);
             setTimeout(() => me.modelResolve());
             return me.modelData;
           } catch (ex) {

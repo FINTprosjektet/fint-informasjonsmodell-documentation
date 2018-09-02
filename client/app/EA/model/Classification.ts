@@ -1,14 +1,10 @@
-import { MarkdownToHtmlPipe } from 'markdown-to-html-pipe';
+import {MarkdownToHtmlPipe} from 'markdown-to-html-pipe';
 
-import { EABaseClass } from './EABaseClass';
-import { EANodeContainer } from './EANodeContainer';
-import { EANode } from './EANode';
-import { Stereotype } from './Stereotype';
-import { Package } from './Package';
-import { Generalization } from './Generalization';
-import { Association } from './Association';
-import { Attribute } from './Attribute';
-import * as D3 from 'app/d3.bundle';
+import {EABaseClass} from './EABaseClass';
+import {EANode} from './EANode';
+import {Generalization} from './Generalization';
+import {Association} from './Association';
+import {Attribute} from './Attribute';
 
 export class Classification extends EANode {
   static markPipe = new MarkdownToHtmlPipe();
@@ -29,6 +25,33 @@ export class Classification extends EANode {
     return this._id;
   }
 
+  _deprecated;
+  get deprecated(): boolean {
+    let deprecated = false;
+    if (this.extension.tags[0] && this.extension.tags[0].tag.length > 0) {
+      this.extension.tags[0].tag.forEach(t => {
+        if (t.name === 'DEPRECATED') {
+          deprecated = true;
+        }
+      });
+    }
+    return deprecated;
+  }
+
+  _deprecatedDescription;
+  get deprecatedDescription(): string {
+    let desc = '';
+    if (this.extension.tags[0] && this.extension.tags[0].tag.length > 0) {
+      this.extension.tags[0].tag.forEach(t => {
+        if (t.name === 'DEPRECATED') {
+          desc = t.value;
+        }
+      });
+    }
+    return desc;
+  }
+
+
   /**
    * Used for search filtration
    */
@@ -46,7 +69,7 @@ export class Classification extends EANode {
       if (this.referredBy) {
         this.referredBy.forEach(r => {
           if (r instanceof Association
-             && (r.start === this.xmiId && r.extension.target[0].role[0].name
+            && (r.start === this.xmiId && r.extension.target[0].role[0].name
               || r.end === this.xmiId && r.extension.source[0].role[0].name)) {
             this._associations.push(r);
           }
@@ -73,28 +96,43 @@ export class Classification extends EANode {
   _type;
   get type(): string {
     if (!this._type) {
-      if (this.isAbstract === 'true') { this._type = 'abstract'; }
-      else if (this.isBaseClass) { this._type = 'mainclass'; }
+      if (this.isAbstract === 'true') {
+        this._type = 'abstract';
+      }
+      else if (this.isBaseClass) {
+        this._type = 'mainclass';
+      }
       else if (this.extension && this.extension.properties && this.extension.properties.length) {
         const meta = this.extension.properties[0];
         this._type = meta.stereotype || meta.sType || meta.xmiType.substr('uml:'.length);
       }
-      else { this._type = 'table'; }
+      else {
+        this._type = 'table';
+      }
     }
     return this._type;
   }
 
   get typeDesc() {
     switch (this.type.toLowerCase()) {
-      case 'mainclass': return 'Hovedklasse';
-      case 'hovedklasse': return 'Hovedklasse';
-      case 'class': return 'Kompleks datatype';
-      case 'codelist': return 'Utlisting';
-      case 'datatype': return 'Datatype';
-      case 'enumeration': return 'Enumerering';
-      case 'abstract': return 'Abstrakt';
-      case 'referanse': return 'Referanse';
-      default: return '';
+      case 'mainclass':
+        return 'Hovedklasse';
+      case 'hovedklasse':
+        return 'Hovedklasse';
+      case 'class':
+        return 'Kompleks datatype';
+      case 'codelist':
+        return 'Utlisting';
+      case 'datatype':
+        return 'Datatype';
+      case 'enumeration':
+        return 'Enumerering';
+      case 'abstract':
+        return 'Abstrakt';
+      case 'referanse':
+        return 'Referanse';
+      default:
+        return '';
     }
   }
 
@@ -111,6 +149,7 @@ export class Classification extends EANode {
   }
 
   _headerClean: string;
+
   get documentationHeader(): string {
     if (!this._headerClean) {
       const doc = this.documentation;
@@ -121,6 +160,7 @@ export class Classification extends EANode {
   }
 
   _docBody: string;
+
   get documentationBody(): string {
     if (!this._docBody) {
       const doc = this.documentation;
@@ -176,7 +216,9 @@ export class Classification extends EANode {
   public isVisible(noSuper?: boolean): boolean {
     const str = EABaseClass.service.searchString;
     if (str && str.length > 0) {
-      if (str === this._lastSearch) { return this._isVisible; }
+      if (str === this._lastSearch) {
+        return this._isVisible;
+      }
       const meVisible = super.isVisible();
       const typeVisible = this.match(this.type);
       const typeDescVisible = this.match(this.typeDesc);

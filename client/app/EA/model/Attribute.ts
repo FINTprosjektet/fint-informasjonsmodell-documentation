@@ -34,6 +34,19 @@ export class Attribute extends EABaseClass {
     this._isOpen = flag;
   }
 
+  _deprecated;
+  get deprecated(): boolean {
+    let deprecated = false;
+    if (this.extension.tags[0] && this.extension.tags[0].tag.length > 0) {
+      this.extension.tags[0].tag.forEach(t => {
+        if (t.name === 'DEPRECATED') {
+          deprecated = true;
+        }
+      });
+    }
+    return deprecated;
+  }
+
   _documentation: string;
   get documentation(): string {
     if (!this._documentation) {

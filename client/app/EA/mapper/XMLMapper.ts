@@ -16,7 +16,6 @@ export class XMLMapper implements IMapper {
     const xpathResult = document.evaluate('//uml:Model', this.xml, nsResolver, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
     let index = -1;
     while (++index < xpathResult.snapshotLength) {
-      console.log(xpathResult.snapshotItem(index));
     }
     return null;
   }
