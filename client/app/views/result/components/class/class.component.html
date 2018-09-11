@@ -79,7 +79,7 @@
             <td class="{{attribute.deprecated ? 'deprecated writable' : 'writable'}}">
               <fa name="check" fw="true" *ngIf="attribute.writable === true"></fa>
             </td>
-            <td class="{{attribute.deprecated ? 'deprecated description' : 'description'}}"
+            <td class="description"
                 (click)="openAttribute(attribute)">
               <i>{{ attribute.documentationHeader }}</i>
             </td>
@@ -128,16 +128,16 @@
             <td class="{{associationDeprecated(association) ? 'deprecated multiplicity' : 'multiplicity'}}"
                 (click)="openAssociation(association)">{{ association.end.multiplicity }}
             </td>
-            <td class="{{associationDeprecated(association) ? 'deprecated description' : 'description'}}"
+            <td class="description"
                 (click)="openAssociation(association)">
-              {{ association.end.documentationHeader }}
+              {{ associationDeprecated(association) ? associationDeprecatedDescription(association) : association.end.documentationHeader }}
             </td>
           </tr>
           <tr class="dropdown-row" *ngIf="association.isOpen && association.end.documentationHeader.length > 0">
             <td colspan="5" class="details"><i>{{ association.end.documentationHeader }}</i></td>
           </tr>
           <tr *ngIf="association.isOpen && association.end.documentationBody.length > 0">
-            <td colspan="5" [innerHTML]="association.end.documentationBody" class="details"></td>
+            <td colspan="5" [innerHTML]="associationDeprecated(association) ? association.end.documentationBody + associationDeprecatedDescription(association) : association.end.documentationBody" class="details"></td>
           </tr>
           </tbody>
         </table>

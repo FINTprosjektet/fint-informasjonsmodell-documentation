@@ -160,4 +160,16 @@ export class ClassComponent implements OnInit, OnDestroy {
     }
     return deprecated;
   }
+
+  associationDeprecatedDescription(assoc) {
+    let deprecatedDescription = '';
+    if (assoc.end.parent.tags[0] && assoc.end.parent.tags[0].tag.length > 0) {
+      assoc.end.parent.tags[0].tag.forEach(t => {
+        if (t.name === 'DEPRECATED') {
+          deprecatedDescription = `UTGÅR: ${t.value}`;
+        }
+      });
+    }
+    return deprecatedDescription;
+  }
 }

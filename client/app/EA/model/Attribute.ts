@@ -47,6 +47,19 @@ export class Attribute extends EABaseClass {
     return deprecated;
   }
 
+  _deprecatedDescription;
+  get deprecatedDescription(): string {
+    let deprecatedDescription = '';
+    if (this.extension.tags[0] && this.extension.tags[0].tag.length > 0) {
+      this.extension.tags[0].tag.forEach(t => {
+        if (t.name === 'DEPRECATED') {
+          deprecatedDescription = `UTGÅR: ${t.value}`;
+        }
+      });
+    }
+    return deprecatedDescription;
+  }
+
   _documentation: string;
   get documentation(): string {
     if (!this._documentation) {
@@ -64,7 +77,7 @@ export class Attribute extends EABaseClass {
     if (!this._headerClean) {
       const doc = this.documentation;
       const idx = doc.indexOf('\n');
-      this._headerClean = idx > 0 ? doc.substr(0, doc.indexOf('\n')) : doc;
+      this._headerClean = this.deprecated ? this.deprecatedDescription : idx > 0 ? doc.substr(0, doc.indexOf('\n')) : doc;
     }
     return this._headerClean;
   }
@@ -75,6 +88,7 @@ export class Attribute extends EABaseClass {
       const doc = this.documentation;
       const idx = doc.indexOf('\n');
       this._docBody = Attribute.markPipe.transform(idx > 0 ? doc.substr(doc.indexOf('\n') + 1) : '');
+      this._docBody += this.deprecated && this.deprecatedDescription;
     }
     return this._docBody;
   }
