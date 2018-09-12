@@ -540,7 +540,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
     {name: 'Arv', type: 'generalization'},
     {name: 'Relasjon', type: 'association'},
   ];
-  colorSchemes = ['Blue', 'Orange', 'Green', 'Purple', 'Grey'];
+  colorSchemes = ['Blue', 'Orange', 'Green', 'Purple', 'Grey', 'Red'];
 
   get legendVisible() {
     return this.state.legendVisible;
@@ -648,6 +648,7 @@ export class ModelComponent implements OnInit, AfterViewInit, OnDestroy {
         // Find index of scheme
         const packages = stereotype.allPackages;
         const childIndex = packages.findIndex(p => p.xmiId === pkg.xmiId);
+        console.log(`interpolate${scheme}s`, 'scheme');
         return D3[`interpolate${scheme}s`](0.7 - (childIndex + 1) / (packages.length + 1.5));
       }
     }
