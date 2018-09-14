@@ -88,7 +88,7 @@ export class Attribute extends EABaseClass {
       const doc = this.documentation;
       const idx = doc.indexOf('\n');
       this._docBody = Attribute.markPipe.transform(idx > 0 ? doc.substr(doc.indexOf('\n') + 1) : '');
-      this._docBody += this.deprecated && this.deprecatedDescription;
+      this._docBody += this.deprecated ? this.deprecatedDescription : '';
     }
     return this._docBody;
   }
