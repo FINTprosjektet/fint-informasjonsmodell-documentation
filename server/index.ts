@@ -157,7 +157,7 @@ ${chalk.green('**********************')}
 
     // Pipe traffic to fetch raw github content
     this.app.get('/api/doc/:version', function (req: Express.Request, res: Express.Response, next: Express.NextFunction) {
-      const url = `https://rawgit.com/${GITHUB_ORGANISATION}/${GITHUB_REPOSITORY}/${req.params.version}/${EA_XMI_FILENAME}`;
+      const url = `https://raw.githubusercontent.com/${GITHUB_ORGANISATION}/${GITHUB_REPOSITORY}/${req.params.version}/${EA_XMI_FILENAME}`;
 
       Logger.log.info(url);
 
