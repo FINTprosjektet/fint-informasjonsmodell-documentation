@@ -31,7 +31,7 @@ const EA_XMI_FILENAME = process.env.EA_XMI_FILENAME || 'FINT-informasjonsmodell.
  */
 export class Server {
   public app: Express.Express;
-  private port = 3000;
+  private port = parseInt(process.env.PORT || '3000');
   private clientPath = path.join(__dirname, './public');
 
 
