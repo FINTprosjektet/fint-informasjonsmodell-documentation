@@ -6,7 +6,7 @@ pipeline {
                 branch 'master'
             }
             steps {
-                sh "docker build --tag dtr.fintlabs.no/beta/information-model-documentation-portal:latest ."
+                sh "docker build --tag ${GIT_COMMIT} ."
             }
         }
         stage('Publish') {
@@ -14,19 +14,13 @@ pipeline {
                 branch 'master'
             }
             steps {
+                sh "docker tag ${GIT_COMMIT} dtr.fintlabs.no/beta/information-model-documentation-portal:build.${BUILD_NUMBER}"
                 withDockerRegistry([credentialsId: 'dtr-fintlabs-no', url: 'https://dtr.fintlabs.no']) {
-                    sh "docker push dtr.fintlabs.no/beta/information-model-documentation-portal:latest"
+                    sh "docker push dtr.fintlabs.no/beta/information-model-documentation-portal:build.${BUILD_NUMBER}"
                 }
-            }
-        }
-        stage('Deploy') {
-            when {
-                branch 'master'
-            }
-            steps {
-                withDockerServer([credentialsId: "ucp-fintlabs-jenkins-bundle", uri: "tcp://ucp.fintlabs.no:443"]) {
-                    sh "docker service update documentation-portal_docs --image dtr.fintlabs.no/beta/information-model-documentation-portal:latest --detach=false"
-                    // sh "docker service update fint-metamodell-documentation_docs --image dtr.fintlabs.no/beta/information-model-documentation-portal:latest --detach=false"
+                sh "docker tag ${GIT_COMMIT} fintlabs.azurecr.io/information-model-documentation-portal:build.${BUILD_NUMBER}"
+                withDockerRegistry([credentialsId: 'fintlabs.azurecr.io', url: 'https://fintlabs.azurecr.io']) {
+                    sh "docker push fintlabs.azurecr.io/information-model-documentation-portal:build.${BUILD_NUMBER}"
                 }
             }
         }
