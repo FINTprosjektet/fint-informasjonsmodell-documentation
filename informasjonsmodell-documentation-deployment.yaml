@@ -39,6 +39,8 @@ spec:
           env:
             - name: TZ
               value: Europe/Oslo
+            - name: GITHUB_ORGANISATION
+              value: FINTLabs
         - name: informasjonsmodell-documentation-metamodell
           image: fintlabs.azurecr.io/information-model-documentation-portal:meta.2
           ports:
@@ -57,7 +59,7 @@ spec:
             - name: TZ
               value: Europe/Oslo
             - name: GITHUB_ORGANISATION
-              value: FINTprosjektet
+              value: FINTLabs
             - name: GITHUB_REPO
               value: FINT-informasjonsmodell-metamodell
             - name: EA_XMI_FILENAME
