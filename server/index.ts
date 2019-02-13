@@ -20,7 +20,7 @@ import * as Iconv from 'iconv-lite';
 const xml2js = require('xml2js');
 const parser = new xml2js.Parser();
 
-const GITHUB_ORGANISATION = process.env.GITHUB_ORGANISATION || 'FINTprosjektet';
+const GITHUB_ORGANISATION = process.env.GITHUB_ORGANISATION || 'FINTLabs';
 const GITHUB_REPOSITORY = process.env.GITHUB_REPO || 'fint-informasjonsmodell';
 const EA_XMI_FILENAME = process.env.EA_XMI_FILENAME || 'FINT-informasjonsmodell.xml';
 
